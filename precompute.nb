@@ -1,0 +1,1172 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     56138,       1164]
+NotebookOptionsPosition[     55560,       1146]
+NotebookOutlinePosition[     55956,       1162]
+CellTagsIndexPosition[     55913,       1159]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"CloseKernels", "[", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"LaunchKernels", "[", "6", "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.925557838438258*^9, 3.925558071808897*^9}, {
+   3.92555811484149*^9, 3.925558158231598*^9}, {3.925558193793398*^9, 
+   3.9255582827368727`*^9}, {3.925561420673387*^9, 3.9255614239376507`*^9}, {
+   3.925561547579172*^9, 3.92556168743408*^9}, {3.925565034308016*^9, 
+   3.925565035633532*^9}, {3.925565181631274*^9, 3.92556524313906*^9}, {
+   3.92556527603428*^9, 3.9255652796824007`*^9}, {3.925567887732852*^9, 
+   3.9255679529552193`*^9}, {3.92556843825193*^9, 3.925568439554572*^9}, {
+   3.92556981080345*^9, 3.92556984083498*^9}, {3.925570155139439*^9, 
+   3.9255701553793507`*^9}, {3.925570190251762*^9, 3.9255702256601143`*^9}, {
+   3.925578440970808*^9, 3.925578447807827*^9}, {3.9255786463715343`*^9, 
+   3.925578674747385*^9}, {3.925578724838327*^9, 3.925578975092498*^9}, {
+   3.92560523213192*^9, 3.925605289276649*^9}, {3.925605370050439*^9, 
+   3.925605474132298*^9}, {3.9256055318901587`*^9, 3.925605543046299*^9}, {
+   3.925612631421672*^9, 3.9256126834184017`*^9}, {3.925613218026348*^9, 
+   3.9256132181502333`*^9}, {3.925683120309722*^9, 3.925683306563483*^9}, {
+   3.925683423753841*^9, 3.925683459530231*^9}, {3.925683510677006*^9, 
+   3.925683586499626*^9}, {3.925683630298902*^9, 3.925683631886017*^9}, {
+   3.925683697573675*^9, 3.925683729842595*^9}, {3.925683767169512*^9, 
+   3.9256837793207893`*^9}, {3.925733628054225*^9, 3.9257337599002323`*^9}, {
+   3.925733797357625*^9, 3.925733799207583*^9}, {3.925733940400405*^9, 
+   3.925734015263763*^9}, {3.925734110548559*^9, 3.925734121979348*^9}, {
+   3.925734152055317*^9, 3.925734152198015*^9}, {3.925734184793929*^9, 
+   3.925734184952668*^9}, {3.925734218142098*^9, 3.92573430172783*^9}, {
+   3.925734376685906*^9, 3.9257344285411577`*^9}, {3.925734499756735*^9, 
+   3.925734511124887*^9}, {3.925734578075824*^9, 3.9257346138037043`*^9}, {
+   3.925734656466049*^9, 3.925734704305982*^9}, {3.925734770718442*^9, 
+   3.9257348457921*^9}, {3.9257394906611633`*^9, 3.925739527968581*^9}, {
+   3.92573958113134*^9, 3.925739633909964*^9}, {3.9257397158529778`*^9, 
+   3.925739724690329*^9}, {3.9257397550561953`*^9, 3.925739801231453*^9}, {
+   3.925739838032535*^9, 3.9257398773490877`*^9}, {3.9257399331099033`*^9, 
+   3.925740043064952*^9}, {3.9257400948362303`*^9, 3.925740246331514*^9}, {
+   3.925740282400378*^9, 3.9257405576601877`*^9}, 3.925740604943048*^9, {
+   3.925740684605626*^9, 3.925740713699129*^9}, {3.9257407920832033`*^9, 
+   3.925740805513558*^9}, {3.925740883176066*^9, 3.925741010788147*^9}, {
+   3.925741041006783*^9, 3.925741042829603*^9}, {3.9257411101453857`*^9, 
+   3.925741152403706*^9}, {3.925741385883788*^9, 3.92574138919882*^9}, {
+   3.9257414365514183`*^9, 3.9257414406432743`*^9}, {3.9257415241503267`*^9, 
+   3.925741613772799*^9}, {3.925741676804407*^9, 3.925741746342852*^9}, {
+   3.925741783270954*^9, 3.925741806901216*^9}, {3.9257482666682796`*^9, 
+   3.925748344910409*^9}, {3.925748526841571*^9, 3.925748568328496*^9}, {
+   3.925748855045773*^9, 3.925748919724699*^9}, {3.9257492553503027`*^9, 
+   3.925749430454123*^9}, {3.925762703556972*^9, 3.925762706388898*^9}, {
+   3.925762751574819*^9, 3.925762965343299*^9}, {3.9257630063748617`*^9, 
+   3.925763093335464*^9}, {3.925763154738521*^9, 3.9257631817498693`*^9}, {
+   3.925808185793243*^9, 3.925808192650569*^9}, {3.925808233484091*^9, 
+   3.925808304117869*^9}, {3.92580998464987*^9, 3.92581000879947*^9}, {
+   3.9258101298942957`*^9, 3.925810149626075*^9}, {3.925810222340658*^9, 
+   3.925810225926838*^9}, {3.925810286100251*^9, 3.9258103075070763`*^9}, {
+   3.9258105414475307`*^9, 3.925810571878481*^9}},
+ CellLabel->"In[23]:=",ExpressionUUID->"35894456-5632-4469-93b0-793e17e53b71"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Univariate", " ", "Lagrange", " ", "Polynomial"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"LagrangeUni", "[", 
+      RowBox[{"q_Integer", ",", "j_Integer"}], "]"}], ":=", 
+     RowBox[{"Product", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"q", "*", "\[Xi]"}], "-", "k"}], ")"}], "/", 
+        RowBox[{"(", 
+         RowBox[{"j", "-", "k"}], ")"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"k", ",", 
+         RowBox[{"Drop", "[", 
+          RowBox[{
+           RowBox[{"Range", "[", 
+            RowBox[{"0", ",", "q"}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"j", "+", "1"}], "}"}]}], "]"}]}], "}"}]}], "]"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Lagrange", " ", "Polynomial"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Lagrange", "[", 
+     RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer", ",", "i_List"}],
+      "]"}], ":=", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"LagrangeUni", "[", 
+        RowBox[{
+         RowBox[{"p", "-", 
+          RowBox[{"Sum", "[", 
+           RowBox[{
+            RowBox[{"i", "[", 
+             RowBox[{"[", "j", "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", "1", ",", "s"}], "}"}]}], "]"}]}], ",", 
+         RowBox[{"p", "-", 
+          RowBox[{"Sum", "[", 
+           RowBox[{
+            RowBox[{"i", "[", 
+             RowBox[{"[", "j", "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", "1", ",", "s"}], "}"}]}], "]"}]}]}], "]"}], "/.", 
+       RowBox[{"{", 
+        RowBox[{"\[Xi]", "->", 
+         RowBox[{"1", "-", 
+          RowBox[{"Sum", "[", 
+           RowBox[{
+            RowBox[{"Subscript", "[", 
+             RowBox[{"\[Xi]", ",", "j"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", "1", ",", "s"}], "}"}]}], "]"}]}]}], "}"}]}], 
+      ")"}], "*", "\[IndentingNewLine]", 
+     RowBox[{"Product", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"LagrangeUni", "[", 
+         RowBox[{
+          RowBox[{"i", "[", 
+           RowBox[{"[", "j", "]"}], "]"}], ",", 
+          RowBox[{"i", "[", 
+           RowBox[{"[", "j", "]"}], "]"}]}], "]"}], "/.", 
+        RowBox[{"{", 
+         RowBox[{"\[Xi]", "->", 
+          RowBox[{"Subscript", "[", 
+           RowBox[{"\[Xi]", ",", "j"}], "]"}]}], "}"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", "1", ",", "s"}], "}"}]}], "]"}], "*", 
+     "\[IndentingNewLine]", 
+     RowBox[{"Product", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"LagrangeUni", "[", 
+         RowBox[{"p", ",", 
+          RowBox[{"i", "[", 
+           RowBox[{"[", "j", "]"}], "]"}]}], "]"}], "/.", 
+        RowBox[{"{", 
+         RowBox[{"\[Xi]", "->", 
+          RowBox[{"Subscript", "[", 
+           RowBox[{"\[Xi]", ",", "j"}], "]"}]}], "}"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", 
+         RowBox[{"s", "+", "1"}], ",", "n"}], "}"}]}], "]"}]}]}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Index", " ", "set", " ", "for", " ", "the", " ", "geometric", " ", 
+     "map"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"IndexSet", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{"Select", "[", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"Tuples", "[", 
+        RowBox[{
+         RowBox[{"Range", "[", 
+          RowBox[{"0", ",", "p"}], "]"}], ",", "n"}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Total", "[", 
+            RowBox[{"Take", "[", 
+             RowBox[{"#", ",", "s"}], "]"}], "]"}], "<=", "p"}], "&&", 
+          RowBox[{"AllTrue", "[", 
+           RowBox[{
+            RowBox[{"Drop", "[", 
+             RowBox[{"#", ",", "s"}], "]"}], ",", 
+            RowBox[{"LessEqualThan", "[", "p", "]"}]}], "]"}]}], ")"}], 
+        "&"}]}], "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Index", " ", "set", " ", "for", " ", "the", " ", "jacobian"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"IndexSetJ", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{"Select", "[", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"Tuples", "[", 
+        RowBox[{
+         RowBox[{"Range", "[", 
+          RowBox[{"0", ",", 
+           RowBox[{
+            RowBox[{"n", "*", "p"}], "-", "1"}]}], "]"}], ",", "n"}], "]"}], 
+       ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Total", "[", 
+            RowBox[{"Take", "[", 
+             RowBox[{"#", ",", "s"}], "]"}], "]"}], "<=", 
+           RowBox[{
+            RowBox[{"n", "*", "p"}], "-", "s"}]}], "&&", 
+          RowBox[{"AllTrue", "[", 
+           RowBox[{
+            RowBox[{"Drop", "[", 
+             RowBox[{"#", ",", "s"}], "]"}], ",", 
+            RowBox[{"LessEqualThan", "[", 
+             RowBox[{
+              RowBox[{"n", "*", "p"}], "-", "1"}], "]"}]}], "]"}]}], ")"}], 
+        "&"}]}], "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Single", " ", "component", " ", "of", " ", "the", " ", "geometric", " ", 
+     "map", " ", "at", " ", "time", " ", "T"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"GMComponent", "[", 
+     RowBox[{
+     "n_Integer", ",", "s_Integer", ",", "p_Integer", ",", "T_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{"Sum", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Subsuperscript", "[", 
+        RowBox[{"V", ",", "i", ",", "T"}], "]"}], "*", 
+       RowBox[{"Lagrange", "[", 
+        RowBox[{"n", ",", "s", ",", "p", ",", "i"}], "]"}]}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", 
+        RowBox[{"IndexSet", "[", 
+         RowBox[{"n", ",", "s", ",", "p"}], "]"}]}], "}"}]}], "]"}]}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Variable", " ", "names"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"VarSet", "[", "n_Integer", "]"}], ":=", 
+     RowBox[{"Take", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"X", ",", "Y", ",", "Z", ",", "W"}], "}"}], ",", "n"}], 
+      "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Geometric", " ", "map", " ", "at", " ", "time", " ", "T"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"GeoMap", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"1", "-", "T"}], ")"}], "*", 
+            RowBox[{"GMComponent", "[", 
+             RowBox[{"n", ",", "s", ",", "p", ",", "0"}], "]"}]}], "+", 
+           RowBox[{"T", "*", 
+            RowBox[{"GMComponent", "[", 
+             RowBox[{"n", ",", "s", ",", "p", ",", "1"}], "]"}]}]}], ")"}], "/.", 
+         RowBox[{"{", 
+          RowBox[{"V", "->", "x"}], "}"}]}], ",", 
+        RowBox[{"{", 
+         RowBox[{"x", ",", 
+          RowBox[{"VarSet", "[", "n", "]"}]}], "}"}]}], "]"}], "~", "Join", 
+      "~", 
+      RowBox[{"{", "T", "}"}]}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Jacobian", " ", "determinant"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"JacDet", "[", 
+     RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+    RowBox[{"Det", "[", 
+     RowBox[{"D", "[", 
+      RowBox[{
+       RowBox[{"GeoMap", "[", 
+        RowBox[{"n", ",", "s", ",", "p"}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"Subscript", "[", 
+            RowBox[{"\[Xi]", ",", "i"}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "n"}], "}"}]}], "]"}], "~", "Join", "~", 
+         RowBox[{"{", "T", "}"}]}], "}"}]}], "]"}], "]"}]}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Domain", " ", "points"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"DomainPointsT", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{"Flatten", "[", 
+      RowBox[{
+       RowBox[{"Outer", "[", 
+        RowBox[{"Join", ",", "\[IndentingNewLine]", 
+         RowBox[{"Map", "[", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Join", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"Take", "[", 
+                RowBox[{"#", ",", "s"}], "]"}], "/", 
+               RowBox[{"Max", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"n", "*", "p"}], "-", "s"}], ",", "1"}], "]"}]}], 
+              ",", 
+              RowBox[{
+               RowBox[{"Drop", "[", 
+                RowBox[{"#", ",", "s"}], "]"}], "/", 
+               RowBox[{"Max", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"n", "*", "p"}], "-", "1"}], ",", "1"}], "]"}]}]}], 
+             "]"}], "&"}], ",", "\[IndentingNewLine]", 
+           RowBox[{"IndexSetJ", "[", 
+            RowBox[{"n", ",", "s", ",", "p"}], "]"}]}], "\[IndentingNewLine]",
+           "]"}], ",", 
+         RowBox[{"List", "/@", 
+          RowBox[{"Table", "[", 
+           RowBox[{"t", ",", 
+            RowBox[{"{", 
+             RowBox[{"t", ",", "0", ",", "1", ",", 
+              RowBox[{"1", "/", "n"}]}], "}"}]}], "]"}]}], ",", "1"}], "]"}], 
+       ",", "1"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Lagrange", " ", "Vector"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"LagVector", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"poly", ",", "pts", ",", "rules"}], "}"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"poly", "=", 
+         RowBox[{"JacDet", "[", 
+          RowBox[{"n", ",", "s", ",", "p"}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"pts", "=", 
+         RowBox[{"DomainPointsT", "[", 
+          RowBox[{"n", ",", "s", ",", "p"}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"rules", "[", "pt_", "]"}], ":=", 
+         RowBox[{
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Subscript", "[", 
+              RowBox[{"\[Xi]", ",", "i"}], "]"}], "->", 
+             RowBox[{"pt", "[", 
+              RowBox[{"[", "i", "]"}], "]"}]}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", "n"}], "}"}]}], "]"}], "~", "Join", "~", 
+          RowBox[{"{", 
+           RowBox[{"T", "->", 
+            RowBox[{"pt", "[", 
+             RowBox[{"[", 
+              RowBox[{"n", "+", "1"}], "]"}], "]"}]}], "}"}]}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ParallelTable", "[", 
+         RowBox[{
+          RowBox[{"poly", "/.", 
+           RowBox[{"rules", "[", "pt", "]"}]}], ",", 
+          RowBox[{"{", 
+           RowBox[{"pt", ",", "pts"}], "}"}]}], "]"}]}]}], 
+      "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Pretty", " ", "print"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"MySimplify", "=", 
+     RowBox[{
+      RowBox[{"FullSimplify", "[", 
+       RowBox[{"#", ",", 
+        RowBox[{"Trig", "->", "False"}], ",", 
+        RowBox[{"TimeConstraint", "->", "1"}], ",", 
+        RowBox[{"ComplexityFunction", "->", "LeafCount"}]}], "]"}], "&"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"PrintVector", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{"Print", "[", 
+      RowBox[{"MatrixForm", "[", 
+       RowBox[{"MySimplify", "[", 
+        RowBox[{"LagVector", "[", 
+         RowBox[{"n", ",", "s", ",", "p"}], "]"}], "]"}], "]"}], "]"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"CExpression", "[", 
+      RowBox[{"n_Integer", ",", "s_Integer", ",", "p_Integer"}], "]"}], ":=", 
+     
+     RowBox[{"Print", "[", 
+      RowBox[{"CForm", "/@", 
+       RowBox[{"MySimplify", "[", 
+        RowBox[{"LagVector", "[", 
+         RowBox[{"n", ",", "s", ",", "p"}], "]"}], "]"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", "Test", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"CExpression", "[", 
+    RowBox[{"2", ",", "2", ",", "2"}], "]"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"LagVector", "[", 
+     RowBox[{"2", ",", "2", ",", "2"}], "]"}], "*)"}], "\[IndentingNewLine]", 
+   
+   RowBox[{"(*", 
+    RowBox[{"Plot3D", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Lagrange", "[", 
+         RowBox[{"2", ",", "2", ",", "3", ",", 
+          RowBox[{"{", 
+           RowBox[{"2", ",", "0"}], "}"}]}], "]"}], ",", "0"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Subscript", "[", 
+         RowBox[{"\[Xi]", ",", "1"}], "]"}], ",", "0", ",", "1"}], "}"}], ",",
+       " ", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Subscript", "[", 
+         RowBox[{"\[Xi]", ",", "2"}], "]"}], ",", "0", ",", 
+        RowBox[{"1", "-", 
+         RowBox[{"Subscript", "[", 
+          RowBox[{"\[Xi]", ",", "1"}], "]"}]}]}], "}"}]}], "]"}], 
+    "*)"}]}]}]], "Input",
+ CellChangeTimes->{{3.925557838438258*^9, 3.925558071808897*^9}, {
+   3.92555811484149*^9, 3.925558158231598*^9}, {3.925558193793398*^9, 
+   3.9255582827368727`*^9}, {3.925561420673387*^9, 3.9255614239376507`*^9}, {
+   3.925561547579172*^9, 3.92556168743408*^9}, {3.925565034308016*^9, 
+   3.925565035633532*^9}, {3.925565181631274*^9, 3.92556524313906*^9}, {
+   3.92556527603428*^9, 3.9255652796824007`*^9}, {3.925567887732852*^9, 
+   3.9255679529552193`*^9}, {3.92556843825193*^9, 3.925568439554572*^9}, {
+   3.92556981080345*^9, 3.92556984083498*^9}, {3.925570155139439*^9, 
+   3.9255701553793507`*^9}, {3.925570190251762*^9, 3.9255702256601143`*^9}, {
+   3.925578440970808*^9, 3.925578447807827*^9}, {3.9255786463715343`*^9, 
+   3.925578674747385*^9}, {3.925578724838327*^9, 3.925578975092498*^9}, {
+   3.92560523213192*^9, 3.925605289276649*^9}, {3.925605370050439*^9, 
+   3.925605474132298*^9}, {3.9256055318901587`*^9, 3.925605543046299*^9}, {
+   3.925612631421672*^9, 3.9256126834184017`*^9}, {3.925613218026348*^9, 
+   3.9256132181502333`*^9}, {3.925683120309722*^9, 3.925683306563483*^9}, {
+   3.925683423753841*^9, 3.925683459530231*^9}, {3.925683510677006*^9, 
+   3.925683586499626*^9}, {3.925683630298902*^9, 3.925683631886017*^9}, {
+   3.925683697573675*^9, 3.925683729842595*^9}, {3.925683767169512*^9, 
+   3.9256837793207893`*^9}, {3.925733628054225*^9, 3.9257337599002323`*^9}, {
+   3.925733797357625*^9, 3.925733799207583*^9}, {3.925733940400405*^9, 
+   3.925734015263763*^9}, {3.925734110548559*^9, 3.925734121979348*^9}, {
+   3.925734152055317*^9, 3.925734152198015*^9}, {3.925734184793929*^9, 
+   3.925734184952668*^9}, {3.925734218142098*^9, 3.92573430172783*^9}, {
+   3.925734376685906*^9, 3.9257344285411577`*^9}, {3.925734499756735*^9, 
+   3.925734511124887*^9}, {3.925734578075824*^9, 3.9257346138037043`*^9}, {
+   3.925734656466049*^9, 3.925734704305982*^9}, {3.925734770718442*^9, 
+   3.9257348457921*^9}, {3.9257394906611633`*^9, 3.925739527968581*^9}, {
+   3.92573958113134*^9, 3.925739633909964*^9}, {3.9257397158529778`*^9, 
+   3.925739724690329*^9}, {3.9257397550561953`*^9, 3.925739801231453*^9}, {
+   3.925739838032535*^9, 3.9257398773490877`*^9}, {3.9257399331099033`*^9, 
+   3.925740043064952*^9}, {3.9257400948362303`*^9, 3.925740246331514*^9}, {
+   3.925740282400378*^9, 3.9257405576601877`*^9}, 3.925740604943048*^9, {
+   3.925740684605626*^9, 3.925740713699129*^9}, {3.9257407920832033`*^9, 
+   3.925740805513558*^9}, {3.925740883176066*^9, 3.925741010788147*^9}, {
+   3.925741041006783*^9, 3.925741042829603*^9}, {3.9257411101453857`*^9, 
+   3.925741152403706*^9}, {3.925741385883788*^9, 3.92574138919882*^9}, {
+   3.9257414365514183`*^9, 3.9257414406432743`*^9}, {3.9257415241503267`*^9, 
+   3.925741613772799*^9}, {3.925741676804407*^9, 3.925741746342852*^9}, {
+   3.925741783270954*^9, 3.925741806901216*^9}, {3.9257482666682796`*^9, 
+   3.925748344910409*^9}, {3.925748526841571*^9, 3.925748568328496*^9}, {
+   3.925748855045773*^9, 3.925748919724699*^9}, {3.9257492553503027`*^9, 
+   3.925749430454123*^9}, {3.925762703556972*^9, 3.925762706388898*^9}, {
+   3.925762751574819*^9, 3.925762965343299*^9}, {3.9257630063748617`*^9, 
+   3.925763093335464*^9}, {3.925763154738521*^9, 3.9257631817498693`*^9}, {
+   3.925808185793243*^9, 3.925808192650569*^9}, {3.925808233484091*^9, 
+   3.925808304117869*^9}, {3.92580998464987*^9, 3.92581000879947*^9}, {
+   3.9258101298942957`*^9, 3.925810149626075*^9}, {3.925810222340658*^9, 
+   3.925810225926838*^9}, {3.925810286100251*^9, 3.9258103075070763`*^9}, {
+   3.9258105414475307`*^9, 3.925810571878481*^9}, {3.925811414297974*^9, 
+   3.925811462201215*^9}, {3.925811540173471*^9, 3.925811540589829*^9}, {
+   3.9258122850275917`*^9, 3.9258122856117764`*^9}, {3.925816763486718*^9, 
+   3.925816788132422*^9}, {3.925895643674041*^9, 3.9258957369170017`*^9}, {
+   3.92589579309803*^9, 3.925895804839151*^9}, {3.925895860356081*^9, 
+   3.925895974698002*^9}, {3.925896133722817*^9, 3.925896135504139*^9}, {
+   3.925896186768137*^9, 3.925896273776217*^9}, {3.925896394625318*^9, 
+   3.925896437031683*^9}, {3.925896647685714*^9, 3.925896649424386*^9}, {
+   3.92589673600985*^9, 3.925896748975765*^9}, {3.925897841352515*^9, 
+   3.925897857031766*^9}, 3.92590011849723*^9, {3.9259008671818743`*^9, 
+   3.925900877284967*^9}, {3.925901953178151*^9, 3.925901959383986*^9}, {
+   3.925902036236948*^9, 3.925902036899662*^9}, {3.925902980058681*^9, 
+   3.9259029981257*^9}, {3.925905189878183*^9, 3.925905191867436*^9}, {
+   3.925909563102536*^9, 3.9259095841577663`*^9}, {3.925909645479774*^9, 
+   3.925909663197613*^9}, {3.925909710365448*^9, 3.9259097136303577`*^9}, {
+   3.925914116670909*^9, 3.925914158853635*^9}, {3.925914269878708*^9, 
+   3.925914295085834*^9}},
+ CellLabel->
+  "In[122]:=",ExpressionUUID->"38a96efa-3729-4004-84d8-6393db06fb4f"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   InterpretationBox["\<\"(3*Subsuperscript(X,List(0,0),0) - \
+Subsuperscript(X,List(1,0),0) + \
+Subsuperscript(X,List(2,0),0))*(3*Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(0,1),0) + Subsuperscript(Y,List(0,2),0)) - \
+(3*Subsuperscript(X,List(0,0),0) - Subsuperscript(X,List(0,1),0) + \
+Subsuperscript(X,List(0,2),0))*(3*Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(1,0),0) + Subsuperscript(Y,List(2,0),0))\"\>",
+    CForm[(3 Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 0] + 
+       Subsuperscript[$CellContext`X, {2, 0}, 0]) (
+       3 Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+       Subsuperscript[$CellContext`Y, {0, 2}, 0]) - (
+      3 Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+      Subsuperscript[$CellContext`X, {0, 1}, 0] + 
+      Subsuperscript[$CellContext`X, {0, 2}, 0]) (
+      3 Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+      Subsuperscript[$CellContext`Y, {1, 0}, 0] + 
+      Subsuperscript[$CellContext`Y, {2, 0}, 0])],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((3*Subsuperscript(X,List(0,0),0) + \
+3*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,0),1) + Subsuperscript(X,List(2,0),0) + \
+Subsuperscript(X,List(2,0),1))*(3*Subsuperscript(Y,List(0,0),0) + \
+3*Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,1),0) - \
+Subsuperscript(Y,List(0,1),1) + Subsuperscript(Y,List(0,2),0) + \
+Subsuperscript(Y,List(0,2),1)) - (3*Subsuperscript(X,List(0,0),0) + \
+3*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(0,1),1) + Subsuperscript(X,List(0,2),0) + \
+Subsuperscript(X,List(0,2),1))*(3*Subsuperscript(Y,List(0,0),0) + \
+3*Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,0),1) + Subsuperscript(Y,List(2,0),0) + \
+Subsuperscript(Y,List(2,0),1)))/4.\"\>",
+    CForm[
+    Rational[1, 
+       4] ((3 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        3 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+        Subsuperscript[$CellContext`X, {2, 0}, 0] + 
+        Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+        3 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        3 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        Subsuperscript[$CellContext`Y, {0, 2}, 0] + 
+        Subsuperscript[$CellContext`Y, {0, 2}, 1]) - (
+       3 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+       3 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+       Subsuperscript[$CellContext`X, {0, 2}, 0] + 
+       Subsuperscript[$CellContext`X, {0, 2}, 1]) (
+       3 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       3 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+       Subsuperscript[$CellContext`Y, {2, 0}, 0] + 
+       Subsuperscript[$CellContext`Y, {2, 0}, 1]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(3*Subsuperscript(X,List(0,0),1) - \
+Subsuperscript(X,List(1,0),1) + \
+Subsuperscript(X,List(2,0),1))*(3*Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(0,1),1) + Subsuperscript(Y,List(0,2),1)) - \
+(3*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),1) + \
+Subsuperscript(X,List(0,2),1))*(3*Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(1,0),1) + Subsuperscript(Y,List(2,0),1))\"\>",
+    CForm[(3 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+       Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+       3 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+       Subsuperscript[$CellContext`Y, {0, 2}, 1]) - (
+      3 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+      Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+      Subsuperscript[$CellContext`X, {0, 2}, 1]) (
+      3 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+      Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+      Subsuperscript[$CellContext`Y, {2, 0}, 1])],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((2*Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,1),0) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,1),0) + \
+2*Subsuperscript(X,List(2,0),0))*(Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(0,2),0)) - (Subsuperscript(X,List(0,0),0) - \
+Subsuperscript(X,List(0,2),0))*(2*Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,1),0) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,1),0) + 2*Subsuperscript(Y,List(2,0),0)))/2.\"\>",
+    CForm[
+    Rational[1, 
+       2] ((2 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 1}, 0] + 
+        2 Subsuperscript[$CellContext`X, {2, 0}, 0]) (
+        Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 2}, 0]) - (
+       Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 2}, 0]) (
+       2 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 1}, 0] + 
+       2 Subsuperscript[$CellContext`Y, {2, 0}, 0]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((2*Subsuperscript(X,List(0,0),0) + \
+2*Subsuperscript(X,List(0,0),1) + Subsuperscript(X,List(0,1),0) + \
+Subsuperscript(X,List(0,1),1) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,0),1) - Subsuperscript(X,List(1,1),0) - \
+Subsuperscript(X,List(1,1),1) + 2*(Subsuperscript(X,List(2,0),0) + \
+Subsuperscript(X,List(2,0),1)))*(Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,2),0) - \
+Subsuperscript(Y,List(0,2),1)) - (Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,2),0) - \
+Subsuperscript(X,List(0,2),1))*(2*Subsuperscript(Y,List(0,0),0) + \
+2*Subsuperscript(Y,List(0,0),1) + Subsuperscript(Y,List(0,1),0) + \
+Subsuperscript(Y,List(0,1),1) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,0),1) - Subsuperscript(Y,List(1,1),0) - \
+Subsuperscript(Y,List(1,1),1) + 2*(Subsuperscript(Y,List(2,0),0) + \
+Subsuperscript(Y,List(2,0),1))))/8.\"\>",
+    CForm[
+    Rational[1, 
+       8] ((2 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        2 Subsuperscript[$CellContext`X, {0, 0}, 1] + 
+        Subsuperscript[$CellContext`X, {0, 1}, 0] + 
+        Subsuperscript[$CellContext`X, {0, 1}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 1}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 1}, 1] + 
+        2 (Subsuperscript[$CellContext`X, {2, 0}, 0] + 
+          Subsuperscript[$CellContext`X, {2, 0}, 1])) (
+        Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 2}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 2}, 1]) - (
+       Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 2}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 2}, 1]) (
+       2 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       2 Subsuperscript[$CellContext`Y, {0, 0}, 1] + 
+       Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+       Subsuperscript[$CellContext`Y, {0, 1}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 1}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 1}, 1] + 
+       2 (Subsuperscript[$CellContext`Y, {2, 0}, 0] + 
+         Subsuperscript[$CellContext`Y, {2, 0}, 1])))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((2*Subsuperscript(X,List(0,0),1) + \
+Subsuperscript(X,List(0,1),1) - Subsuperscript(X,List(1,0),1) - \
+Subsuperscript(X,List(1,1),1) + \
+2*Subsuperscript(X,List(2,0),1))*(Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(0,2),1)) - (Subsuperscript(X,List(0,0),1) - \
+Subsuperscript(X,List(0,2),1))*(2*Subsuperscript(Y,List(0,0),1) + \
+Subsuperscript(Y,List(0,1),1) - Subsuperscript(Y,List(1,0),1) - \
+Subsuperscript(Y,List(1,1),1) + 2*Subsuperscript(Y,List(2,0),1)))/2.\"\>",
+    CForm[
+    Rational[1, 
+       2] ((2 Subsuperscript[$CellContext`X, {0, 0}, 1] + 
+        Subsuperscript[$CellContext`X, {0, 1}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 1}, 1] + 
+        2 Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+        Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 2}, 1]) - (
+       Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 2}, 1]) (
+       2 Subsuperscript[$CellContext`Y, {0, 0}, 1] + 
+       Subsuperscript[$CellContext`Y, {0, 1}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 1}, 1] + 
+       2 Subsuperscript[$CellContext`Y, {2, 0}, 1]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(Subsuperscript(X,List(0,0),0) - \
+Subsuperscript(X,List(0,1),0) + Subsuperscript(X,List(1,1),0) - \
+Subsuperscript(X,List(2,0),0))*(Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(0,1),0) + 3*Subsuperscript(Y,List(0,2),0)) - \
+(Subsuperscript(X,List(0,0),0) - Subsuperscript(X,List(0,1),0) + \
+3*Subsuperscript(X,List(0,2),0))*(Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(0,1),0) + Subsuperscript(Y,List(1,1),0) - \
+Subsuperscript(Y,List(2,0),0))\"\>",
+    CForm[(Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 0] + 
+       Subsuperscript[$CellContext`X, {1, 1}, 0] - 
+       Subsuperscript[$CellContext`X, {2, 0}, 0]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+       3 Subsuperscript[$CellContext`Y, {0, 2}, 0]) - (
+      Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+      Subsuperscript[$CellContext`X, {0, 1}, 0] + 
+      3 Subsuperscript[$CellContext`X, {0, 2}, 0]) (
+      Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+      Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+      Subsuperscript[$CellContext`Y, {1, 1}, 0] - 
+      Subsuperscript[$CellContext`Y, {2, 0}, 0])],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(0,1),1) + Subsuperscript(X,List(1,1),0) + \
+Subsuperscript(X,List(1,1),1) - Subsuperscript(X,List(2,0),0) - \
+Subsuperscript(X,List(2,0),1))*(Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,1),0) - \
+Subsuperscript(Y,List(0,1),1) + 3*(Subsuperscript(Y,List(0,2),0) + \
+Subsuperscript(Y,List(0,2),1))) - (Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(0,1),1) + 3*(Subsuperscript(X,List(0,2),0) + \
+Subsuperscript(X,List(0,2),1)))*(Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,1),0) - \
+Subsuperscript(Y,List(0,1),1) + Subsuperscript(Y,List(1,1),0) + \
+Subsuperscript(Y,List(1,1),1) - Subsuperscript(Y,List(2,0),0) - \
+Subsuperscript(Y,List(2,0),1)))/4.\"\>",
+    CForm[
+    Rational[1, 
+       4] ((Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+        Subsuperscript[$CellContext`X, {1, 1}, 0] + 
+        Subsuperscript[$CellContext`X, {1, 1}, 1] - 
+        Subsuperscript[$CellContext`X, {2, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+        Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        3 (Subsuperscript[$CellContext`Y, {0, 2}, 0] + 
+          Subsuperscript[$CellContext`Y, {0, 2}, 1])) - (
+       Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+       3 (Subsuperscript[$CellContext`X, {0, 2}, 0] + 
+         Subsuperscript[$CellContext`X, {0, 2}, 1])) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+       Subsuperscript[$CellContext`Y, {1, 1}, 0] + 
+       Subsuperscript[$CellContext`Y, {1, 1}, 1] - 
+       Subsuperscript[$CellContext`Y, {2, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {2, 0}, 1]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(Subsuperscript(X,List(0,0),1) - \
+Subsuperscript(X,List(0,1),1) + Subsuperscript(X,List(1,1),1) - \
+Subsuperscript(X,List(2,0),1))*(Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(0,1),1) + 3*Subsuperscript(Y,List(0,2),1)) - \
+(Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),1) + \
+3*Subsuperscript(X,List(0,2),1))*(Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(0,1),1) + Subsuperscript(Y,List(1,1),1) - \
+Subsuperscript(Y,List(2,0),1))\"\>",
+    CForm[(Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+       Subsuperscript[$CellContext`X, {1, 1}, 1] - 
+       Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+       3 Subsuperscript[$CellContext`Y, {0, 2}, 1]) - (
+      Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+      Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+      3 Subsuperscript[$CellContext`X, {0, 2}, 1]) (
+      Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+      Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+      Subsuperscript[$CellContext`Y, {1, 1}, 1] - 
+      Subsuperscript[$CellContext`Y, {2, 0}, 1])],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((Subsuperscript(X,List(0,0),0) - \
+Subsuperscript(X,List(2,0),0))*(2*Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(0,1),0) + 2*Subsuperscript(Y,List(0,2),0) + \
+Subsuperscript(Y,List(1,0),0) - Subsuperscript(Y,List(1,1),0)) - \
+(2*Subsuperscript(X,List(0,0),0) - Subsuperscript(X,List(0,1),0) + \
+2*Subsuperscript(X,List(0,2),0) + Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,1),0))*(Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(2,0),0)))/2.\"\>",
+    CForm[
+    Rational[1, 
+       2] ((Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {2, 0}, 0]) (
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 0] + 
+        Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {1, 1}, 0]) - (
+       2 Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 0] + 
+       2 Subsuperscript[$CellContext`X, {0, 2}, 0] + 
+       Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {1, 1}, 0]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {2, 0}, 0]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(2,0),0) - \
+Subsuperscript(X,List(2,0),1))*(2*Subsuperscript(Y,List(0,0),0) + \
+2*Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,1),0) - \
+Subsuperscript(Y,List(0,1),1) + 2*Subsuperscript(Y,List(0,2),0) + \
+2*Subsuperscript(Y,List(0,2),1) + Subsuperscript(Y,List(1,0),0) + \
+Subsuperscript(Y,List(1,0),1) - Subsuperscript(Y,List(1,1),0) - \
+Subsuperscript(Y,List(1,1),1)) - (2*Subsuperscript(X,List(0,0),0) + \
+2*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(0,1),1) + 2*Subsuperscript(X,List(0,2),0) + \
+2*Subsuperscript(X,List(0,2),1) + Subsuperscript(X,List(1,0),0) + \
+Subsuperscript(X,List(1,0),1) - Subsuperscript(X,List(1,1),0) - \
+Subsuperscript(X,List(1,1),1))*(Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(2,0),0) - \
+Subsuperscript(Y,List(2,0),1)))/8.\"\>",
+    CForm[
+    Rational[1, 
+       8] ((Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {2, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 0] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 1] + 
+        Subsuperscript[$CellContext`Y, {1, 0}, 0] + 
+        Subsuperscript[$CellContext`Y, {1, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {1, 1}, 0] - 
+        Subsuperscript[$CellContext`Y, {1, 1}, 1]) - (
+       2 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+       2 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+       2 Subsuperscript[$CellContext`X, {0, 2}, 0] + 
+       2 Subsuperscript[$CellContext`X, {0, 2}, 1] + 
+       Subsuperscript[$CellContext`X, {1, 0}, 0] + 
+       Subsuperscript[$CellContext`X, {1, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {1, 1}, 0] - 
+       Subsuperscript[$CellContext`X, {1, 1}, 1]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {2, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {2, 0}, 1]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((Subsuperscript(X,List(0,0),1) - \
+Subsuperscript(X,List(2,0),1))*(2*Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(0,1),1) + 2*Subsuperscript(Y,List(0,2),1) + \
+Subsuperscript(Y,List(1,0),1) - Subsuperscript(Y,List(1,1),1)) - \
+(2*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),1) + \
+2*Subsuperscript(X,List(0,2),1) + Subsuperscript(X,List(1,0),1) - \
+Subsuperscript(X,List(1,1),1))*(Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(2,0),1)))/2.\"\>",
+    CForm[
+    Rational[1, 
+       2] ((Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 1] + 
+        Subsuperscript[$CellContext`Y, {1, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {1, 1}, 1]) - (
+       2 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+       2 Subsuperscript[$CellContext`X, {0, 2}, 1] + 
+       Subsuperscript[$CellContext`X, {1, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {1, 1}, 1]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {2, 0}, 1]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(Subsuperscript(X,List(2,0),0)*(2*Subsuperscript(Y,\
+List(0,0),0) - Subsuperscript(Y,List(0,1),0) + \
+2*Subsuperscript(Y,List(0,2),0) - Subsuperscript(Y,List(1,0),0) + \
+Subsuperscript(Y,List(1,1),0)) + \
+Subsuperscript(X,List(0,2),0)*(-2*Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,1),0) + Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,1),0) - 2*Subsuperscript(Y,List(2,0),0)) + \
+(2*Subsuperscript(X,List(0,0),0) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(1,0),0) + \
+Subsuperscript(X,List(1,1),0))*(Subsuperscript(Y,List(0,2),0) - \
+Subsuperscript(Y,List(2,0),0)))/2.\"\>",
+    CForm[
+    Rational[1, 2] (
+      Subsuperscript[$CellContext`X, {2, 0}, 0] (
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 0] - 
+        Subsuperscript[$CellContext`Y, {1, 0}, 0] + 
+        Subsuperscript[$CellContext`Y, {1, 1}, 0]) + 
+      Subsuperscript[$CellContext`X, {0, 2}, 0] ((-2) 
+         Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] + 
+        Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {1, 1}, 0] - 2 
+        Subsuperscript[$CellContext`Y, {2, 0}, 0]) + (
+        2 Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 0] + 
+        Subsuperscript[$CellContext`X, {1, 1}, 0]) (
+        Subsuperscript[$CellContext`Y, {0, 2}, 0] - 
+        Subsuperscript[$CellContext`Y, {2, 0}, 0]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((2*Subsuperscript(X,List(0,0),0) + \
+2*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(0,1),1) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,0),1) + Subsuperscript(X,List(1,1),0) + \
+Subsuperscript(X,List(1,1),1) + 2*(Subsuperscript(X,List(2,0),0) + \
+Subsuperscript(X,List(2,0),1)))*(2*Subsuperscript(Y,List(0,0),0) + \
+2*Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,1),0) - \
+Subsuperscript(Y,List(0,1),1) + 2*Subsuperscript(Y,List(0,2),0) + \
+2*Subsuperscript(Y,List(0,2),1) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,0),1) + Subsuperscript(Y,List(1,1),0) + \
+Subsuperscript(Y,List(1,1),1)) - (2*Subsuperscript(X,List(0,0),0) + \
+2*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),0) - \
+Subsuperscript(X,List(0,1),1) + 2*Subsuperscript(X,List(0,2),0) + \
+2*Subsuperscript(X,List(0,2),1) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,0),1) + Subsuperscript(X,List(1,1),0) + \
+Subsuperscript(X,List(1,1),1))*(2*Subsuperscript(Y,List(0,0),0) + \
+2*Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,1),0) - \
+Subsuperscript(Y,List(0,1),1) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,0),1) + Subsuperscript(Y,List(1,1),0) + \
+Subsuperscript(Y,List(1,1),1) + 2*(Subsuperscript(Y,List(2,0),0) + \
+Subsuperscript(Y,List(2,0),1))))/16.\"\>",
+    CForm[
+    Rational[1, 
+       16] ((2 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        2 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`X, {0, 1}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+        Subsuperscript[$CellContext`X, {1, 1}, 0] + 
+        Subsuperscript[$CellContext`X, {1, 1}, 1] + 
+        2 (Subsuperscript[$CellContext`X, {2, 0}, 0] + 
+          Subsuperscript[$CellContext`X, {2, 0}, 1])) (
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 0] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 1] - 
+        Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+        Subsuperscript[$CellContext`Y, {1, 1}, 0] + 
+        Subsuperscript[$CellContext`Y, {1, 1}, 1]) - (
+       2 Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+       2 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 1}, 1] + 
+       2 Subsuperscript[$CellContext`X, {0, 2}, 0] + 
+       2 Subsuperscript[$CellContext`X, {0, 2}, 1] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+       Subsuperscript[$CellContext`X, {1, 1}, 0] + 
+       Subsuperscript[$CellContext`X, {1, 1}, 1]) (
+       2 Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       2 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 0] - 
+       Subsuperscript[$CellContext`Y, {0, 1}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+       Subsuperscript[$CellContext`Y, {1, 1}, 0] + 
+       Subsuperscript[$CellContext`Y, {1, 1}, 1] + 
+       2 (Subsuperscript[$CellContext`Y, {2, 0}, 0] + 
+         Subsuperscript[$CellContext`Y, {2, 0}, 1])))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(Subsuperscript(X,List(2,0),1)*(2*Subsuperscript(Y,\
+List(0,0),1) - Subsuperscript(Y,List(0,1),1) + \
+2*Subsuperscript(Y,List(0,2),1) - Subsuperscript(Y,List(1,0),1) + \
+Subsuperscript(Y,List(1,1),1)) + \
+Subsuperscript(X,List(0,2),1)*(-2*Subsuperscript(Y,List(0,0),1) + \
+Subsuperscript(Y,List(0,1),1) + Subsuperscript(Y,List(1,0),1) - \
+Subsuperscript(Y,List(1,1),1) - 2*Subsuperscript(Y,List(2,0),1)) + \
+(2*Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,1),1) - \
+Subsuperscript(X,List(1,0),1) + \
+Subsuperscript(X,List(1,1),1))*(Subsuperscript(Y,List(0,2),1) - \
+Subsuperscript(Y,List(2,0),1)))/2.\"\>",
+    CForm[
+    Rational[1, 2] (
+      Subsuperscript[$CellContext`X, {2, 0}, 1] (
+        2 Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        2 Subsuperscript[$CellContext`Y, {0, 2}, 1] - 
+        Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+        Subsuperscript[$CellContext`Y, {1, 1}, 1]) + 
+      Subsuperscript[$CellContext`X, {0, 2}, 1] ((-2) 
+         Subsuperscript[$CellContext`Y, {0, 0}, 1] + 
+        Subsuperscript[$CellContext`Y, {0, 1}, 1] + 
+        Subsuperscript[$CellContext`Y, {1, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {1, 1}, 1] - 2 
+        Subsuperscript[$CellContext`Y, {2, 0}, 1]) + (
+        2 Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {0, 1}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+        Subsuperscript[$CellContext`X, {1, 1}, 1]) (
+        Subsuperscript[$CellContext`Y, {0, 2}, 1] - 
+        Subsuperscript[$CellContext`Y, {2, 0}, 1]))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(Subsuperscript(X,List(0,0),0) - \
+Subsuperscript(X,List(1,0),0) + \
+3*Subsuperscript(X,List(2,0),0))*(Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(0,2),0) - Subsuperscript(Y,List(1,0),0) + \
+Subsuperscript(Y,List(1,1),0)) - (Subsuperscript(X,List(0,0),0) - \
+Subsuperscript(X,List(0,2),0) - Subsuperscript(X,List(1,0),0) + \
+Subsuperscript(X,List(1,1),0))*(Subsuperscript(Y,List(0,0),0) - \
+Subsuperscript(Y,List(1,0),0) + 3*Subsuperscript(Y,List(2,0),0))\"\>",
+    CForm[(Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 0] + 
+       3 Subsuperscript[$CellContext`X, {2, 0}, 0]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {0, 2}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 0] + 
+       Subsuperscript[$CellContext`Y, {1, 1}, 0]) - (
+      Subsuperscript[$CellContext`X, {0, 0}, 0] - 
+      Subsuperscript[$CellContext`X, {0, 2}, 0] - 
+      Subsuperscript[$CellContext`X, {1, 0}, 0] + 
+      Subsuperscript[$CellContext`X, {1, 1}, 0]) (
+      Subsuperscript[$CellContext`Y, {0, 0}, 0] - 
+      Subsuperscript[$CellContext`Y, {1, 0}, 0] + 
+      3 Subsuperscript[$CellContext`Y, {2, 0}, 0])],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"((Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,0),1) + 3*(Subsuperscript(X,List(2,0),0) + \
+Subsuperscript(X,List(2,0),1)))*(Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(0,2),0) - \
+Subsuperscript(Y,List(0,2),1) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,0),1) + Subsuperscript(Y,List(1,1),0) + \
+Subsuperscript(Y,List(1,1),1)) - (Subsuperscript(X,List(0,0),0) + \
+Subsuperscript(X,List(0,0),1) - Subsuperscript(X,List(0,2),0) - \
+Subsuperscript(X,List(0,2),1) - Subsuperscript(X,List(1,0),0) - \
+Subsuperscript(X,List(1,0),1) + Subsuperscript(X,List(1,1),0) + \
+Subsuperscript(X,List(1,1),1))*(Subsuperscript(Y,List(0,0),0) + \
+Subsuperscript(Y,List(0,0),1) - Subsuperscript(Y,List(1,0),0) - \
+Subsuperscript(Y,List(1,0),1) + 3*(Subsuperscript(Y,List(2,0),0) + \
+Subsuperscript(Y,List(2,0),1))))/4.\"\>",
+    CForm[
+    Rational[1, 
+       4] ((Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+        3 (Subsuperscript[$CellContext`X, {2, 0}, 0] + 
+          Subsuperscript[$CellContext`X, {2, 0}, 1])) (
+        Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+        Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+        Subsuperscript[$CellContext`Y, {0, 2}, 0] - 
+        Subsuperscript[$CellContext`Y, {0, 2}, 1] - 
+        Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+        Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+        Subsuperscript[$CellContext`Y, {1, 1}, 0] + 
+        Subsuperscript[$CellContext`Y, {1, 1}, 1]) - (
+       Subsuperscript[$CellContext`X, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {0, 2}, 0] - 
+       Subsuperscript[$CellContext`X, {0, 2}, 1] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+       Subsuperscript[$CellContext`X, {1, 1}, 0] + 
+       Subsuperscript[$CellContext`X, {1, 1}, 1]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 0] + 
+       Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 0] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+       3 (Subsuperscript[$CellContext`Y, {2, 0}, 0] + 
+         Subsuperscript[$CellContext`Y, {2, 0}, 1])))],
+    AutoDelete->True,
+    Editable->True], ",", 
+   InterpretationBox["\<\"(Subsuperscript(X,List(0,0),1) - \
+Subsuperscript(X,List(1,0),1) + \
+3*Subsuperscript(X,List(2,0),1))*(Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(0,2),1) - Subsuperscript(Y,List(1,0),1) + \
+Subsuperscript(Y,List(1,1),1)) - (Subsuperscript(X,List(0,0),1) - \
+Subsuperscript(X,List(0,2),1) - Subsuperscript(X,List(1,0),1) + \
+Subsuperscript(X,List(1,1),1))*(Subsuperscript(Y,List(0,0),1) - \
+Subsuperscript(Y,List(1,0),1) + 3*Subsuperscript(Y,List(2,0),1))\"\>",
+    CForm[(Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+       3 Subsuperscript[$CellContext`X, {2, 0}, 1]) (
+       Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+       Subsuperscript[$CellContext`Y, {0, 2}, 1] - 
+       Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+       Subsuperscript[$CellContext`Y, {1, 1}, 1]) - (
+      Subsuperscript[$CellContext`X, {0, 0}, 1] - 
+      Subsuperscript[$CellContext`X, {0, 2}, 1] - 
+      Subsuperscript[$CellContext`X, {1, 0}, 1] + 
+      Subsuperscript[$CellContext`X, {1, 1}, 1]) (
+      Subsuperscript[$CellContext`Y, {0, 0}, 1] - 
+      Subsuperscript[$CellContext`Y, {1, 0}, 1] + 
+      3 Subsuperscript[$CellContext`Y, {2, 0}, 1])],
+    AutoDelete->True,
+    Editable->True]}], "}"}]], "Print",
+ CellChangeTimes->{
+  3.925903001364151*^9, 3.9259052399815607`*^9, {3.925909571401919*^9, 
+   3.925909588316793*^9}, 3.9259097210630283`*^9, 3.9259140998571787`*^9, 
+   3.92591415978454*^9, {3.925914290542499*^9, 3.9259142955927553`*^9}},
+ CellLabel->
+  "During evaluation of \
+In[122]:=",ExpressionUUID->"0e9a8ae9-9860-4d29-ab25-5eb0b905e1f3"]
+}, Open  ]]
+},
+WindowSize->{1432.5, 766.5},
+WindowMargins->{{0, Automatic}, {Automatic, -792}},
+FrontEndVersion->"13.3 for Linux x86 (64-bit) (July 24, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"a7b7d493-91ba-4fa1-865e-2a41654a4f7e"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 3841, 54, 50, "Input",ExpressionUUID->"35894456-5632-4469-93b0-793e17e53b71"],
+Cell[CellGroupData[{
+Cell[4424, 78, 18639, 452, 953, "Input",ExpressionUUID->"38a96efa-3729-4004-84d8-6393db06fb4f"],
+Cell[23066, 532, 32478, 611, 1480, "Print",ExpressionUUID->"0e9a8ae9-9860-4d29-ab25-5eb0b905e1f3"]
+}, Open  ]]
+}
+]
+*)
+
