@@ -30,7 +30,7 @@ class Matrix{
 	}
 
 	public:
-	void read(const std::string &file, uint line, uint size);
+	Matrix(const std::vector<lint> &data);
 	inline const Row &getRow(uint i) const { return store.at(i); }
 	inline void resize(uint size) { s = size; store.resize(s); }
 

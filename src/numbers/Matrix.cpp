@@ -3,39 +3,27 @@
 namespace element_validity {
 template class Matrix<Interval>;
 
-#ifndef DATA_DIRECTORY
-#warning "DATA_DIRECTORY must be defined"
-#endif
-
 /*
-Assume that matrices are in a raw text file, each line representing a matrix.
-Each line starts with an ID string, followed by a flattened list of tuples
-{i,j,numerator,denominator} for the entries.
+Matrices are read from vectors. The first entry is the matrix size,
+followed by sequences of {i, j, numerator, denominator} as integers.
 */
 template<typename T>
-void Matrix<T>::read(const std::string &fileID, uint line, uint size) {
-	std::string filePath = "DATA_DIRECTORY";
-	filePath += fileID;
-	std::ifstream in(filePath);
-	if (!in)
-		throw std::runtime_error("Could not open " + filePath);
-
-	constexpr auto M = std::numeric_limits<std::streamsize>::max();
-	for(uint l=1; l<=line; ++l)
-		in.ignore(M,'\n');
-	std::string data;
-	std::getline(in, data);
-	std::istringstream datastr(data);
-
-	resize(size);
-	uint i, j;
-	int num, den;
-	while(datastr >> i >> j >> num >> den)
-		pushToRow(i, j, static_cast<T>(num) / den);
+Matrix<T>::Matrix(const std::vector<lint> &data) {
+	uint s = data.size();
+	assert(s>0);
+	resize(data.at(0));
+	for(uint k=1; k<s; k+=4)
+		assert(data.at(k+0) > 0 && data.at(k+1) > 0);
+		pushToRow(
+			data.at(k+0),
+			data.at(k+1),
+			static_cast<T>(data.at(k+2)) / data.at(k+3)
+		);
 }
 
 template<typename T>
 void Matrix<T>::mult(const std::vector<T> &src, std::vector<T> &dst) const {
+	assert(src != dst);
 	assert(src.size() == s);
 	dst.resize(s);
 	for(uint i=0; i<s; ++i) {

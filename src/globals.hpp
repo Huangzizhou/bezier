@@ -12,6 +12,9 @@ namespace element_validity {
 	// unsigned integer
 	using uint = unsigned;
 
+	// long integer
+	using lint = long;
+
 	// floating point type
 	using fp_t = double;
 	const auto fp_fmt =
