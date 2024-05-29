@@ -8,5 +8,5 @@ ExternalProject_Add(gmp_external
 
 set(GMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/gmp/install/include)
 set(GMP_LIBRARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gmp/install/lib)
-target_link_libraries(jacobian PRIVATE ${GMP_LIBRARY_DIR}/libgmp.a ${GMP_LIBRARY_DIR}/libgmpxx.a)
-target_include_directories(jacobian PRIVATE ${GMP_INCLUDE_DIR})
+target_link_libraries(bezier PRIVATE ${GMP_LIBRARY_DIR}/libgmp.a ${GMP_LIBRARY_DIR}/libgmpxx.a)
+target_include_directories(bezier PRIVATE ${GMP_INCLUDE_DIR})

@@ -9,7 +9,7 @@
 # )
 
 # set(IPRED_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/indirect_predicates/src/indirect_predicates_external/include)
-# target_include_directories(jacobian PRIVATE ${IPRED_INCLUDE_DIR})
+# target_include_directories(bezier PRIVATE ${IPRED_INCLUDE_DIR})
 
 message(STATUS "Third-party: creating target 'indirect_predicates'")
 
@@ -19,4 +19,4 @@ CPMAddPackage(
     GIT_REPOSITORY https://github.com/MarcoAttene/Indirect_Predicates.git
     GIT_TAG master)
 
-target_include_directories(jacobian PUBLIC ${indirect_predicates_external_SOURCE_DIR}/include/)
+target_include_directories(bezier PUBLIC ${indirect_predicates_external_SOURCE_DIR}/include/)

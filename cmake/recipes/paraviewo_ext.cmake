@@ -18,8 +18,8 @@ message(STATUS "Third-party: creating target 'paraviewo::paraviewo'")
 # set(PARAVIEWO_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/paraviewo/src/paraviewo_external/src)
 # set(PARAVIEWO_LIBRARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/paraviewo/src/paraviewo_external-build)
 
-# target_link_libraries(jacobian PUBLIC ${PARAVIEWO_LIBRARY_DIR}/libparaviewo.a)
-# target_include_directories(jacobian PUBLIC ${PARAVIEWO_INCLUDE_DIR})
+# target_link_libraries(bezier PUBLIC ${PARAVIEWO_LIBRARY_DIR}/libparaviewo.a)
+# target_include_directories(bezier PUBLIC ${PARAVIEWO_INCLUDE_DIR})
 
 include(CPM)
 CPMAddPackage("gh:polyfem/paraviewo#main")

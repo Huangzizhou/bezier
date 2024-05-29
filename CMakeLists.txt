@@ -7,7 +7,7 @@ else()
 endif()
 
 cmake_minimum_required(VERSION 3.18)
-project(jacobian)
+project(bezier)
 include(ExternalProject)
 
 # Options
@@ -40,17 +40,17 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-add_library(jacobian)
-add_library(jacobian::jacobian ALIAS jacobian)
+add_library(bezier)
+add_library(bezier::bezier ALIAS bezier)
 
 set(JACOBIAN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(JACOBIAN_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
 
-# Add source and header files to jacobian
+# Add source and header files to bezier
 add_subdirectory(${JACOBIAN_SOURCE_DIR})
 
 # Include folders
-target_include_directories(jacobian PUBLIC ${JACOBIAN_INCLUDE_DIR})
+target_include_directories(bezier PUBLIC ${JACOBIAN_INCLUDE_DIR})
 
 ################################################################################
 # Required libraries
@@ -58,11 +58,11 @@ target_include_directories(jacobian PUBLIC ${JACOBIAN_INCLUDE_DIR})
 
 ##### Eigen ####################################################################
 # include(eigen)
-# target_link_libraries(jacobian PUBLIC Eigen3::Eigen)
+# target_link_libraries(bezier PUBLIC Eigen3::Eigen)
 
 ##### GMP ######################################################################
 find_package(GMP REQUIRED)
-target_link_libraries(jacobian PUBLIC gmp::gmp)
+target_link_libraries(bezier PUBLIC gmp::gmp)
 
 
 ##### INDIRECT_PREDICATES ######################################################
@@ -73,11 +73,11 @@ if (IPRED_ARITHMETIC)
 endif()
 
 if (JACOBIAN_TOPLEVEL_PROJECT)
-    add_executable(jacobian_bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
-    target_link_libraries(jacobian_bin PUBLIC jacobian::jacobian)
+    add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
+    target_link_libraries(bin PUBLIC bezier::bezier)
 
-    # add_executable(jacobian_test_bin ${PROJECT_SOURCE_DIR}/src/test.cpp)
-    # target_link_libraries(jacobian_test_bin PUBLIC jacobian::jacobian)
+    # add_executable(testbin ${PROJECT_SOURCE_DIR}/src/test.cpp)
+    # target_link_libraries(testbin PUBLIC bezier::bezier)
 endif()
 
 
