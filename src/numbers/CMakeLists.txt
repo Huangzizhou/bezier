@@ -1,8 +1,11 @@
 set(SOURCES
     Interval.cpp
+    Matrix.cpp
+)
+
+set(HEADERS
     Interval.hpp
     Rational.hpp
-    Matrix.cpp
     Matrix.hpp
 )
 

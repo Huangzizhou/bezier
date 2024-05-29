@@ -1,4 +1,4 @@
-#include "globals.hpp"
+#pragma once
 
 #define CONCATENATE(a1, a2) a1##_##a2
 #define CONCATENATE2(a1, a2) CONCATENATE(a1, a2)
@@ -9,8 +9,3 @@
 #define GET_MACRO(_1,_2,_3,_4,_5,NAME,...) NAME
 #define SUBSCRIPT(...) GET_MACRO(__VA_ARGS__, \
 	CONCATENATE5, CONCATENATE4, CONCATENATE3, CONCATENATE2)(__VA_ARGS__)
-
-
-int main() {
-    return 0;
-}

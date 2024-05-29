@@ -1,5 +1,8 @@
 set(SOURCES
     # IndexPermutator.cpp
+)
+
+set(HEADERS
     # IndexPermutator.hpp
     # SubdivisionHierarchy.hpp
     Timer.hpp

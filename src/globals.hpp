@@ -2,6 +2,7 @@
 #include <limits>
 #include <iomanip>
 #include <cassert>
+#include <iostream>
 
 /*
 Things that should be available everywhere in the project

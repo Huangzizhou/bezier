@@ -1,4 +1,4 @@
-set(SOURCES
+set(HEADERS
     globals.hpp
     # element_validity.hpp
 )

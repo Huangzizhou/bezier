@@ -14,19 +14,28 @@ include(ExternalProject)
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(JACOBIAN_WITH_TESTS "Run unit tests" OFF)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wno-unknown-pragmas -fno-strict-aliasing -fopenmp -lpthread")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -ggdb3")
-
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
-
 include(jacobian_cpm_cache)
+
+# Set common compiler flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -fno-strict-aliasing -fopenmp -lpthread")
+
+# Set release and debug specific compiler flags
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -pg -ggdb3")
 
 # Use fast interval arithmetic
 if(IPRED_ARITHMETIC)
-    set(CMAKE_CXX_FLAGS_RELEASE "-frounding-math -O2 -msse2 -mavx2")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -frounding-math -O2 -msse2 -mavx2")
     set(USE_SIMD_INSTRUCTIONS ON)
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif()
+
+# Ensure the build type is set
+if(NOT CMAKE_BUILD_TYPE)
+  message(WARNING "CMAKE_BUILD_TYPE not specified. Defaulting to Release.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
 # Set the C++ standard
