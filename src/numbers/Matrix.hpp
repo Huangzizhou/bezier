@@ -1,9 +1,6 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <cassert>
 #include "Interval.hpp"
 
 /* Simple class for precomputed matrices */

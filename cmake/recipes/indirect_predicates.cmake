@@ -19,4 +19,5 @@ CPMAddPackage(
     GIT_REPOSITORY https://github.com/MarcoAttene/Indirect_Predicates.git
     GIT_TAG master)
 
+message(STATUS "indirect_predicates_external_SOURCE_DIR: ${indirect_predicates_external_SOURCE_DIR}")
 target_include_directories(bezier PUBLIC ${indirect_predicates_external_SOURCE_DIR}/include/)

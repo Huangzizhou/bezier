@@ -1,13 +1,12 @@
 #pragma once
 
-#include <iomanip>
 #include <sstream>
 #include "Rational.hpp"
 #include "globals.hpp"
 
 #ifdef IPRED_ARITHMETIC
 
-#include <numerics.h>
+#include "numerics.h"
 namespace element_validity {
 
 class Interval {

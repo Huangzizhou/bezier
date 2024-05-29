@@ -12,13 +12,14 @@ Matrix<T>::Matrix(const std::vector<lint> &data) {
 	uint s = data.size();
 	assert(s>0);
 	resize(data.at(0));
-	for(uint k=1; k<s; k+=4)
+	for(uint k=1; k<s; k+=4) {
 		assert(data.at(k+0) > 0 && data.at(k+1) > 0);
 		pushToRow(
 			data.at(k+0),
 			data.at(k+1),
 			static_cast<T>(data.at(k+2)) / data.at(k+3)
 		);
+	}
 }
 
 template<typename T>

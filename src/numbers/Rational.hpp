@@ -1,7 +1,5 @@
 #pragma once
 
-// #include <Eigen/Core>
-// #include <Eigen/LU>
 #include <gmpxx.h>
 
 namespace element_validity {
@@ -39,10 +37,14 @@ class Rational {
 	bool operator!=(double o) const { return value != o; }
 
 	// Rat-Rat Operations
-	inline Rational operator+(const Rational &o) const { return value + o.value; }
-	inline Rational operator-(const Rational &o) const { return value - o.value; }
-	inline Rational operator*(const Rational &o) const { return value * o.value; }
-	inline Rational operator/(const Rational &o) const { return value / o.value; }
+	inline Rational operator+(const Rational &o) const
+		{ return value + o.value; }
+	inline Rational operator-(const Rational &o) const
+		{ return value - o.value; }
+	inline Rational operator*(const Rational &o) const
+		{ return value * o.value; }
+	inline Rational operator/(const Rational &o) const
+		{ return value / o.value; }
 	inline void operator+=(const Rational &o) { value += o.value; }
 	inline void operator-=(const Rational &o) { value -= o.value; }
 	inline void operator*=(const Rational &o) { value *= o.value; }
@@ -58,7 +60,7 @@ class Rational {
 	inline void operator*=(double o) { value *= o; }
 	inline void operator/=(double o) { value /= o; }
 
-	// conversions
+	// Conversions
 	explicit operator double() const { return value.get_d(); }
 	explicit operator std::string() const {
 		const std::string str = value.get_str();
