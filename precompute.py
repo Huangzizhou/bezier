@@ -64,8 +64,8 @@ def jac_det(n, s, p, x_name, c_names, t_name):
 
 ## Domain points for the Jacobian determinant ##
 def domain_pts_J(n, s, p):
-	simplex_den = n * p - s
-	tensor_den = n * p - 1
+	simplex_den = max(1, n * p - s)
+	tensor_den = max(1, n * p - 1)
 	time_den = n
 	all_indices = product(range(n*p+1), repeat=n+1)
 	valid_indices = [tup for tup in all_indices
@@ -95,6 +95,81 @@ def lagrange_vector(n, s, p, c_names):
 	return lag_vec
 
 
+## Time subdivision maps ##
+def time_sub_map(pt, shift):
+	h = 1 if shift else 0
+	return(pt[:-1] + ((pt[-1] + h) / 2,))
+
+def space_sub_map(pt, n, s, q):
+	assert(1 <= s <= n)
+	assert(len(pt) == n+1)
+	assert(0 <= q < (2<<(n+1)))
+	res = list(pt)
+	qs = q % (2**s)
+	# Simplex part
+	if s == 1:
+		res[0] = pt[0] + qs
+	elif s == 2:
+		if qs == 0:
+			res[0] = pt[0]
+			res[1] = pt[1]
+		elif qs == 1:
+			res[0] = pt[0] + 1
+			res[1] = pt[1]
+		elif qs == 2:
+			res[0] = pt[0]
+			res[1] = pt[1] + 1
+		elif qs == 3:
+			res[0] = pt[0] + 1
+			res[1] = pt[1] + 1
+	elif s == 3:
+		if qs == 0:
+			res[0] = pt[0]
+			res[1] = pt[1]
+			res[2] = pt[2]
+		elif qs == 1:
+			res[0] = pt[0] + 1
+			res[1] = pt[1]
+			res[2] = pt[2]
+		elif qs == 2:
+			res[0] = pt[0]
+			res[1] = pt[1] + 1
+			res[2] = pt[2]
+		elif qs == 3:
+			res[0] = pt[0]
+			res[1] = pt[1]
+			res[2] = pt[2] + 1
+		elif qs == 4:
+			res[0] = 1 - pt[1] - pt[2]
+			res[1] = pt[1]
+			res[2] = pt[0] + pt[1] + pt[2]
+		elif qs == 5:
+			res[0] = 1 - pt[1]
+			res[1] = pt[0] + pt[1]
+			res[2] = pt[1] + pt[2]
+		elif qs == 6:
+			res[0] = pt[0] + pt[1]
+			res[1] = 1 - pt[0]
+			res[2] = pt[2]
+		elif qs == 7:
+			res[0] = pt[0]
+			res[1] = pt[1] + pt[2]
+			res[2] = 1 - pt[0] - pt[1]
+	else:
+		raise Exception('Unsupported simplex dimension')
+
+	# Tensor part
+	for k in range(s,n+1):
+		qt = (q >> k) & 1
+		res[k] = pt[k] + qt
+
+	# Divide and return
+	return tuple(r/2 for r in res)
+
+
 ## Tests ## 
-# g=lagrange_vector(2,2,1, 'XY')
-# for gg in g: print('-->',gg)
+for p in domain_pts_J(2, 2, 1):
+	print(p)
+	for q in range(8):
+		print(f'=={q}==> ', space_sub_map(p, 2, 2, q))
+	print()
