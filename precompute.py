@@ -267,8 +267,8 @@ def matrices_formatted(n, s, p):
 ## Format lag vector ##
 def lag_vec_formatted(n, s, p):
 	v = 'xyzw'
-	return C99_print(lagrange_vector(2,2,1,v[:n]))
+	return C99_print(lagrange_vector(n,s,p,v[:n]))
 
 ## Tests ## 
 # print(matrices_formatted(2,2,1))
-print(lag_vec_formatted(2,2,1))
+print(lag_vec_formatted(3,3,1))
