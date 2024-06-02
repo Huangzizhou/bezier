@@ -1,7 +1,28 @@
 ### Bezier subdivision pre-computations ###
 
 from itertools import product
-from sympy import symbols, prod, Matrix, det, collect, Rational, expand, pprint
+from sympy import \
+	symbols, prod, Matrix, MatrixSymbol, det, \
+	collect, Rational, expand, pprint, cse, numbered_symbols
+from sympy.printing.c import C99CodePrinter
+from sympy.printing import ccode
+from sympy.utilities.codegen import codegen
+
+## C99 print ##
+def C99_print(expr):
+    CSE_results = cse(expr,numbered_symbols('tmp_'),optimizations='basic')
+    lines = []
+    for helper in CSE_results[0]:
+        if isinstance(helper[1],MatrixSymbol):
+            lines.append('fp_t ' + str(helper[0]) +
+				'[' + str(helper[1].rows*helper[1].cols) + '];')
+            lines.append(ccode(helper[1],helper[0]))            
+        else:
+            lines.append('fp_t ' + ccode(helper[1],helper[0]))
+            
+    for i,result in enumerate(CSE_results[1]):
+        lines.append(ccode(result,'res_%d'%i))
+    return '\n'.join(lines)
 
 ## Subscripting ##
 def subscripts(b, i):
@@ -40,14 +61,13 @@ def geo_map_component(n, s, p, t, x_name, c_name):
 	lag = [lagrange(n, s, p, k, x_name) for k in indices]
 	return sum(cp[k] * lag[k] for k in range(len(indices)))
 	
-# print(geo_map_component(2,1,1,1,'u','X'))
 ## Geometric map ##
 def geo_map(n, s, p, x_name, c_names, t_name):
 	assert(len(c_names) == n)
 	T = symbols(t_name)
 	return [
 		(1 - T) * geo_map_component(n, s, p, 0, x_name, c) + \
-		T * geo_map_component(n, s, p, 1, x_name, c) \
+		T * geo_map_component(n, s, p, 1, x_name, c)
 		for c in c_names] + [T]
 
 ## Jacobian determinant ##
@@ -166,6 +186,17 @@ def space_subdiv_map(pt, n, s, q):
 	# Divide and return
 	return tuple(r/2 for r in res)
 
+## Compress matrix ##
+def mat_compress(m):
+	l = m.rows
+	assert(m.cols == l)
+	s = str(l)
+	for i in range(l):
+		for j in range(l):
+			if m[i, j] != 0:
+				s += f', {i}, {j}, {m[i,j].p}, {m[i,j].q}'
+	return s
+
 ## Binomial and multinomial coefficients ##
 def multinomial(ii):
 	res = 1
@@ -203,7 +234,6 @@ def subdiv_matrices(n, s, p):
 	rule = lambda e: {xt[k]: e[k] for k in range(n+1)}
 	b2l = Matrix([[b.subs(rule(pt)) for b in basis] for pt in pts])
 	if (__debug__): print('B2L computed')
-	print(len(b2l)**.5)
 	l2b = b2l.inv()
 	if (__debug__): print('L2B computed')
 	tsd = [
@@ -220,5 +250,25 @@ def subdiv_matrices(n, s, p):
 	if (__debug__): print('Space subdivision matrices computed')
 	return [l2b, tsd, ssd]
 
+## Format matrices ##
+def matrices_formatted(n, s, p):
+	m_name = f'subdivision_{n}{s}{p}'
+	mm = subdiv_matrices(n, s, p)
+	f = lambda m, name: \
+		'const std::vector<lint> ' + name + ' = {' + mat_compress(m) + '};\n'
+	s = ''
+	s += f(mm[0], m_name + '_B')
+	s += f(mm[1][0], m_name + '_t0')
+	s += f(mm[1][1], m_name + '_t1')
+	for q,a in enumerate(mm[2]):
+		s += f(a, m_name + '_q'+str(q))
+	return s
+
+## Format lag vector ##
+def lag_vec_formatted(n, s, p):
+	v = 'xyzw'
+	return C99_print(lagrange_vector(2,2,1,v[:n]))
+
 ## Tests ## 
-# subdiv_matrices(3,3,2)
+# print(matrices_formatted(2,2,1))
+print(lag_vec_formatted(2,2,1))
