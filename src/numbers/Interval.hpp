@@ -10,6 +10,17 @@
 namespace element_validity {
 
 class Interval {
+	public:
+	static void init(){
+		#ifdef IPRED_ARITHMETIC
+		static bool initialized = false;
+		if (initialized) return;
+		initFPU();
+		setFPUModeToRoundUP();
+		initialized = true;
+		#endif
+	};
+
 	private:
 	interval_number data;
 
@@ -124,7 +135,7 @@ class Interval {
 }
 #else
 
-// #warning Using the naive interval implementation: computations will be slower!
+#warning Using the naive interval implementation: computations will be slower!
 
 #include <algorithm>	// for minmax
 #include <cmath>
@@ -137,6 +148,7 @@ private:
 	fp_t lo, hi;
 
 public:
+	static void init() {};
 	// Constructors
 	Interval(const fp_t &value_lo, const fp_t &value_hi) :
 		lo(value_lo), hi(value_hi) {

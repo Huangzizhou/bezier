@@ -22,4 +22,7 @@ namespace element_validity {
 
 	// type for timers
 	using chrono_t = double;
+
+	// validity values
+	enum class Validity {valid, invalid, uncertain};
 }

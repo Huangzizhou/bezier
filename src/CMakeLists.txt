@@ -1,6 +1,5 @@
 set(HEADERS
     globals.hpp
-    # element_validity.hpp
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})
@@ -12,4 +11,4 @@ target_sources(bezier PRIVATE ${SOURCES})
 
 add_subdirectory(utils)
 add_subdirectory(numbers)
-# add_subdirectory(algorithms)
+add_subdirectory(validity)
