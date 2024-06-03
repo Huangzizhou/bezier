@@ -3,26 +3,29 @@
 from itertools import product
 from sympy import \
 	symbols, prod, Matrix, MatrixSymbol, det, \
-	collect, Rational, expand, pprint, cse, numbered_symbols
+	collect, Rational, expand, pprint, numbered_symbols, cse
 from sympy.printing.c import C99CodePrinter
-from sympy.printing import ccode
-from sympy.utilities.codegen import codegen
 
-## C99 print ##
-def C99_print(expr):
-    CSE_results = cse(expr,numbered_symbols('tmp_'),optimizations='basic')
-    lines = []
-    for helper in CSE_results[0]:
-        if isinstance(helper[1],MatrixSymbol):
-            lines.append('fp_t ' + str(helper[0]) +
-				'[' + str(helper[1].rows*helper[1].cols) + '];')
-            lines.append(ccode(helper[1],helper[0]))            
-        else:
-            lines.append('fp_t ' + ccode(helper[1],helper[0]))
-            
-    for i,result in enumerate(CSE_results[1]):
-        lines.append(ccode(result,'res_%d'%i))
-    return '\n'.join(lines)
+## Custom printer for rationals ##
+class MyCodePrinter(C99CodePrinter):
+	def _print_Rational(self, expr):
+		return f'Rational({expr.p}, {expr.q})'
+
+## C print ##
+def C_print(expr, n, s, p):
+	# head = f'void lagrange_vector(const std::array<fp_t, {}> &cp)'
+	CSE_results = cse(expr, numbered_symbols('tmp_'), optimizations='basic')
+	lines = [
+		'template<>\n' +
+		f'void lagrangeVector()<{n}, {s}, {p}, true>' +
+		'(const std::vector<fp_t> &cp, std::vector<Interval> &out) {'
+	]
+	my_ccode = MyCodePrinter().doprint
+	for helper in CSE_results[0]:
+		lines.append('const Interval ' + my_ccode(helper[1], helper[0]))
+	for i,result in enumerate(CSE_results[1]):
+		lines.append(my_ccode(result, f'out[{i}]'))
+	return '\n\t'.join(lines) + '\n}'
 
 ## Subscripting ##
 def subscripts(b, i):
@@ -267,8 +270,8 @@ def matrices_formatted(n, s, p):
 ## Format lag vector ##
 def lag_vec_formatted(n, s, p):
 	v = 'xyzw'
-	return C99_print(lagrange_vector(n,s,p,v[:n]))
+	return C_print(lagrange_vector(n,s,p,v[:n]), n, s, p)
 
 ## Tests ## 
 # print(matrices_formatted(2,2,1))
-print(lag_vec_formatted(3,3,1))
+print(lag_vec_formatted(1,1,3))
