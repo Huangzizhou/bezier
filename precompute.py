@@ -13,11 +13,10 @@ class MyCodePrinter(C99CodePrinter):
 
 ## C print ##
 def C_print(expr, n, s, p):
-	# head = f'void lagrange_vector(const std::array<fp_t, {}> &cp)'
 	CSE_results = cse(expr, numbered_symbols('tmp_'), optimizations='basic')
 	lines = [
 		'template<>\n' +
-		f'void lagrangeVector()<{n}, {s}, {p}, true>' +
+		f'void lagrangeVector<{n}, {s}, {p}, true>' +
 		'(const std::vector<fp_t> &cp, std::vector<Interval> &out) {'
 	]
 	my_ccode = MyCodePrinter().doprint
@@ -54,25 +53,24 @@ def lagrange(n, s, p, i, x_name):
 		prod([lagrange_uni(p, i[k], x[k]) for k in range(s,n)])
 
 ## Geometric map component ##
-def geo_map_component(n, s, p, t, x_name, c_name):
+def geo_map_component(n, s, p, t, x_name, c_name, ni):
 	indices = index_set(n, s, p)
-	cp = subscripts(c_name, range(t,len(indices)*2,2))
+	cp = subscripts(c_name, range(t + 2*ni, len(indices)*2*n, 2*n))
 	lag = [lagrange(n, s, p, k, x_name) for k in indices]
 	return sum(cp[k] * lag[k] for k in range(len(indices)))
 	
 ## Geometric map ##
-def geo_map(n, s, p, x_name, c_names, t_name):
-	assert(len(c_names) == n)
+def geo_map(n, s, p, x_name, c_name, t_name):
 	T = symbols(t_name)
 	return [
-		(1 - T) * geo_map_component(n, s, p, 0, x_name, c) + \
-		T * geo_map_component(n, s, p, 1, x_name, c)
-		for c in c_names] + [T]
+		(1 - T) * geo_map_component(n, s, p, 0, x_name, c_name, i) + \
+		T * geo_map_component(n, s, p, 1, x_name, c_name, i)
+		for i in range(n)] + [T]
 
 ## Jacobian determinant ##
-def jac_det(n, s, p, x_name, c_names, t_name):
+def jac_det(n, s, p, x_name, c_name, t_name):
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
-	gmap = geo_map(n, s, p, x_name, c_names, t_name)
+	gmap = geo_map(n, s, p, x_name, c_name, t_name)
 	res = det(Matrix([[poly.diff(v) for v in xt] for poly in gmap]))
 	res = collect(res, symbols(t_name))
 	return res
@@ -102,10 +100,10 @@ def domain_pts_J(n, s, p):
 		for tup in index_set_J(n, s, p)]
 
 ## Lagrange vector ##
-def lagrange_vector(n, s, p, c_names):
+def lagrange_vector(n, s, p, c_name):
 	x_name = 'u'
 	t_name = 't'
-	poly = jac_det(n, s, p, x_name, c_names, t_name)
+	poly = jac_det(n, s, p, x_name, c_name, t_name)
 	pts = domain_pts_J(n, s, p)
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
 	rule = lambda pt: {xt[k]: pt[k] for k in range(n+1)}
@@ -265,10 +263,9 @@ def matrices_formatted(n, s, p):
 
 ## Format lag vector ##
 def lag_vec_formatted(n, s, p):
-	# v = 'xyzw'
-	v = lambda l: [f'cp[{z}]' for z in range(l)]
-	return C_print(lagrange_vector(n,s,p,v(n)), n, s, p)
+	return C_print(lagrange_vector(n,s,p,'cp'), n, s, p)
 
 ## Tests ## 
 # print(matrices_formatted(2,2,1))
-print(lag_vec_formatted(1,1,3))
+print(lag_vec_formatted(2,2,1))
+# print(lag_vec_formatted(1,1,3))
