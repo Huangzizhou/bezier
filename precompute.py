@@ -29,10 +29,7 @@ def C_print(expr, n, s, p):
 
 ## Subscripting ##
 def subscripts(b, i):
-	return symbols([b+'_'+str(j) for j in range(i)])
-
-def subscripts_arr(b, ii):
-	return symbols([b + '_' + '_'.join(map(str, j)) for j in ii])
+	return symbols([f'{b}[{j}]' for j in i])
 
 ## Index set ##
 def index_set(n, s, p):
@@ -47,7 +44,7 @@ def lagrange_uni(p, i, x):
 ## Multivariate Lagrange polynomial ##
 def lagrange(n, s, p, i, x_name):
 	assert(len(i) == n)
-	x = subscripts(x_name, n)
+	x = subscripts(x_name, range(n))
 	i_slack = p - sum(i[:s])
 	assert(i_slack >= 0)
 	x_slack = 1 - sum(x[:s])
@@ -59,8 +56,7 @@ def lagrange(n, s, p, i, x_name):
 ## Geometric map component ##
 def geo_map_component(n, s, p, t, x_name, c_name):
 	indices = index_set(n, s, p)
-	cp_indices = [(tup + (t,)) for tup in indices]
-	cp = subscripts_arr(c_name, cp_indices)
+	cp = subscripts(c_name, range(t,len(indices)*2,2))
 	lag = [lagrange(n, s, p, k, x_name) for k in indices]
 	return sum(cp[k] * lag[k] for k in range(len(indices)))
 	
@@ -75,7 +71,7 @@ def geo_map(n, s, p, x_name, c_names, t_name):
 
 ## Jacobian determinant ##
 def jac_det(n, s, p, x_name, c_names, t_name):
-	xt = subscripts(x_name, n) + [symbols(t_name)]
+	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
 	gmap = geo_map(n, s, p, x_name, c_names, t_name)
 	res = det(Matrix([[poly.diff(v) for v in xt] for poly in gmap]))
 	res = collect(res, symbols(t_name))
@@ -111,7 +107,7 @@ def lagrange_vector(n, s, p, c_names):
 	t_name = 't'
 	poly = jac_det(n, s, p, x_name, c_names, t_name)
 	pts = domain_pts_J(n, s, p)
-	xt = subscripts(x_name, n) + [symbols(t_name)]
+	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
 	rule = lambda pt: {xt[k]: pt[k] for k in range(n+1)}
 	lag_vec = [poly.subs(rule(pt)) for pt in pts]
 	return lag_vec
@@ -217,7 +213,7 @@ def subdiv_matrices(n, s, p):
 	simplex_ord = n * p - s
 	tensor_ord = n * p - 1
 	time_ord = n
-	xt = subscripts('u', n) + [symbols('t')]
+	xt = subscripts('u', range(n)) + [symbols('t')]
 	xt_full = xt + [1 - sum(xt[:s])] + [1 - xt[k] for k in range(s, n+1)]
 	exponents = index_set_J(n, s, p)
 	exponents_full = [list(e) + [simplex_ord - sum(e[:s])] + \
@@ -269,8 +265,9 @@ def matrices_formatted(n, s, p):
 
 ## Format lag vector ##
 def lag_vec_formatted(n, s, p):
-	v = 'xyzw'
-	return C_print(lagrange_vector(n,s,p,v[:n]), n, s, p)
+	# v = 'xyzw'
+	v = lambda l: [f'cp[{z}]' for z in range(l)]
+	return C_print(lagrange_vector(n,s,p,v(n)), n, s, p)
 
 ## Tests ## 
 # print(matrices_formatted(2,2,1))
