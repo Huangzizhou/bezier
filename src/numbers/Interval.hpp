@@ -60,9 +60,17 @@ class Interval {
 	inline Interval operator*(const Interval &o) const { return data * o.data; }
 
 	inline Interval operator+(double o) const { return data + o; }
+	inline friend Interval operator+(double o, const Interval m)
+		{ return m + o; }
 	inline Interval operator-(double o) const { return data - o; }
+	inline friend Interval operator-(double o, const Interval m)
+		{ return m - o; }
 	inline Interval operator*(double o) const { return data * o; }
+	inline friend Interval operator*(double o, const Interval m)
+		{ return m * o; }
 	inline Interval operator/(double o) const { return data / o; }
+	inline friend Interval operator/(double o, const Interval m)
+		{ return m / o; }
 
 	inline void operator+=(const Interval &o) { data += o.data; }
 	inline void operator-=(const Interval &o) { data -= o.data; }

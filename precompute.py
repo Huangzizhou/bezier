@@ -9,7 +9,7 @@ from sympy.printing.c import C99CodePrinter
 ## Custom printer for rationals ##
 class MyCodePrinter(C99CodePrinter):
 	def _print_Rational(self, expr):
-		return f'Rational({expr.p}, {expr.q})'
+		return f'R({expr.p}, {expr.q})'
 
 ## C print ##
 def C_print(expr, n, s, p):
@@ -17,8 +17,12 @@ def C_print(expr, n, s, p):
 	lines = [
 		'template<>\n' +
 		f'void lagrangeVector<{n}, {s}, {p}, true>' +
-		'(const std::vector<fp_t> &cp, std::vector<Interval> &out) {'
+		'(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {'
 	]
+	L = len(CSE_results[1])
+	lines.append(f'out.resize({L});')
+	lines.append(f'std::vector<Interval> cp(cpFP.size());')
+	lines.append('for (uint i = 0; i < cpFP.size(); ++i) cp[i] = cpFP[i];')
 	my_ccode = MyCodePrinter().doprint
 	for helper in CSE_results[0]:
 		lines.append('const Interval ' + my_ccode(helper[1], helper[0]))
@@ -267,5 +271,7 @@ def lag_vec_formatted(n, s, p):
 
 ## Tests ## 
 # print(matrices_formatted(2,2,1))
+print(lag_vec_formatted(1,1,1))
+print(lag_vec_formatted(1,1,2))
+print(lag_vec_formatted(1,1,3))
 print(lag_vec_formatted(2,2,1))
-# print(lag_vec_formatted(1,1,3))

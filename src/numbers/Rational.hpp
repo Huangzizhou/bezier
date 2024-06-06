@@ -12,6 +12,7 @@ class Rational {
 	Rational() : value(0) {}
 	template <typename T>
 	Rational(T v) : value(v) {}
+	Rational(int p, int q) : value(p, q) {}
 
 	// Numerator, denominator
 	inline mpz_class &num() { return value.get_num(); }
