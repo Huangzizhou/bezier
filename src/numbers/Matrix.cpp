@@ -8,7 +8,7 @@ Matrices are read from vectors. The first entry is the matrix size,
 followed by sequences of {i, j, numerator, denominator} as integers.
 */
 template<typename T>
-Matrix<T>::Matrix(const std::vector<lint> &data) {
+void Matrix<T>::fill(const std::vector<lint> &data) {
 	uint s = data.size();
 	assert(s>0);
 	resize(data.at(0));

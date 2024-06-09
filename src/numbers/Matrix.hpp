@@ -27,7 +27,8 @@ class Matrix{
 	}
 
 	public:
-	Matrix(const std::vector<lint> &data);
+	Matrix(const std::vector<lint> &data) { fill(data); }
+	void fill(const std::vector<lint> &data);
 	inline const Row &getRow(uint i) const { return store.at(i); }
 	inline void resize(uint size) { s = size; store.resize(s); }
 

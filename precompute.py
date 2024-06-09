@@ -16,7 +16,7 @@ def C_print(expr, n, s, p):
 	CSE_results = cse(expr, numbered_symbols('tmp_'), optimizations='basic')
 	lines = [
 		'template<>\n' +
-		f'void lagrangeVector<{n}, {s}, {p}, true>' +
+		f'void lagrangeVectorT<{n}, {s}, {p}>' +
 		'(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {'
 	]
 	L = len(CSE_results[1])
@@ -253,25 +253,60 @@ def subdiv_matrices(n, s, p):
 
 ## Format matrices ##
 def matrices_formatted(n, s, p):
-	m_name = f'subdivision_{n}{s}{p}'
+	lines = [
+		'template<>\n' +
+		f'void initMatricesT<{n}, {s}, {p}> ' +
+		'(Matrix<Interval> &l2b, ' +
+		'std::pair<Matrix<Interval>, Matrix<Interval>> &tsd, ' +
+		f'std::array<Matrix<Interval>, {2<<n}> &ssd) ' +
+		'{'
+	]
+	
 	mm = subdiv_matrices(n, s, p)
-	f = lambda m, name: \
-		'const std::vector<lint> ' + name + ' = {' + mat_compress(m) + '};\n'
-	s = ''
-	s += f(mm[0], m_name + '_B')
-	s += f(mm[1][0], m_name + '_t0')
-	s += f(mm[1][1], m_name + '_t1')
+	lines.append('l2b.fill({' + mat_compress(mm[0]) + '});')
+	lines.append('tsd.first.fill({' + mat_compress(mm[1][0]) + '});')
+	lines.append('tsd.second.fill({' + mat_compress(mm[1][1]) + '});')
 	for q,a in enumerate(mm[2]):
-		s += f(a, m_name + '_q'+str(q))
-	return s
+		lines.append(f'ssd[{q}].fill(' + '{' + mat_compress(a) + '});')
+	return '\n\t'.join(lines) + '\n}'
 
 ## Format lag vector ##
 def lag_vec_formatted(n, s, p):
 	return C_print(lagrange_vector(n,s,p,'cp'), n, s, p)
 
+## Write ##
+combinations = [
+	(1,1,1),
+	(1,1,2),
+	(1,1,3),
+	(2,2,1),
+	(2,2,2),
+]
+with open('src/validity/transMatrices.cpp', 'w') as f:
+	f.write('#include "transMatrices.hpp"\n\n')
+	f.write('namespace element_validity {\n')
+
+	for n,s,p in combinations:
+		f.write(matrices_formatted(n,s,p))
+		f.write('\n\n')
+
+	f.write('\n}\n')
+
+with open('src/validity/lagrangeVector.cpp', 'w') as f:
+	f.write('#include "lagrangeVector.hpp"\n\n')
+	f.write('#define R(p, q) Interval(p) / q\n\n')
+	f.write('namespace element_validity {\n')
+
+	for n,s,p in combinations:
+		f.write(lag_vec_formatted(n,s,p))
+		f.write('\n\n')
+
+	f.write('}\n')
+
 ## Tests ## 
-# print(matrices_formatted(2,2,1))
-print(lag_vec_formatted(1,1,1))
-print(lag_vec_formatted(1,1,2))
-print(lag_vec_formatted(1,1,3))
-print(lag_vec_formatted(2,2,1))
+# print(matrices_formatted(1,1,1))
+# print(matrices_formatted(1,1,2))
+# print(lag_vec_formatted(1,1,1))
+# print(lag_vec_formatted(1,1,2))
+# print(lag_vec_formatted(1,1,3))
+# print(lag_vec_formatted(2,2,1))

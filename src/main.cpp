@@ -9,11 +9,11 @@ int main() {
     // case Validity::invalid: std::cout << "invalid"; break;
     // case Validity::uncertain: std::cout << "uncertain"; break;
     // }
-    element_validity::isValid<1, 1, 1, true>({0,0,1,5});
+    element_validity::isValidT<1, 1, 1>({-1,-1,1,5});
     std::cout << std::endl;
-    element_validity::isValid<1, 1, 2, true>({0,0,2,2,1,2});
+    element_validity::isValidT<1, 1, 2>({0,0,2,2,1,2});
     std::cout << std::endl;
-    element_validity::isValid<2, 2, 1, true>({0,0,0,0,0,0,1,2,1,1,0,0});
+    element_validity::isValidT<2, 2, 1>({-1,-1,-1,-1,0,0,1,2,1,1,0,0});
     std::cout << std::endl;
     return 0;
 }
