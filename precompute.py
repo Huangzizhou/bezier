@@ -41,13 +41,15 @@ def index_set(n, s, p):
 
 ## Corner indices set ##
 def corner_indices_set(n, s, p):
-	iset = index_set(n, s, p)
-	res = []
-	for i, c in enumerate(iset):
-		if (any(x == p for x in c[:s]) or all(x == 0 for x in c[:s])) and \
-			all((x == p or x == 0) for x in c[s:]):
-			res.append(i)
-	return res
+	simplex_ord = n * p - s
+	tensor_ord = n * p - 1
+	assert(simplex_ord >= 0 and tensor_ord >= 0)
+	time_ord = n
+	en = enumerate(index_set_J(n,s,p))
+	return [ind for ind,tup in en
+		if all(x == simplex_ord or x == 0 for x in tup[:s]) \
+		and all(x == tensor_ord or x == 0 for x in tup[s:n]) \
+		and tup[-1] == time_ord]
 
 ## Univariate Lagrange polynomial ##
 def lagrange_uni(p, i, x):
@@ -307,6 +309,8 @@ combinations = [
 WRITE_MATRICES = False
 WRITE_LAGVEC = False
 WRITE_CORNERS = False
+INFO_ORDER = False
+INFO_JAC_ORDER = True
 
 if WRITE_MATRICES:
 	print('Writing matrices...')
@@ -353,3 +357,19 @@ if WRITE_CORNERS:
 	print('Done writing corner indices.')
 else:
 	print('Not writing corner indices.')
+
+if INFO_ORDER:
+	for n,s,p in combinations:
+		print(f'This is the order of control points for elements of type ({n},{s},{p}):')
+		ind = index_set(n, s, p)
+		for i,t in enumerate(ind):
+			print(f'\t{i}: {t}')
+		print()
+
+if INFO_JAC_ORDER:
+	for n,s,p in combinations:
+		print(f'This is the order of jacobian control points for elements of type ({n},{s},{p}):')
+		ind = index_set_J(n, s, p)
+		for i,t in enumerate(ind):
+			print(f'\t{i}: {t}')
+		print()
