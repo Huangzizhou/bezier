@@ -125,7 +125,6 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	// Compute Lagrange coefficients
 	std::vector<Interval> vL;
 	lagrangeVectorT<n, s, p>(cp, vL);
-	const uint basisSize = vL.size();
 	for (auto x : vL) std::cout << x << std::endl;
 
 	// Create initial subdomain
@@ -139,8 +138,8 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	queue.push(sd0);
 
 	// Initialize auxiliary variables
-	uint reachedDepthS = 0;
-	uint reachedDepthT = 0;
+	// uint reachedDepthS = 0;
+	// uint reachedDepthT = 0;
 	uint iterations = 0;
 	bool gaveUp = false;
 	const bool maxIterCheck = (maxSubdiv > 0);
@@ -187,6 +186,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		
 		// Subdomain contains invalidity
 		if (dom.incl <= 0) {
+			// std::cerr << dom.incl << std::endl;
 			foundInvalid = true;
 			if (tmax > dom.time.upper()) {
 				tmax = dom.time.upper();				// update tmax

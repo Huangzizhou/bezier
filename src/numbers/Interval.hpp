@@ -11,7 +11,7 @@ namespace element_validity {
 
 class Interval {
 	public:
-	static void init(){
+	static void init() {
 		#ifdef IPRED_ARITHMETIC
 		static bool initialized = false;
 		if (initialized) return;
