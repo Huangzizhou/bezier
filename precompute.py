@@ -39,6 +39,16 @@ def index_set(n, s, p):
 	return [tup for tup in product(range(p+1), repeat=n)
 		if sum(tup[:s]) <= p and all(x <= p for x in tup[s:])]
 
+## Corner indices set ##
+def corner_indices_set(n, s, p):
+	iset = index_set(n, s, p)
+	res = []
+	for i, c in enumerate(iset):
+		if (any(x == p for x in c[:s]) or all(x == 0 for x in c[:s])) and \
+			all((x == p or x == 0) for x in c[s:]):
+			res.append(i)
+	return res
+
 ## Univariate Lagrange polynomial ##
 def lagrange_uni(p, i, x):
 	k_values = [k for k in range(0, p+1) if k != i]
@@ -274,39 +284,72 @@ def matrices_formatted(n, s, p):
 def lag_vec_formatted(n, s, p):
 	return C_print(lagrange_vector(n,s,p,'cp'), n, s, p)
 
+## Format corner indices
+def corners_formatted(n, s, p):
+	ind = map(str,corner_indices_set(n, s, p))
+	return f'template<>\nvoid cornerIndicesT<{n}, {s}, {p}>(std::vector<uint> &v) ' + \
+		'{ v = {' + ','.join(ind) + '}; }'
+
 ## Write ##
 combinations = [
 	(1,1,1),
 	(1,1,2),
 	(1,1,3),
+	(1,1,4),
+	(1,1,5),
 	(2,2,1),
 	(2,2,2),
+	(2,2,3),
+	(3,3,1),
+	(3,3,2),
 ]
-with open('src/validity/transMatrices.cpp', 'w') as f:
-	f.write('#include "transMatrices.hpp"\n\n')
-	f.write('namespace element_validity {\n')
 
-	for n,s,p in combinations:
-		f.write(matrices_formatted(n,s,p))
-		f.write('\n\n')
+WRITE_MATRICES = False
+WRITE_LAGVEC = False
+WRITE_CORNERS = False
 
-	f.write('\n}\n')
+if WRITE_MATRICES:
+	print('Writing matrices...')
+	with open('src/validity/transMatrices.cpp', 'w') as f:
+		f.write('#include "transMatrices.hpp"\n\n')
+		f.write('namespace element_validity {\n')
 
-with open('src/validity/lagrangeVector.cpp', 'w') as f:
-	f.write('#include "lagrangeVector.hpp"\n\n')
-	f.write('#define R(p, q) Interval(p) / q\n\n')
-	f.write('namespace element_validity {\n')
+		for n,s,p in combinations:
+			f.write(matrices_formatted(n,s,p))
+			f.write('\n\n')
 
-	for n,s,p in combinations:
-		f.write(lag_vec_formatted(n,s,p))
-		f.write('\n\n')
+		f.write('\n}\n')
+	print('Done writing matrices.')
+else:
+	print('Not writing matrices.')
 
-	f.write('}\n')
+if WRITE_LAGVEC:
+	print('Writing Lagrange vectors...')
+	with open('src/validity/lagrangeVector.cpp', 'w') as f:
+		f.write('#include "lagrangeVector.hpp"\n\n')
+		f.write('#define R(p, q) Interval(p) / q\n\n')
+		f.write('namespace element_validity {\n')
 
-## Tests ## 
-# print(matrices_formatted(1,1,1))
-# print(matrices_formatted(1,1,2))
-# print(lag_vec_formatted(1,1,1))
-# print(lag_vec_formatted(1,1,2))
-# print(lag_vec_formatted(1,1,3))
-# print(lag_vec_formatted(2,2,1))
+		for n,s,p in combinations:
+			f.write(lag_vec_formatted(n,s,p))
+			f.write('\n\n')
+
+		f.write('}\n')
+	print('Done writing Lagrange vectors.')
+else:
+	print('Not writing Lagrange vectors.')
+
+if WRITE_CORNERS:
+	print('Writing corner indices...')
+	with open('src/validity/cornerIndices.cpp', 'w') as f:
+		f.write('#include "cornerIndices.hpp"\n\n')
+		f.write('namespace element_validity {\n')
+
+		for n,s,p in combinations:
+			f.write(corners_formatted(n,s,p))
+			f.write('\n\n')
+
+		f.write('\n}\n')
+	print('Done writing corner indices.')
+else:
+	print('Not writing corner indices.')
