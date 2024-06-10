@@ -1,5 +1,29 @@
 ### Bezier subdivision pre-computations ###
 
+## Setup ##
+COMBINATIONS = [
+	(1,1,1),
+	(1,1,2),
+	(1,1,3),
+	(1,1,4),
+	(1,1,5),
+	(2,2,1),
+	(2,2,2),
+	(2,2,3),
+	(3,3,1),
+	# (3,3,2),
+]
+
+DRY_RUN = True
+WRITE_MATRICES = False
+WRITE_LAGVEC = True
+WRITE_CORNERS = False
+INFO_ORDER = False
+INFO_JAC_ORDER = False
+INFO_LAGVEC = False
+
+## Imports
+
 from itertools import product
 from sympy import \
 	symbols, prod, Matrix, MatrixSymbol, det, \
@@ -88,7 +112,6 @@ def jac_det(n, s, p, x_name, c_name, t_name):
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
 	gmap = geo_map(n, s, p, x_name, c_name, t_name)
 	res = det(Matrix([[poly.diff(v) for v in xt] for poly in gmap]))
-	res = collect(res, symbols(t_name))
 	return res
 
 ## Domain points for the Jacobian determinant ##
@@ -122,8 +145,7 @@ def lagrange_vector(n, s, p, c_name):
 	poly = jac_det(n, s, p, x_name, c_name, t_name)
 	pts = domain_pts_J(n, s, p)
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
-	rule = lambda pt: {xt[k]: pt[k] for k in range(n+1)}
-	lag_vec = [poly.subs(rule(pt)) for pt in pts]
+	lag_vec = [poly.subs({xt[k]: pt[k] for k in range(n+1)}) for pt in pts]
 	return lag_vec
 
 
@@ -293,33 +315,15 @@ def corners_formatted(n, s, p):
 		'{ v = {' + ','.join(ind) + '}; }'
 
 ## Write ##
-combinations = [
-	(1,1,1),
-	(1,1,2),
-	(1,1,3),
-	(1,1,4),
-	(1,1,5),
-	(2,2,1),
-	(2,2,2),
-	(2,2,3),
-	(3,3,1),
-	# (3,3,2),
-]
-
-WRITE_MATRICES = True
-WRITE_LAGVEC = True
-WRITE_CORNERS = True
-INFO_ORDER = False
-INFO_JAC_ORDER = False
-INFO_LAGVEC = False
-
 if WRITE_MATRICES:
 	print('Writing matrices...')
-	with open('src/validity/transMatrices.cpp', 'w') as f:
+	path = 'src/validity/transMatrices.cpp'
+	if DRY_RUN: path = '/dev/null'
+	with open(path, 'w') as f:
 		f.write('#include "transMatrices.hpp"\n\n')
 		f.write('namespace element_validity {\n')
 
-		for n,s,p in combinations:
+		for n,s,p in COMBINATIONS:
 			f.write(matrices_formatted(n,s,p))
 			f.write('\n\n')
 
@@ -330,12 +334,14 @@ else:
 
 if WRITE_LAGVEC:
 	print('Writing Lagrange vectors...')
-	with open('src/validity/lagrangeVector.cpp', 'w') as f:
+	path = 'src/validity/lagrangeVector.cpp'
+	if DRY_RUN: path = '/dev/null'
+	with open(path, 'w') as f:
 		f.write('#include "lagrangeVector.hpp"\n\n')
 		f.write('#define R(p, q) Interval(p) / q\n\n')
 		f.write('namespace element_validity {\n')
 
-		for n,s,p in combinations:
+		for n,s,p in COMBINATIONS:
 			f.write(lag_vec_formatted(n,s,p))
 			f.write('\n\n')
 
@@ -346,11 +352,13 @@ else:
 
 if WRITE_CORNERS:
 	print('Writing corner indices...')
-	with open('src/validity/cornerIndices.cpp', 'w') as f:
+	path = 'src/validity/cornerIndices.cpp'
+	if DRY_RUN: path = '/dev/null'
+	with open(path, 'w') as f:
 		f.write('#include "cornerIndices.hpp"\n\n')
 		f.write('namespace element_validity {\n')
 
-		for n,s,p in combinations:
+		for n,s,p in COMBINATIONS:
 			f.write(corners_formatted(n,s,p))
 			f.write('\n\n')
 
@@ -360,7 +368,7 @@ else:
 	print('Not writing corner indices.')
 
 if INFO_ORDER:
-	for n,s,p in combinations:
+	for n,s,p in COMBINATIONS:
 		print(f'This is the order of control points for elements of type ({n},{s},{p}):')
 		ind = index_set(n, s, p)
 		for i,t in enumerate(ind):
@@ -368,7 +376,7 @@ if INFO_ORDER:
 		print()
 
 if INFO_JAC_ORDER:
-	for n,s,p in combinations:
+	for n,s,p in COMBINATIONS:
 		print(f'This is the order of jacobian control points for elements of type ({n},{s},{p}):')
 		ind = index_set_J(n, s, p)
 		for i,t in enumerate(ind):
@@ -376,7 +384,7 @@ if INFO_JAC_ORDER:
 		print()
 
 if INFO_LAGVEC:
-	for n,s,p in combinations:
+	for n,s,p in COMBINATIONS:
 		print(f'This is the Lagrange basis for elements of type ({n},{s},{p}):')
 		indices = index_set(n, s, p)
 		lag = [lagrange(n, s, p, k, 'x') for k in indices]
