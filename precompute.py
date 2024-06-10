@@ -52,9 +52,9 @@ def corner_indices_set(n, s, p):
 		and tup[-1] == time_ord]
 
 ## Univariate Lagrange polynomial ##
-def lagrange_uni(p, i, x):
+def lagrange_uni(m, p, i, x):
 	k_values = [k for k in range(0, p+1) if k != i]
-	return prod((p * x - k) / (i - k) for k in k_values)
+	return prod((m * x - k) / (i - k) for k in k_values)
 
 ## Multivariate Lagrange polynomial ##
 def lagrange(n, s, p, i, x_name):
@@ -64,9 +64,9 @@ def lagrange(n, s, p, i, x_name):
 	assert(i_slack >= 0)
 	x_slack = 1 - sum(x[:s])
 	return \
-		lagrange_uni(i_slack, i_slack, x_slack) * \
-		prod([lagrange_uni(i[k], i[k], x[k]) for k in range(s)]) * \
-		prod([lagrange_uni(p, i[k], x[k]) for k in range(s,n)])
+		lagrange_uni(p, i_slack, i_slack, x_slack) * \
+		prod([lagrange_uni(p, i[k], i[k], x[k]) for k in range(s)]) * \
+		prod([lagrange_uni(p, p, i[k], x[k]) for k in range(s,n)])
 
 ## Geometric map component ##
 def geo_map_component(n, s, p, t, x_name, c_name, ni):
@@ -303,14 +303,15 @@ combinations = [
 	(2,2,2),
 	(2,2,3),
 	(3,3,1),
-	(3,3,2),
+	# (3,3,2),
 ]
 
-WRITE_MATRICES = False
-WRITE_LAGVEC = False
-WRITE_CORNERS = False
+WRITE_MATRICES = True
+WRITE_LAGVEC = True
+WRITE_CORNERS = True
 INFO_ORDER = False
-INFO_JAC_ORDER = True
+INFO_JAC_ORDER = False
+INFO_LAGVEC = False
 
 if WRITE_MATRICES:
 	print('Writing matrices...')
@@ -372,4 +373,13 @@ if INFO_JAC_ORDER:
 		ind = index_set_J(n, s, p)
 		for i,t in enumerate(ind):
 			print(f'\t{i}: {t}')
+		print()
+
+if INFO_LAGVEC:
+	for n,s,p in combinations:
+		print(f'This is the Lagrange basis for elements of type ({n},{s},{p}):')
+		indices = index_set(n, s, p)
+		lag = [lagrange(n, s, p, k, 'x') for k in indices]
+		for i,poly in enumerate(lag):
+			print(f'\t{i}: {poly}')
 		print()
