@@ -15,13 +15,14 @@ COMBINATIONS = [
 ]
 
 DRY_RUN = True
+POLYFEM_ORDER = True
 WRITE_MATRICES = False
 WRITE_LAGVEC = False
 WRITE_CORNERS = False
-INFO_ORDER = False
+INFO_ORDER = True
 INFO_JAC_ORDER = False
 INFO_LAGBASIS = False
-INFO_LAGVECTOR = True
+INFO_LAGVECTOR = False
 
 ## Imports
 
@@ -61,8 +62,104 @@ def subscripts(b, i):
 
 ## Index set ##
 def index_set(n, s, p):
-	return [tup for tup in product(range(p+1), repeat=n)
-		if sum(tup[:s]) <= p and all(x <= p for x in tup[s:])]
+	assert(0 < s <= n)
+	if POLYFEM_ORDER:
+		if n == 1:
+			return [(i,) for i in range(p+1)]
+		elif (n,s,p) == (2,2,1):
+			return [
+				(0,0),
+				(1,0),
+				(0,1),
+			]
+		elif (n,s,p) == (2,2,2):
+			return [
+				(0,0),
+				(2,0),
+				(0,2),
+				(1,0),
+				(1,1),
+				(0,1),
+			]
+		elif (n,s,p) == (2,2,3):
+			return [
+				(0,0),
+				(3,0),
+				(0,3),
+				(1,0),
+				(2,0),
+				(2,1),
+				(1,2),
+				(0,2),
+				(0,1),
+				(1,1),
+			]
+		elif (n,s,p) == (2,2,4):
+			return [
+				(0,0),
+				(4,0),
+				(0,4),
+				(1,0),
+				(2,0),
+				(3,0),
+				(3,1),
+				(2,2),
+				(1,3),
+				(0,3),
+				(0,2),
+				(0,1),
+				(1,1),
+				(1,2),
+				(2,1),
+			]
+		elif (n,s,p) == (3,3,1):
+			return [
+				(0,0,0),
+				(1,0,0),
+				(0,1,0),
+				(0,0,1),
+			]
+		elif (n,s,p) == (3,3,2):
+			return [
+				(0,0,0),
+				(2,0,0),
+				(0,2,0),
+				(0,0,2),
+				(1,0,0),
+				(1,1,0),
+				(0,1,0),
+				(0,0,1),
+				(1,0,1),
+				(0,1,1),
+			]
+		elif (n,s,p) == (3,3,3):
+			return [#check this
+				(0,0,0),
+				(3,0,0),
+				(0,3,0),
+				(0,0,3),
+				(1,0,0),
+				(3,0,0),
+				(2,1,0),
+				(1,2,0),
+				(0,2,0),
+				(0,1,0),
+				(0,0,1),
+				(0,0,2),
+				(2,0,1),
+				(1,0,2),
+				(0,2,1),
+				(0,1,2),
+				(1,1,0),
+				(1,0,1),
+				(1,1,1),
+				(0,1,1),
+			]
+		else: raise Exception(f'Unknown signature ({n}, {s}, {p})')
+	else:
+		return [tup for tup in product(range(p+1), repeat=n)
+			if sum(tup[:s]) <= p and all(x <= p for x in tup[s:])]
+
 
 ## Corner indices set ##
 def corner_indices_set(n, s, p):

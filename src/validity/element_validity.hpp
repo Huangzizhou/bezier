@@ -1,4 +1,5 @@
 #pragma once
+#include "utils/Timer.hpp"
 #include "transMatrices.hpp"
 #include "lagrangeVector.hpp"
 #include "cornerIndices.hpp"
@@ -63,7 +64,10 @@ class ValidityChecker {
 		initMatricesT<n, s, p>(matL2B, matT, matQ);
 		cornerIndicesT<n, s, p>(interpIndices);
 	}
-	fp_t maxTimeStep(const std::vector<fp_t> &cp);
+	fp_t maxTimeStep(
+		const std::vector<fp_t> &cp,
+		std::array<uint, 3> *info = nullptr
+	);
 
 	void setPrecisionTarget(fp_t t) { precision = t; }
 	void setThreshold(fp_t t) { threshold = t; }
@@ -120,30 +124,35 @@ Subdomain ValidityChecker<n, s, p>::splitTime(
 
 template<uint n, uint s, uint p>
 fp_t ValidityChecker<n, s, p>::maxTimeStep(
-	const std::vector<fp_t> &cp
+	const std::vector<fp_t> &cp,
+	std::array<uint, 3> *info
 ) {
 	assert(precision <= 1);
 	assert(precision > 0);
 
 	// Compute Lagrange coefficients
+    Timer timer;
+    timer.start();
 	std::vector<Interval> vL;
 	lagrangeVectorT<n, s, p>(cp, vL);
+	timer.stop();
+    std::cout << timer.read<std::chrono::microseconds>() << "us" << std::endl;
 
 	// Create initial subdomain
 	Subdomain sd0;
 	matL2B.mult(vL, sd0.B);
 	sd0.time = Interval(0,1);
 	sd0.incl = minclusion(sd0.B);
-	for (uint i=0; i<vL.size(); ++i)
-		std::cout << i << ": " << vL.at(i) << " --- " << sd0.B.at(i) << std::endl;
+	// for (uint i=0; i<vL.size(); ++i)
+		// std::cout << i << ": " << vL.at(i) << " --- " << sd0.B.at(i) << std::endl;
 	
 	// Initialize queue
 	std::priority_queue<Subdomain> queue;
 	queue.push(sd0);
 
 	// Initialize auxiliary variables
-	// uint reachedDepthS = 0;
-	// uint reachedDepthT = 0;
+	uint reachedDepthS = 0;
+	uint reachedDepthT = 0;
 	uint iterations = 0;
 	bool gaveUp = false;
 	const bool maxIterCheck = (maxSubdiv > 0);
@@ -173,17 +182,17 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		assert(dom.time.lower() < tmax);
 		assert(dom.time.lower() >= tmin);
 
-		// if (dom.spaceDepth() > reachedDepthS) {
-		// 	dom.copySequence(deepestSubdivSequence);
-		// 	reachedDepthS = dom.spaceDepth();
-		// }
+		if (dom.qSequence.size() > reachedDepthS) {
+			dom.copySequence(deepestSubdivSequence);
+			reachedDepthS = dom.qSequence.size();
+		}
 
-		// if (dom.timeDepth() > reachedDepthT) {
-		// 	reachedDepthT = dom.timeDepth();
-		// }
+		uint td = 0;
+		for (double d=dom.time.width(); d<1.; d*=2) { ++td; }
+		if (td > reachedDepthT) reachedDepthT = td;
 
 		// Check whether we need to give up
-		if (maxIterCheck && (dom.qSequence.size() >= maxSubdiv)) gaveUp = true;
+		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) gaveUp = true;
 
 		// Update tmin
 		tmin = dom.time.lower();
@@ -207,6 +216,12 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		}
 
 		if (gaveUp) break;
+	}
+
+	if (info) {
+		info->at(0) = reachedDepthS;
+		info->at(1) = reachedDepthT;
+		info->at(2) = iterations;
 	}
 
 	return tmin;
