@@ -1,5 +1,5 @@
 set(HEADERS
-    # SubdivisionHierarchy.hpp
+    globals.hpp
     Timer.hpp
     combinatorics.hpp
 )

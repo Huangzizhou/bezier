@@ -1,4 +1,4 @@
-#include "globals.hpp"
+#include "utils/globals.hpp"
 #include "numbers/Interval.hpp"
 #include "utils/combinatorics.hpp"
 #include "validity/element_validity.hpp"

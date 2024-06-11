@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include "Rational.hpp"
-#include "globals.hpp"
+#include "utils/globals.hpp"
 
 #ifdef IPRED_ARITHMETIC
 
