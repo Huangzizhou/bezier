@@ -18,9 +18,10 @@ DRY_RUN = True
 WRITE_MATRICES = False
 WRITE_LAGVEC = False
 WRITE_CORNERS = False
-INFO_ORDER = True
-INFO_JAC_ORDER = True
-INFO_LAGVEC = False
+INFO_ORDER = False
+INFO_JAC_ORDER = False
+INFO_LAGBASIS = False
+INFO_LAGVECTOR = True
 
 ## Imports
 
@@ -383,11 +384,19 @@ if INFO_JAC_ORDER:
 			print(f'\t{i}: {t}')
 		print()
 
-if INFO_LAGVEC:
+if INFO_LAGBASIS:
 	for n,s,p in COMBINATIONS:
 		print(f'This is the Lagrange basis for elements of type ({n},{s},{p}):')
 		indices = index_set(n, s, p)
 		lag = [lagrange(n, s, p, k, 'x') for k in indices]
+		for i,poly in enumerate(lag):
+			print(f'\t{i}: {poly}')
+		print()
+
+if INFO_LAGVECTOR:
+	for n,s,p in COMBINATIONS:
+		print(f'This is the Lagrange vector for elements of type ({n},{s},{p}):')
+		lag = lagrange_vector(n, s, p, 'c')
 		for i,poly in enumerate(lag):
 			print(f'\t{i}: {poly}')
 		print()

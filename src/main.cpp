@@ -31,8 +31,8 @@ int main() {
     std::cout << std::endl;
 
     ValidityChecker<2, 2, 2> v222;
-    v222.setPrecisionTarget(.1);
-    v222.setMaxSubdiv(3);
+    v222.setPrecisionTarget(.01);
+    v222.setMaxSubdiv(30);
     std::cout << v222.maxTimeStep({
         0,0, 0,0,
         0,0, 1,1,
@@ -43,18 +43,10 @@ int main() {
     }) << std::endl;
     std::cout << v222.maxTimeStep({
         0,0, 0,0,
-        .43,.43, .25,.25,
-        .15,.15, .7,.7,
-        .5,.5, .1,.1,
-        .58,.58, .46,.46,
-        1,1, 0,0 
-    }) << std::endl;
-    std::cout << v222.maxTimeStep({
-        0,0, 0,0,
         .43,.43, .25,.46,
         .15,.85, .7,.7,
-        .5,.5, .1,.1,
-        .58,.58, .46,.25,
+        .5,.5, -.1,-.1,
+        .57,.57, .46,.25,
         1,1, 0,0 
     }) << std::endl;
     std::cout << std::endl;

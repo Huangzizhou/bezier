@@ -23,11 +23,14 @@ struct Subdomain {
 
 	// Debug print
 	friend std::ostream& operator<<(std::ostream& ost, const Subdomain &s) {
-		ost << "B: ";
-		for (const Interval &b : s.B) ost << b << ", ";
+		ost << "t: " << s.time << std::endl;
+		ost << "I: " << s.incl << std::endl;
+		ost << "Q: ";
+		for (const uint x : s.qSequence) ost << x << ", ";
 		ost << std::endl;
-		ost << "t=" << s.time << std::endl;
-		ost << "minclusion=" << s.incl << std::endl;
+		ost << "B: ";
+		for (const Interval &b : s.B) ost << '\t' << b << std::endl;
+
 		return ost;
 	}
 
@@ -89,7 +92,7 @@ Subdomain ValidityChecker<n, s, p>::split(
 ) {
 	Subdomain res;
 	matQ[q].mult(src.B, res.B);
-	res.time = (q >> (n-1)) ?
+	res.time = (q >> n) ?
 		Interval(src.time.middle(), src.time.upper()) :
 		Interval(src.time.lower(), src.time.middle());
 	res.incl = minclusion(res.B);
@@ -125,13 +128,14 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	// Compute Lagrange coefficients
 	std::vector<Interval> vL;
 	lagrangeVectorT<n, s, p>(cp, vL);
-	for (auto x : vL) std::cout << x << std::endl;
 
 	// Create initial subdomain
 	Subdomain sd0;
 	matL2B.mult(vL, sd0.B);
 	sd0.time = Interval(0,1);
 	sd0.incl = minclusion(sd0.B);
+	for (uint i=0; i<vL.size(); ++i)
+		std::cout << i << ": " << vL.at(i) << " --- " << sd0.B.at(i) << std::endl;
 	
 	// Initialize queue
 	std::priority_queue<Subdomain> queue;
@@ -143,7 +147,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	uint iterations = 0;
 	bool gaveUp = false;
 	const bool maxIterCheck = (maxSubdiv > 0);
-	bool foundInvalid = false;
+	// bool foundInvalid = false;
 	std::vector<uint> invalidSubdivSequence;
 	std::vector<uint> deepestSubdivSequence;
 	fp_t tmin = 0;
@@ -187,7 +191,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		// Subdomain contains invalidity
 		if (dom.incl <= 0) {
 			// std::cerr << dom.incl << std::endl;
-			foundInvalid = true;
+			// foundInvalid = true;
 			if (tmax > dom.time.upper()) {
 				tmax = dom.time.upper();				// update tmax
 				dom.copySequence(invalidSubdivSequence);	// save trace
