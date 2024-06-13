@@ -131,12 +131,8 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	assert(precision > 0);
 
 	// Compute Lagrange coefficients
-    Timer timer;
-    timer.start();
 	std::vector<Interval> vL;
 	lagrangeVectorT<n, s, p>(cp, vL);
-	timer.stop();
-    std::cout << timer.read<std::chrono::microseconds>() << "us" << std::endl;
 
 	// Create initial subdomain
 	Subdomain sd0;
@@ -199,7 +195,6 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		
 		// Subdomain contains invalidity
 		if (dom.incl <= 0) {
-			// std::cerr << dom.incl << std::endl;
 			// foundInvalid = true;
 			if (tmax > dom.time.upper()) {
 				tmax = dom.time.upper();				// update tmax

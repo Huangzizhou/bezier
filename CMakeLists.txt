@@ -1,9 +1,9 @@
 # Detects whether this is a top-level project
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if(HAS_PARENT)
-    set(JACOBIAN_TOPLEVEL_PROJECT OFF)
+    set(BEZIER_TOPLEVEL_PROJECT OFF)
 else()
-    set(JACOBIAN_TOPLEVEL_PROJECT ON)
+    set(BEZIER_TOPLEVEL_PROJECT ON)
 endif()
 
 cmake_minimum_required(VERSION 3.18)
@@ -13,6 +13,7 @@ include(ExternalProject)
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(JACOBIAN_WITH_TESTS "Run unit tests" OFF)
+option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 include(jacobian_cpm_cache)
@@ -39,7 +40,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set the C++ standard
-if(JACOBIAN_TOPLEVEL_PROJECT)
+if(BEZIER_TOPLEVEL_PROJECT)
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
@@ -81,7 +82,18 @@ if (IPRED_ARITHMETIC)
     include(indirect_predicates)
 endif()
 
-if (JACOBIAN_TOPLEVEL_PROJECT)
+
+##### HDF5 #####################################################################
+if (HDF5_INTERFACE)
+    add_compile_definitions(HDF5_INTERFACE)
+    find_package(HDF5 REQUIRED COMPONENTS C CXX)
+    target_include_directories(bezier PUBLIC ${HDF5_INCLUDE_DIRS})
+    target_link_libraries(bezier PUBLIC ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES})
+endif()
+
+
+##### EXECUTABLES ##############################################################
+if (BEZIER_TOPLEVEL_PROJECT)
     add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
     target_link_libraries(bin PUBLIC bezier::bezier)
 
@@ -89,13 +101,12 @@ if (JACOBIAN_TOPLEVEL_PROJECT)
     # target_link_libraries(testbin PUBLIC bezier::bezier)
 endif()
 
-
 ################################################################################
 # Tests
 ################################################################################
 
 # Compile extras only if this is a top-level project
-if(JACOBIAN_TOPLEVEL_PROJECT AND JACOBIAN_WITH_TESTS)
+if(BEZIER_TOPLEVEL_PROJECT AND JACOBIAN_WITH_TESTS)
     include(CTest)
     enable_testing()
     add_subdirectory(tests)
