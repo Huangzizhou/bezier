@@ -14,12 +14,12 @@ COMBINATIONS = [
 	# (3,3,2),
 ]
 
-DRY_RUN = True
+DRY_RUN = False
 POLYFEM_ORDER = True
 WRITE_MATRICES = False
-WRITE_LAGVEC = False
+WRITE_LAGVEC = True
 WRITE_CORNERS = False
-INFO_ORDER = True
+INFO_ORDER = False
 INFO_JAC_ORDER = False
 INFO_LAGBASIS = False
 INFO_LAGVECTOR = False
@@ -45,8 +45,8 @@ def C_print(expr, n, s, p):
 		f'void lagrangeVectorT<{n}, {s}, {p}>' +
 		'(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {'
 	]
-	L = len(CSE_results[1])
-	lines.append(f'out.resize({L});')
+	lines.append(f'out.resize({len(expr)});')
+	assert len(expr) == len(CSE_results[1])
 	lines.append(f'std::vector<Interval> cp(cpFP.size());')
 	lines.append('for (uint i = 0; i < cpFP.size(); ++i) cp[i] = cpFP[i];')
 	my_ccode = MyCodePrinter().doprint
