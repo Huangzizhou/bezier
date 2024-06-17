@@ -3,10 +3,10 @@
 #include "utils/combinatorics.hpp"
 #include "validity/element_validity.hpp"
 #include "utils/Timer.hpp"
+#include "utils/Settings.hpp"
 
 #ifdef HDF5_INTERFACE
 #include <H5Cpp.h>
-#endif
 
 template<
     element_validity::uint n, 
@@ -14,6 +14,7 @@ template<
     element_validity::uint p
 >
 void processData(
+    element_validity::Settings args,
     element_validity::uint nNodesPerElem,
     element_validity::uint nElements,
     std::vector<element_validity::fp_t> nodes
@@ -23,17 +24,19 @@ void processData(
     checker.setPrecisionTarget(.01);
     checker.setMaxSubdiv(30);
     const uint nCoordPerElem = nNodesPerElem*n*2;
-    std::vector<element_validity::fp_t> results(nElements);
-    std::vector<element_validity::fp_t> element(nCoordPerElem);
+    std::vector<element_validity::fp_t> results;
+    const uint ne = std::min(nElements, args.lastElem - args.firstElem);
+    results.reserve(ne);
 
-    for (uint e=1020; e<1100; ++e) {
+    std::vector<element_validity::fp_t> element(nCoordPerElem);
+    for (uint e=0; e<ne; ++e) {
         for(uint i=0; i<nCoordPerElem; ++i) {
-            element.at(i) = nodes.at(e*nCoordPerElem + i);
+            element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
         }
         timer.start();
-        results.at(e) = checker.maxTimeStep(element);
+        results.push_back(checker.maxTimeStep(element));
         timer.stop();
-        std::cout << "t = " << results.at(e) << "  ";
+        std::cout << "t = " << results.back() << "  ";
         std::cout << timer.read<std::chrono::microseconds>() << "us" << std::endl;
         timer.reset();
     }
@@ -41,11 +44,7 @@ void processData(
 
 int main(int argc, char** argv) {
     element_validity::Interval().init();
-
-    if (argc <= 1) {
-        std::cout << "Please provide filename" << std::endl;
-        return 1;
-    }
+    element_validity::Settings args(argc, argv);
 
     uint dimension;
     uint nNodesPerElem;
@@ -53,10 +52,9 @@ int main(int argc, char** argv) {
     std::vector<element_validity::fp_t> nodes;
 
     {
-        // Read data from HDF5 dataset
+        // Read rational data from HDF5 dataset
         std::cout << "Reading file..." << std::endl;
-        std::string filename = argv[1];
-        H5::H5File file(filename, H5F_ACC_RDONLY);
+        H5::H5File file(args.filePath, H5F_ACC_RDONLY);
 
         const auto H5UINT = H5::PredType::NATIVE_INT;
         file.openDataSet("Dimension").read(&dimension, H5UINT);
@@ -81,7 +79,7 @@ int main(int argc, char** argv) {
     }
 
     #define IFPROC(n, s, p, cp) if (dimension == n && nNodesPerElem == cp) \
-        processData<n, s, p>(nNodesPerElem, nElements, nodes);
+        processData<n, s, p>(args, nNodesPerElem, nElements, nodes);
     IFPROC(1, 1, 1, 2)
     else IFPROC(1, 1, 2, 3)
     else IFPROC(1, 1, 3, 4)
@@ -97,3 +95,7 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+#else
+#warning "HDF5 interface disabled, ignoring main"
+int main(int argc, char** argv) { return 0; }
+#endif
