@@ -5,8 +5,13 @@
 #include "utils/Timer.hpp"
 #include "utils/Settings.hpp"
 
+#include <memory>
+#include <fstream>
+
 #ifdef HDF5_INTERFACE
 #include <H5Cpp.h>
+
+constexpr char SEP = ',';
 
 template<
     element_validity::uint n, 
@@ -17,27 +22,42 @@ void processData(
     element_validity::Settings args,
     element_validity::uint nNodesPerElem,
     element_validity::uint nElements,
-    std::vector<element_validity::fp_t> nodes
+    std::vector<element_validity::fp_t> nodes,
+    std::ostream *out = nullptr
 ) {
     element_validity::Timer timer;
     element_validity::ValidityChecker<n, s, p> checker;
     checker.setPrecisionTarget(.01);
-    checker.setMaxSubdiv(30);
+    // checker.setMaxSubdiv(30);
     const uint nCoordPerElem = nNodesPerElem*n*2;
     std::vector<element_validity::fp_t> results;
     const uint ne = std::min(nElements, args.lastElem - args.firstElem);
     results.reserve(ne);
 
+    if (out)
+        *out << "ID" << SEP
+            << "max_time_step" << SEP
+            << "space_depth" << SEP
+            << "time_depth" << SEP
+            << "iterations" << SEP
+            << "microseconds" << std::endl;
     std::vector<element_validity::fp_t> element(nCoordPerElem);
     for (uint e=0; e<ne; ++e) {
         for(uint i=0; i<nCoordPerElem; ++i) {
             element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
         }
+	    std::array<uint, 3> info;
         timer.start();
-        results.push_back(checker.maxTimeStep(element));
+        const element_validity::fp_t t = checker.maxTimeStep(element, &info);
         timer.stop();
-        std::cout << "t = " << results.back() << "  ";
-        std::cout << timer.read<std::chrono::microseconds>() << "us" << std::endl;
+        results.push_back(t);
+        if (out)
+            *out << e + args.firstElem << SEP
+                << element_validity::fp_fmt << t << SEP
+                << std::get<0>(info) << SEP
+                << std::get<1>(info) << SEP
+                << std::get<2>(info) << SEP
+                << timer.read<std::chrono::microseconds>() << std::endl;
         timer.reset();
     }
 }
@@ -78,8 +98,11 @@ int main(int argc, char** argv) {
         std::cout << "Done." << std::endl;
     }
 
+    std::unique_ptr<std::ofstream> out;
+    if (args.resultsPath.size() > 0)
+        out = std::make_unique<std::ofstream>(args.resultsPath);
     #define IFPROC(n, s, p, cp) if (dimension == n && nNodesPerElem == cp) \
-        processData<n, s, p>(args, nNodesPerElem, nElements, nodes);
+        processData<n, s, p>(args, nNodesPerElem, nElements, nodes, out.get());
     IFPROC(1, 1, 1, 2)
     else IFPROC(1, 1, 2, 3)
     else IFPROC(1, 1, 3, 4)

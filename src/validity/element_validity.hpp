@@ -139,8 +139,6 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	matL2B.mult(vL, sd0.B);
 	sd0.time = Interval(0,1);
 	sd0.incl = minclusion(sd0.B);
-	// for (uint i=0; i<vL.size(); ++i)
-		// std::cout << i << ": " << vL.at(i) << " --- " << sd0.B.at(i) << std::endl;
 	
 	// Initialize queue
 	std::priority_queue<Subdomain> queue;
@@ -180,12 +178,12 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 
 		if (dom.qSequence.size() > reachedDepthS) {
 			dom.copySequence(deepestSubdivSequence);
-			reachedDepthS = dom.qSequence.size();
+			reachedDepthS = deepestSubdivSequence.size();
 		}
 
 		uint td = 0;
 		for (double d=dom.time.width(); d<1.; d*=2) { ++td; }
-		if (td > reachedDepthT) reachedDepthT = td;
+		reachedDepthT = std::max(reachedDepthT, td);
 
 		// Check whether we need to give up
 		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) gaveUp = true;
@@ -210,7 +208,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
 		}
 
-		if (gaveUp) break;
+		if (gaveUp) throw std::runtime_error("giving up");
 	}
 
 	if (info) {
