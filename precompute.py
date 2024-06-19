@@ -10,15 +10,15 @@ COMBINATIONS = [
 	(2,2,1),
 	(2,2,2),
 	(2,2,3),
+	(2,2,4),
 	(3,3,1),
-	# (3,3,2),
+	(3,3,2),
 ]
-
 DRY_RUN = False
 POLYFEM_ORDER = True
-WRITE_MATRICES = False
+WRITE_MATRICES = True
 WRITE_LAGVEC = True
-WRITE_CORNERS = False
+WRITE_CORNERS = True
 INFO_ORDER = False
 INFO_JAC_ORDER = False
 INFO_LAGBASIS = False
@@ -31,6 +31,7 @@ from sympy import \
 	symbols, prod, Matrix, MatrixSymbol, det, \
 	collect, Rational, expand, pprint, numbered_symbols, cse
 from sympy.printing.c import C99CodePrinter
+from concurrent.futures import ProcessPoolExecutor
 
 ## Custom printer for rationals ##
 class MyCodePrinter(C99CodePrinter):
@@ -195,15 +196,48 @@ def geo_map_component(n, s, p, t, x_name, c_name, ni):
 	indices = index_set(n, s, p)
 	cp = subscripts(c_name, range(t + 2*ni, len(indices)*2*n, 2*n))
 	lag = [lagrange(n, s, p, k, x_name) for k in indices]
+	print(f"geomap {n} {s} {p} {t} {ni}")
 	return sum(cp[k] * lag[k] for k in range(len(indices)))
 	
 ## Geometric map ##
+def aux_map_component(args):
+	n, s, p, t, x_name, c_name, i = args
+	return geo_map_component(n, s, p, t, x_name, c_name, i)
+
+def aux_combine_results(args):
+	i, T, results_0, results_1 = args
+	return (1 - T) * results_0[i] + T * results_1[i]
+
 def geo_map(n, s, p, x_name, c_name, t_name):
 	T = symbols(t_name)
-	return [
-		(1 - T) * geo_map_component(n, s, p, 0, x_name, c_name, i) + \
-		T * geo_map_component(n, s, p, 1, x_name, c_name, i)
-		for i in range(n)] + [T]
+
+	with ProcessPoolExecutor() as executor:
+		args_0 = [(n, s, p, 0, x_name, c_name, i) for i in range(n)]
+		args_1 = [(n, s, p, 1, x_name, c_name, i) for i in range(n)]
+
+		# Submit tasks for t=0 and t=1 components
+		futures_0 = [executor.submit(aux_map_component, arg) for arg in args_0]
+		futures_1 = [executor.submit(aux_map_component, arg) for arg in args_1]
+
+		results_0 = [future.result() for future in futures_0]
+		results_1 = [future.result() for future in futures_1]
+
+	with ProcessPoolExecutor() as executor:
+		# Prepare arguments for combining results
+		args_combined = [(i, T, results_0, results_1) for i in range(n)]
+
+		futures_combined = [executor.submit(aux_combine_results, arg)
+			for arg in args_combined]
+		combined_results = [future.result() for future in futures_combined]
+
+	return combined_results + [T]
+
+# def geo_map(n, s, p, x_name, c_name, t_name):
+# 	T = symbols(t_name)
+# 	return [
+# 		(1 - T) * geo_map_component(n, s, p, 0, x_name, c_name, i) + \
+# 		T * geo_map_component(n, s, p, 1, x_name, c_name, i)
+# 		for i in range(n)] + [T]
 
 ## Jacobian determinant ##
 def jac_det(n, s, p, x_name, c_name, t_name):
@@ -237,14 +271,35 @@ def domain_pts_J(n, s, p):
 		for tup in index_set_J(n, s, p)]
 
 ## Lagrange vector ##
+def aux_evaluate_point(args):
+	pt, poly, xt, n = args
+	return poly.subs({xt[k]: pt[k] for k in range(n+1)})
+
 def lagrange_vector(n, s, p, c_name):
 	x_name = 'u'
 	t_name = 't'
 	poly = jac_det(n, s, p, x_name, c_name, t_name)
 	pts = domain_pts_J(n, s, p)
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
-	lag_vec = [poly.subs({xt[k]: pt[k] for k in range(n+1)}) for pt in pts]
+
+	with ProcessPoolExecutor() as executor:
+		futures = [
+			executor.submit(aux_evaluate_point, [pt, poly, xt, n]) for pt in pts
+		]
+		lag_vec = [future.result() for future in futures]
+
 	return lag_vec
+
+
+# def lagrange_vector(n, s, p, c_name):
+# 	x_name = 'u'
+# 	t_name = 't'
+# 	poly = jac_det(n, s, p, x_name, c_name, t_name)
+# 	pts = domain_pts_J(n, s, p)
+# 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
+# 	lag_vec = [poly.subs({xt[k]: pt[k] for k in range(n+1)}) for pt in pts]
+# 	return lag_vec
+
 
 
 ## Time subdivision maps ##
@@ -273,8 +328,8 @@ def space_subdiv_map(pt, n, s, q):
 			res[0] = pt[0]
 			res[1] = pt[1] + 1
 		elif qs == 3:
-			res[0] = pt[0] + 1
-			res[1] = pt[1] + 1
+			res[0] = 1 - pt[0]
+			res[1] = 1 - pt[1]
 	elif s == 3:
 		if qs == 0:
 			res[0] = pt[0]
