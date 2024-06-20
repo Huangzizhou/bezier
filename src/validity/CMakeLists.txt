@@ -1,14 +1,34 @@
 set(HEADERS
-    element_validity.hpp
-    lagrangeVector.hpp
-    transMatrices.hpp
-    cornerIndices.hpp
+	element_validity.hpp
+	cornerIndices.hpp
+	lagrangeVector.hpp
+	transMatrices.hpp
 )
 
 set(SOURCES
-    lagrangeVector.cpp
-    transMatrices.cpp
-    cornerIndices.cpp
+	transMatrices_1_1_1.cpp
+	lagrangeVector_1_1_1.cpp
+	transMatrices_1_1_2.cpp
+	lagrangeVector_1_1_2.cpp
+	transMatrices_1_1_3.cpp
+	lagrangeVector_1_1_3.cpp
+	transMatrices_1_1_4.cpp
+	lagrangeVector_1_1_4.cpp
+	transMatrices_1_1_5.cpp
+	lagrangeVector_1_1_5.cpp
+	transMatrices_2_2_1.cpp
+	lagrangeVector_2_2_1.cpp
+	transMatrices_2_2_2.cpp
+	lagrangeVector_2_2_2.cpp
+	transMatrices_2_2_3.cpp
+	lagrangeVector_2_2_3.cpp
+	transMatrices_2_2_4.cpp
+	lagrangeVector_2_2_4.cpp
+	transMatrices_3_3_1.cpp
+	lagrangeVector_3_3_1.cpp
+	transMatrices_3_3_2.cpp
+	lagrangeVector_3_3_2.cpp
+	cornerIndices.cpp
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})

@@ -110,7 +110,8 @@ int main(int argc, char** argv) {
     else IFPROC(1, 1, 5, 6)
     else IFPROC(2, 2, 1, 3)
     else IFPROC(2, 2, 2, 6)
-    else IFPROC(2, 2, 3, 10)
+    // else IFPROC(2, 2, 3, 10)
+    // else IFPROC(2, 2, 4, 15)
     else IFPROC(3, 3, 1, 4)
     // IFPROC(3, 3, 2, 10)
     #undef IFPROC

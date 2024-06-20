@@ -28,6 +28,7 @@ class Interval {
 		data(-o.inf(), o.sup()) {}
 
 	Interval fromRational(const Rational &rat) {
+		// TODO change this function to not use nextafter
 		const double inf = std::numeric_limits<double>::max();
 		const double d = static_cast<double>(rat);
 		/*double a=d, b=d;

@@ -14,22 +14,26 @@ COMBINATIONS = [
 	(3,3,1),
 	(3,3,2),
 ]
-DRY_RUN = True
+DRY_RUN = False
 POLYFEM_ORDER = True
-WRITE_MATRICES = False
+WRITE_CMAKE = True
+WRITE_MATRICES = True
 WRITE_LAGVEC = True
 WRITE_CORNERS = True
 INFO_ORDER = False
 INFO_JAC_ORDER = False
 INFO_LAGBASIS = False
 INFO_LAGVECTOR = False
+TO_ORIGIN = False
 
 ## Imports
 
 from itertools import product
 from sympy import \
 	symbols, prod, Matrix, MatrixSymbol, det, Poly, \
-	collect, expand, pprint, numbered_symbols, cse, QQ, ZZ
+	collect, collect_const, expand, \
+	pprint, numbered_symbols, cse, QQ, ZZ
+from sympy.simplify.ratsimp import ratsimp
 from sympy.printing.c import C99CodePrinter
 from sympy.polys.matrices import DomainMatrix
 from concurrent.futures import ProcessPoolExecutor
@@ -41,10 +45,16 @@ class MyCodePrinter(C99CodePrinter):
 
 ## C print ##
 def C_print(expr, n, s, p):
-	if (__debug__): print('CSE start')
-	CSE_results = cse(expr, numbered_symbols('tmp_'), order='none')
-	if (__debug__): print('CSE end')
+	if (__debug__): print('Simplification/CSE start')
+	CSE_results = cse(expr, numbered_symbols('tmp_'), optimizations='basic')
+	# CSE_results = cse(expr, numbered_symbols('tmp_'), order='none')
+	# with ProcessPoolExecutor() as executor:
+	# 	futures = [
+	# 		executor.submit(ratsimp, x) for x in expr
+	# 	]
+	# 	expr_simplified = [future.result() for future in futures]
 	# CSE_results = ([],expr)
+	if (__debug__): print('Simplification/CSE end')
 	lines = [
 		'template<>\n' +
 		f'void lagrangeVectorT<{n}, {s}, {p}>' +
@@ -52,8 +62,11 @@ def C_print(expr, n, s, p):
 	]
 	lines.append(f'out.resize({len(expr)});')
 	assert len(expr) == len(CSE_results[1])
-	lines.append(f'std::vector<Interval> cp(cpFP.size());')
-	lines.append('for (uint i = 0; i < cpFP.size(); ++i) cp[i] = cpFP[i];')
+	lines.append('const uint S = cpFP.size();')
+	lines.append('std::vector<Interval> cp(S);')
+	lines.append('for (uint i = 0; i < S; ++i) cp[i] = cpFP[i];')
+	if TO_ORIGIN:
+		lines.append(f'for (int i = S-1; i >= 0; --i) cp[i] -= cp[i%{n}];')
 	my_ccode = MyCodePrinter().doprint
 	for helper in CSE_results[0]:
 		lines.append('const Interval ' + my_ccode(helper[1], helper[0]))
@@ -204,6 +217,7 @@ def geo_map_component(n, s, p, t, x_name, c_name, ni):
 	if (__debug__): print(f"Geometric map ({n} {s} {p}), time {t}, component {ni}")
 	indices = index_set(n, s, p)
 	cp = subscripts(c_name, range(t + 2*ni, len(indices)*2*n, 2*n))
+	if TO_ORIGIN: cp[0] = 0
 	lag = [lagrange(n, s, p, k, x_name) for k in indices]
 	return my_simplify(sum(cp[k] * lag[k] for k in range(len(indices))))
 	
@@ -276,7 +290,7 @@ def domain_pts_J(n, s, p):
 def aux_evaluate_det(args):
 	pt, J, xt, n = args
 	if (__debug__): print(f"\t Det eval {pt} start")
-	d = J.subs({xt[k]: pt[k] for k in range(n+1)}).det()
+	d = J.subs({xt[k]: pt[k] for k in range(n+1)}).det(method='berkowitz')
 	if (__debug__): print(f"\t Det eval {pt} end")
 	return d
 
@@ -406,12 +420,12 @@ def subdiv_matrices(n, s, p):
 		[tensor_ord - e[k] for k in range(s, n)] + [time_ord - e[n]]
 		for e in exponents]
 	r_full = range(len(xt_full))
-	basis = [my_simplify(Poly(
+	basis = [my_simplify(
 			multinomial(list(e[:s]) + [simplex_ord - sum(e[:s])]) *
 			prod(multinomial((ee, tensor_ord - ee)) for ee in e[s:n]) *
 			multinomial((e[n], time_ord - e[n])) *
 			prod([xt_full[k]**exponents_full[i][k] for k in r_full])
-		)) for i,e in enumerate(exponents)]
+		) for i,e in enumerate(exponents)]
 	assert(expand(sum(basis)) == 1)
 	if (__debug__): print('Basis computed')
 	pts = domain_pts_J(n, s, p)
@@ -471,20 +485,36 @@ def corners_formatted(n, s, p):
 		'{ v = {' + ','.join(ind) + '}; }'
 
 ## Write ##
+if WRITE_CMAKE:
+	with open('src/validity/CMakeLists.txt', 'w') as f:
+		f.write('set(HEADERS\n')
+		f.write('\telement_validity.hpp\n')
+		f.write('\tcornerIndices.hpp\n')
+		f.write('\tlagrangeVector.hpp\n')
+		f.write('\ttransMatrices.hpp\n')
+		f.write(')\n\n')
+
+		f.write('set(SOURCES\n')
+		for n,s,p in COMBINATIONS:
+			f.write(f'\ttransMatrices_{n}_{s}_{p}.cpp\n')
+			f.write(f'\tlagrangeVector_{n}_{s}_{p}.cpp\n')
+		f.write('\tcornerIndices.cpp\n')
+		f.write(')\n\n')
+
+		f.write('source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})\n')
+		f.write('target_sources(bezier PRIVATE ${SOURCES})')
+
 if WRITE_MATRICES:
 	print('Writing matrices...')
-	path = 'src/validity/transMatrices.cpp'
-	if DRY_RUN: path = '/dev/null'
-	with open(path, 'w') as f:
-		f.write('#include "transMatrices.hpp"\n\n')
-		f.write('namespace element_validity {\n')
-
-		for n,s,p in COMBINATIONS:
-			print(f'({n} {s} {p})')
+	path = lambda n,s,p: f'src/validity/transMatrices_{n}_{s}_{p}.cpp'
+	if DRY_RUN: path = lambda n,s,p: '/dev/null'
+	for n,s,p in COMBINATIONS:
+		with open(path(n,s,p), 'w') as f:
+			f.write('#include "transMatrices.hpp"\n\n')
+			f.write('namespace element_validity {\n')
+			if (__debug__): print(f'({n} {s} {p})')
 			f.write(matrices_formatted(n,s,p))
-			f.write('\n\n')
-
-		f.write('\n}\n')
+			f.write('\n}\n')
 	print()
 	print('Done writing matrices.')
 else:
@@ -492,18 +522,15 @@ else:
 
 if WRITE_LAGVEC:
 	print('Writing Lagrange vectors...')
-	path = 'src/validity/lagrangeVector.cpp'
-	if DRY_RUN: path = '/dev/null'
-	with open(path, 'w') as f:
-		f.write('#include "lagrangeVector.hpp"\n\n')
-		f.write('#define R(p, q) Interval(p) / q\n\n')
-		f.write('namespace element_validity {\n')
-
-		for n,s,p in COMBINATIONS:
+	path = lambda n,s,p: f'src/validity/lagrangeVector_{n}_{s}_{p}.cpp'
+	if DRY_RUN: path = lambda n,s,p: '/dev/null'
+	for n,s,p in COMBINATIONS:
+		with open(path(n,s,p), 'w') as f:
+			f.write('#include "lagrangeVector.hpp"\n\n')
+			f.write('#define R(p, q) (Interval(p) / q)\n\n')
+			f.write('namespace element_validity {\n')
 			f.write(lag_vec_formatted(n,s,p))
-			f.write('\n\n')
-
-		f.write('}\n')
+			f.write('}\n')
 	print('Done writing Lagrange vectors.')
 else:
 	print('Not writing Lagrange vectors.')
