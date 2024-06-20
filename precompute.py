@@ -14,9 +14,9 @@ COMBINATIONS = [
 	(3,3,1),
 	(3,3,2),
 ]
-DRY_RUN = False
+DRY_RUN = True
 POLYFEM_ORDER = True
-WRITE_MATRICES = True
+WRITE_MATRICES = False
 WRITE_LAGVEC = True
 WRITE_CORNERS = True
 INFO_ORDER = False
@@ -28,9 +28,10 @@ INFO_LAGVECTOR = False
 
 from itertools import product
 from sympy import \
-	symbols, prod, Matrix, MatrixSymbol, det, \
-	collect, Rational, expand, pprint, numbered_symbols, cse
+	symbols, prod, Matrix, MatrixSymbol, det, Poly, \
+	collect, expand, pprint, numbered_symbols, cse, QQ, ZZ
 from sympy.printing.c import C99CodePrinter
+from sympy.polys.matrices import DomainMatrix
 from concurrent.futures import ProcessPoolExecutor
 
 ## Custom printer for rationals ##
@@ -40,7 +41,10 @@ class MyCodePrinter(C99CodePrinter):
 
 ## C print ##
 def C_print(expr, n, s, p):
-	CSE_results = cse(expr, numbered_symbols('tmp_'), optimizations='basic')
+	if (__debug__): print('CSE start')
+	CSE_results = cse(expr, numbered_symbols('tmp_'), order='none')
+	if (__debug__): print('CSE end')
+	# CSE_results = ([],expr)
 	lines = [
 		'template<>\n' +
 		f'void lagrangeVectorT<{n}, {s}, {p}>' +
@@ -140,7 +144,7 @@ def index_set(n, s, p):
 				(0,3,0),
 				(0,0,3),
 				(1,0,0),
-				(3,0,0),
+				(2,0,0),
 				(2,1,0),
 				(1,2,0),
 				(0,2,0),
@@ -161,6 +165,9 @@ def index_set(n, s, p):
 		return [tup for tup in product(range(p+1), repeat=n)
 			if sum(tup[:s]) <= p and all(x <= p for x in tup[s:])]
 
+## Simplification
+def my_simplify(expr):
+	return expand(expr)
 
 ## Corner indices set ##
 def corner_indices_set(n, s, p):
@@ -186,18 +193,19 @@ def lagrange(n, s, p, i, x_name):
 	i_slack = p - sum(i[:s])
 	assert(i_slack >= 0)
 	x_slack = 1 - sum(x[:s])
-	return \
+	return my_simplify(
 		lagrange_uni(p, i_slack, i_slack, x_slack) * \
 		prod([lagrange_uni(p, i[k], i[k], x[k]) for k in range(s)]) * \
 		prod([lagrange_uni(p, p, i[k], x[k]) for k in range(s,n)])
+	)
 
 ## Geometric map component ##
 def geo_map_component(n, s, p, t, x_name, c_name, ni):
+	if (__debug__): print(f"Geometric map ({n} {s} {p}), time {t}, component {ni}")
 	indices = index_set(n, s, p)
 	cp = subscripts(c_name, range(t + 2*ni, len(indices)*2*n, 2*n))
 	lag = [lagrange(n, s, p, k, x_name) for k in indices]
-	print(f"geomap {n} {s} {p} {t} {ni}")
-	return sum(cp[k] * lag[k] for k in range(len(indices)))
+	return my_simplify(sum(cp[k] * lag[k] for k in range(len(indices))))
 	
 ## Geometric map ##
 def aux_map_component(args):
@@ -232,19 +240,13 @@ def geo_map(n, s, p, x_name, c_name, t_name):
 
 	return combined_results + [T]
 
-# def geo_map(n, s, p, x_name, c_name, t_name):
-# 	T = symbols(t_name)
-# 	return [
-# 		(1 - T) * geo_map_component(n, s, p, 0, x_name, c_name, i) + \
-# 		T * geo_map_component(n, s, p, 1, x_name, c_name, i)
-# 		for i in range(n)] + [T]
 
 ## Jacobian determinant ##
-def jac_det(n, s, p, x_name, c_name, t_name):
+def jacobian(n, s, p, x_name, c_name, t_name):
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
 	gmap = geo_map(n, s, p, x_name, c_name, t_name)
-	res = det(Matrix([[poly.diff(v) for v in xt] for poly in gmap]))
-	return res
+	J =	Matrix([[my_simplify(poly.diff(v)) for v in xt] for poly in gmap])
+	return J
 
 ## Domain points for the Jacobian determinant ##
 def index_set_J(n, s, p):
@@ -263,49 +265,44 @@ def domain_pts_J(n, s, p):
 	time_den = n
 	return [
 		tuple(
-			Rational(elem, simplex_den) if i < s else
-			Rational(elem, time_den) if i == n else
-			Rational(elem, tensor_den)
+			QQ(elem, simplex_den) if i < s else
+			QQ(elem, time_den) if i == n else
+			QQ(elem, tensor_den)
 			for i, elem in enumerate(tup)
 		)
 		for tup in index_set_J(n, s, p)]
 
 ## Lagrange vector ##
-def aux_evaluate_point(args):
-	pt, poly, xt, n = args
-	return poly.subs({xt[k]: pt[k] for k in range(n+1)})
+def aux_evaluate_det(args):
+	pt, J, xt, n = args
+	if (__debug__): print(f"\t Det eval {pt} start")
+	d = J.subs({xt[k]: pt[k] for k in range(n+1)}).det()
+	if (__debug__): print(f"\t Det eval {pt} end")
+	return d
 
 def lagrange_vector(n, s, p, c_name):
 	x_name = 'u'
 	t_name = 't'
-	poly = jac_det(n, s, p, x_name, c_name, t_name)
+	if (__debug__): print("Jac start")
+	J = jacobian(n, s, p, x_name, c_name, t_name)
+	if (__debug__): print("Jac end")
 	pts = domain_pts_J(n, s, p)
 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
 
 	with ProcessPoolExecutor() as executor:
 		futures = [
-			executor.submit(aux_evaluate_point, [pt, poly, xt, n]) for pt in pts
+			executor.submit(aux_evaluate_det, [pt, J, xt, n]) for pt in pts
 		]
 		lag_vec = [future.result() for future in futures]
 
 	return lag_vec
 
 
-# def lagrange_vector(n, s, p, c_name):
-# 	x_name = 'u'
-# 	t_name = 't'
-# 	poly = jac_det(n, s, p, x_name, c_name, t_name)
-# 	pts = domain_pts_J(n, s, p)
-# 	xt = subscripts(x_name, range(n)) + [symbols(t_name)]
-# 	lag_vec = [poly.subs({xt[k]: pt[k] for k in range(n+1)}) for pt in pts]
-# 	return lag_vec
-
-
 
 ## Time subdivision maps ##
 def time_subdiv_map(pt, shift):
 	h = 1 if shift else 0
-	return(pt[:-1] + ((pt[-1] + h) / 2,))
+	return(pt[:-1] + ((pt[-1] + h) * QQ(1,2),))
 
 ## Space subdivision maps ##
 def space_subdiv_map(pt, n, s, q):
@@ -372,7 +369,7 @@ def space_subdiv_map(pt, n, s, q):
 		res[k] = pt[k] + qt
 
 	# Divide and return
-	return tuple(r/2 for r in res)
+	return tuple(r * QQ(1,2) for r in res)
 
 ## Compress matrix ##
 def mat_compress(m):
@@ -409,34 +406,40 @@ def subdiv_matrices(n, s, p):
 		[tensor_ord - e[k] for k in range(s, n)] + [time_ord - e[n]]
 		for e in exponents]
 	r_full = range(len(xt_full))
-	basis = [
-		multinomial(list(e[:s]) + [simplex_ord - sum(e[:s])]) *
-		prod(multinomial((ee, tensor_ord - ee)) for ee in e[s:n]) *
-		multinomial((e[n], time_ord - e[n])) *
-		prod([xt_full[k]**exponents_full[i][k] for k in r_full])
-		for i,e in enumerate(exponents)]
+	basis = [my_simplify(Poly(
+			multinomial(list(e[:s]) + [simplex_ord - sum(e[:s])]) *
+			prod(multinomial((ee, tensor_ord - ee)) for ee in e[s:n]) *
+			multinomial((e[n], time_ord - e[n])) *
+			prod([xt_full[k]**exponents_full[i][k] for k in r_full])
+		)) for i,e in enumerate(exponents)]
 	assert(expand(sum(basis)) == 1)
 	if (__debug__): print('Basis computed')
 	pts = domain_pts_J(n, s, p)
 
 	rule = lambda e: {xt[k]: e[k] for k in range(n+1)}
-	b2l = Matrix([[b.subs(rule(pt)) for b in basis] for pt in pts])
+	b2l = DomainMatrix.from_Matrix(Matrix(
+			[[b.subs(rule(pt)) for b in basis] for pt in pts]
+		)).to_field()
 	if (__debug__): print('B2L computed')
 	l2b = b2l.inv()
 	if (__debug__): print('L2B computed')
 	tsd = [
-		l2b * Matrix([[
+		l2b * DomainMatrix.from_Matrix(Matrix([[
 			b.subs(rule(time_subdiv_map(pt, t)))
-			for b in basis] for pt in pts])
+			for b in basis] for pt in pts])).to_field()
 		for t in [False, True]]
 	if (__debug__): print('Time subdivision matrices computed')
 	ssd = [
-		l2b * Matrix([[
+		l2b * DomainMatrix.from_Matrix(Matrix([[
 			b.subs(rule(space_subdiv_map(pt, n, s, q)))
-			for b in basis] for pt in pts])
+			for b in basis] for pt in pts])).to_field()
 		for q in range(2**(n+1))]
 	if (__debug__): print('Space subdivision matrices computed')
-	return [l2b, tsd, ssd]
+	return [
+		l2b.to_Matrix(),
+		[m.to_Matrix() for m in tsd],
+		[m.to_Matrix() for m in ssd]
+	]
 
 ## Format matrices ##
 def matrices_formatted(n, s, p):
@@ -477,10 +480,12 @@ if WRITE_MATRICES:
 		f.write('namespace element_validity {\n')
 
 		for n,s,p in COMBINATIONS:
+			print(f'({n} {s} {p})')
 			f.write(matrices_formatted(n,s,p))
 			f.write('\n\n')
 
 		f.write('\n}\n')
+	print()
 	print('Done writing matrices.')
 else:
 	print('Not writing matrices.')
