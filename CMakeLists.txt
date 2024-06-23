@@ -30,7 +30,7 @@ if(IPRED_ARITHMETIC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -frounding-math -O2 -msse2 -mavx2")
     set(USE_SIMD_INSTRUCTIONS ON)
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 endif()
 
 # Ensure the build type is set

@@ -17,6 +17,12 @@ template<>
 void cornerIndicesT<1, 1, 5>(std::vector<uint> &v) { v = {1,9}; }
 
 template<>
+void cornerIndicesT<2, 1, 1>(std::vector<uint> &v) { v = {2,5,8,11}; }
+
+template<>
+void cornerIndicesT<2, 1, 2>(std::vector<uint> &v) { v = {2,11,38,47}; }
+
+template<>
 void cornerIndicesT<2, 2, 1>(std::vector<uint> &v) { v = {2}; }
 
 template<>

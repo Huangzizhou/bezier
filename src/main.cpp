@@ -39,7 +39,7 @@ void processData(
             << "max_time_step" << SEP
             << "space_depth" << SEP
             << "time_depth" << SEP
-            << "iterations" << SEP
+            << "max_queue_size" << SEP
             << "microseconds" << std::endl;
     std::vector<element_validity::fp_t> element(nCoordPerElem);
     for (uint e=0; e<ne; ++e) {
@@ -108,12 +108,14 @@ int main(int argc, char** argv) {
     else IFPROC(1, 1, 3, 4)
     else IFPROC(1, 1, 4, 5)
     else IFPROC(1, 1, 5, 6)
+    else IFPROC(2, 1, 1, 4)
+    else IFPROC(2, 1, 2, 9)
     else IFPROC(2, 2, 1, 3)
     else IFPROC(2, 2, 2, 6)
-    // else IFPROC(2, 2, 3, 10)
-    // else IFPROC(2, 2, 4, 15)
+    else IFPROC(2, 2, 3, 10)
+    else IFPROC(2, 2, 4, 15)
     else IFPROC(3, 3, 1, 4)
-    // IFPROC(3, 3, 2, 10)
+    else IFPROC(3, 3, 2, 10)
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
 

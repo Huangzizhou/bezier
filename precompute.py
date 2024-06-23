@@ -7,6 +7,8 @@ COMBINATIONS = [
 	(1,1,3),
 	(1,1,4),
 	(1,1,5),
+	(2,1,1),
+	(2,1,2),
 	(2,2,1),
 	(2,2,2),
 	(2,2,3),
@@ -16,10 +18,10 @@ COMBINATIONS = [
 ]
 DRY_RUN = False
 POLYFEM_ORDER = True
-WRITE_CMAKE = True
+WRITE_CMAKE = False
 WRITE_MATRICES = True
 WRITE_LAGVEC = True
-WRITE_CORNERS = True
+WRITE_CORNERS = False
 INFO_ORDER = False
 INFO_JAC_ORDER = False
 INFO_LAGBASIS = False
@@ -84,6 +86,13 @@ def index_set(n, s, p):
 	if POLYFEM_ORDER:
 		if n == 1:
 			return [(i,) for i in range(p+1)]
+		elif (n,s,p) == (2,1,1):
+			return [
+				(0,0),
+				(1,0),
+				(1,1),
+				(0,1),
+			]
 		elif (n,s,p) == (2,2,1):
 			return [
 				(0,0),
@@ -98,6 +107,18 @@ def index_set(n, s, p):
 				(1,0),
 				(1,1),
 				(0,1),
+			]
+		elif (n,s,p) == (2,1,2):
+			return [# check this
+				(0,0),
+				(2,0),
+				(2,2),
+				(0,2),
+				(1,0),
+				(2,1),
+				(1,2),
+				(0,1),
+				(1,1),
 			]
 		elif (n,s,p) == (2,2,3):
 			return [
@@ -485,7 +506,7 @@ def corners_formatted(n, s, p):
 		'{ v = {' + ','.join(ind) + '}; }'
 
 ## Write ##
-if WRITE_CMAKE:
+if WRITE_CMAKE and not DRY_RUN:
 	with open('src/validity/CMakeLists.txt', 'w') as f:
 		f.write('set(HEADERS\n')
 		f.write('\telement_validity.hpp\n')
@@ -554,7 +575,7 @@ else:
 
 if INFO_ORDER:
 	for n,s,p in COMBINATIONS:
-		print(f'This is the order of control points for elements of type ({n},{s},{p}):')
+		print(f'This is the order of geometric map control points for elements of type ({n},{s},{p}):')
 		ind = index_set(n, s, p)
 		for i,t in enumerate(ind):
 			print(f'\t{i}: {t}')

@@ -147,8 +147,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	// Initialize auxiliary variables
 	uint reachedDepthS = 0;
 	uint reachedDepthT = 0;
-	uint iterations = 0;
-	bool gaveUp = false;
+	uint maxQueueSize = 0;
 	const bool maxIterCheck = (maxSubdiv > 0);
 	// bool foundInvalid = false;
 	std::vector<uint> invalidSubdivSequence;
@@ -162,7 +161,6 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			tmin = 1;
 			break;
 		}
-		++iterations;
 		// Check whether we reached precision
 		if (tmax - tmin < precision && tmin > 0) break;
 
@@ -170,6 +168,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		// if (tmin >= earlyStop) break;
 
 		// Get box from top of the queue
+		maxQueueSize = std::max(maxQueueSize, static_cast<uint>(queue.size()));
 		const Subdomain dom = queue.top();
 		queue.pop();
 
@@ -186,7 +185,10 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		reachedDepthT = std::max(reachedDepthT, td);
 
 		// Check whether we need to give up
-		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) gaveUp = true;
+		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) {
+			std::cerr << "Reached max subdivisions: giving up" << std::endl;
+			break;
+		}
 
 		// Update tmin
 		tmin = dom.time.lower();
@@ -199,6 +201,12 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 				dom.copySequence(invalidSubdivSequence);	// save trace
 			}
 			// Split on time only and push to queue
+			const auto mid = dom.time.middle();
+			if (mid == dom.time.upper() || mid == dom.time.lower()) {
+				// Cannot split
+				std::cerr << "Cannot split in time: giving up" << std::endl;
+				break;
+			}
 			queue.push(splitTime(dom, false));
 			queue.push(splitTime(dom, true));
 		}
@@ -207,14 +215,12 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			// Split on all axes and push to queue
 			for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
 		}
-
-		if (gaveUp) throw std::runtime_error("giving up");
 	}
 
 	if (info) {
 		info->at(0) = reachedDepthS;
 		info->at(1) = reachedDepthT;
-		info->at(2) = iterations;
+		info->at(2) = maxQueueSize;
 	}
 
 	return tmin;
