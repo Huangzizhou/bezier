@@ -12,3 +12,4 @@ void lagrangeVectorT<1, 1, 1>(const std::vector<fp_t> &cpFP, std::vector<Interva
 	out[0] = -cp[0] + cp[2];
 	out[1] = -cp[1] + cp[3];
 }}
+#undef R

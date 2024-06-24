@@ -13,13 +13,16 @@ COMBINATIONS = [
 	(2,2,2),
 	(2,2,3),
 	(2,2,4),
+	# (3,1,1),
 	(3,3,1),
 	(3,3,2),
+	(3,3,3),
+	# (3,3,4),
 ]
 DRY_RUN = False
 POLYFEM_ORDER = True
 WRITE_CMAKE = False
-WRITE_MATRICES = True
+WRITE_MATRICES = False
 WRITE_LAGVEC = True
 WRITE_CORNERS = False
 INFO_ORDER = False
@@ -36,26 +39,19 @@ from sympy import \
 	collect, collect_const, expand, \
 	pprint, numbered_symbols, cse, QQ, ZZ
 from sympy.simplify.ratsimp import ratsimp
-from sympy.printing.c import C99CodePrinter
+from sympy.printing.cxx import CXX11CodePrinter
 from sympy.polys.matrices import DomainMatrix
 from concurrent.futures import ProcessPoolExecutor
 
 ## Custom printer for rationals ##
-class MyCodePrinter(C99CodePrinter):
+class MyCodePrinter(CXX11CodePrinter):
 	def _print_Rational(self, expr):
 		return f'R({expr.p}, {expr.q})'
 
 ## C print ##
 def C_print(expr, n, s, p):
 	if (__debug__): print('Simplification/CSE start')
-	CSE_results = cse(expr, numbered_symbols('tmp_'), optimizations='basic')
-	# CSE_results = cse(expr, numbered_symbols('tmp_'), order='none')
-	# with ProcessPoolExecutor() as executor:
-	# 	futures = [
-	# 		executor.submit(ratsimp, x) for x in expr
-	# 	]
-	# 	expr_simplified = [future.result() for future in futures]
-	# CSE_results = ([],expr)
+	CSE_results = cse(expr, numbered_symbols('tmp_'), order='canonical')
 	if (__debug__): print('Simplification/CSE end')
 	lines = [
 		'template<>\n' +
@@ -552,6 +548,7 @@ if WRITE_LAGVEC:
 			f.write('namespace element_validity {\n')
 			f.write(lag_vec_formatted(n,s,p))
 			f.write('}\n')
+			f.write('#undef R')
 	print('Done writing Lagrange vectors.')
 else:
 	print('Not writing Lagrange vectors.')

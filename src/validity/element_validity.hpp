@@ -226,4 +226,13 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	return tmin;
 }
 
+//------------------------------------------------------------------------------
+
+// template<uint n, uint s, uint p>
+// fp_t ValidityChecker<n, s, p>::isValid(
+// 	const std::vector<fp_t> &cp
+// ) {
+
+// }
+
 }

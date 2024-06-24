@@ -116,6 +116,7 @@ int main(int argc, char** argv) {
     else IFPROC(2, 2, 4, 15)
     else IFPROC(3, 3, 1, 4)
     else IFPROC(3, 3, 2, 10)
+    else IFPROC(3, 3, 2, 20)
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
 
