@@ -13,8 +13,8 @@ class Settings {
 	std::string resultsPath = "";
 	bool globalQuery = false;
 	uint maxIterations = 0;
+	uint numElem = 0;
 	uint firstElem = 0;
-	uint lastElem = std::numeric_limits<uint>::max();
 	uint numThreads = 16;
 	fp_t precision = .01;
 

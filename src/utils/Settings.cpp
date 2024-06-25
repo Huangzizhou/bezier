@@ -10,9 +10,9 @@ Settings::Settings(int argc, char** argv) {
 		if (s.front() == '-') {	// flag arguments
 			flag = s.at(1);
 			switch (flag) {
+			case 'e':
 			case 'f':
 			case 'i':
-			case 'l':
 			case 'm':
 			case 'o':
 			case 'p':
@@ -29,9 +29,9 @@ Settings::Settings(int argc, char** argv) {
 		} else {	// flag additional parameters
 			switch (flag) {
 			case ' ': filePath = s; break;
+			case 'e': numElem = std::stoi(s); break;
 			case 'f': firstElem = std::stoi(s); break;
 			case 'i': maxIterations = std::stoi(s); break;
-			case 'l': lastElem = std::stoi(s); break;
 			case 'm': numThreads = std::stoi(s); break;
 			case 'o': resultsPath = s; break;
 			case 'p': precision = std::stod(s); break;

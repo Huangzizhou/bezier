@@ -35,10 +35,14 @@ namespace element_validity {
 		}
 	}
 
-	// Size of subdivision matrices
-	constexpr uint matSize(uint n, uint s, uint p, bool t) {
+	// Number of control points
+	constexpr uint nControlGeoMap(uint n, uint s, uint p) {
+		return binom(p+s, s) * powi(p+1, n - s);
+	}
+
+	// Number of control points for the jacobian
+	constexpr uint nControlJacobian(uint n, uint s, uint p, bool t) {
 		uint L = binom(n*p, s) * powi(n * p, n - s);
 		return t ? L * (n+1) : L;
 	}
-
 }

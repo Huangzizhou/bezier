@@ -19,15 +19,16 @@ COMBINATIONS = [
 	(3,3,3),
 	# (3,3,4),
 ]
-DRY_RUN = False
+COMBINATIONS = [(3,3,3),(2,2,3)]
+DRY_RUN = True
 POLYFEM_ORDER = True
 WRITE_CMAKE = False
 WRITE_MATRICES = False
-WRITE_LAGVEC = True
+WRITE_LAGVEC = False
 WRITE_CORNERS = False
 INFO_ORDER = False
-INFO_JAC_ORDER = False
-INFO_LAGBASIS = False
+INFO_JAC_ORDER = True
+INFO_LAGBASIS = True
 INFO_LAGVECTOR = False
 TO_ORIGIN = False
 
@@ -168,7 +169,7 @@ def index_set(n, s, p):
 				(0,1,1),
 			]
 		elif (n,s,p) == (3,3,3):
-			return [#check this
+			return [
 				(0,0,0),
 				(3,0,0),
 				(0,3,0),
