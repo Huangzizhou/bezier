@@ -17,19 +17,22 @@ COMBINATIONS = [
 	(3,3,1),
 	(3,3,2),
 	(3,3,3),
-	# (3,3,4),
+	(3,3,4),
 ]
-COMBINATIONS = [(3,3,3),(2,2,3)]
-DRY_RUN = True
+
+DRY_RUN = False
 POLYFEM_ORDER = True
+
 WRITE_CMAKE = False
 WRITE_MATRICES = False
-WRITE_LAGVEC = False
-WRITE_CORNERS = False
+WRITE_LAGVEC = True
+WRITE_CORNERS = True
+
 INFO_ORDER = False
-INFO_JAC_ORDER = True
-INFO_LAGBASIS = True
+INFO_JAC_ORDER = False
+INFO_LAGBASIS = False
 INFO_LAGVECTOR = False
+
 TO_ORIGIN = False
 
 ## Imports
@@ -83,12 +86,59 @@ def index_set(n, s, p):
 	if POLYFEM_ORDER:
 		if n == 1:
 			return [(i,) for i in range(p+1)]
+		# elif n == 2:
+		# 	I = [0 for i in range(((p+1)*(p+2))//2)]
+		# 	I[0] = (0,0)
+		# 	I[1] = (p,0)
+		# 	I[2] = (0,p)
+		# 	if p > 1:
+		# 		for i in range(p-1):
+		# 			I[i+3] = (i+1,0)
+		# 			I[i+p+2] = (p-i-1, i+1)
+		# 			I[i+p*2+1] = (0, p-i-1)
+		# 	if p>2:
+		# 		inner_node_id = 3*p
+		# 		for i in range(p-2):
+		# 			for j in range(p-2-i):
+		# 				I[inner_node_id] = (i+1, j+1)
+		# 				inner_node_id += 1
 		elif (n,s,p) == (2,1,1):
 			return [
 				(0,0),
 				(1,0),
 				(1,1),
 				(0,1),
+			]
+		elif (n,s,p) == (2,1,2):
+			return [
+				(0,0),
+				(2,0),
+				(2,2),
+				(0,2),
+				(1,0),
+				(2,1),
+				(1,2),
+				(0,1),
+				(1,1),
+			]
+		elif (n,s,p) == (2,1,3):
+			return [
+				(0,0),
+				(3,0),
+				(3,3),
+				(0,3),
+				(1,0),
+				(2,0),
+				(3,1),
+				(3,2),
+				(2,3),
+				(1,3),
+				(0,2),
+				(0,1),
+				(1,1),
+				(1,2),
+				(2,1),
+				(2,2),
 			]
 		elif (n,s,p) == (2,2,1):
 			return [
@@ -104,18 +154,6 @@ def index_set(n, s, p):
 				(1,0),
 				(1,1),
 				(0,1),
-			]
-		elif (n,s,p) == (2,1,2):
-			return [# check this
-				(0,0),
-				(2,0),
-				(2,2),
-				(0,2),
-				(1,0),
-				(2,1),
-				(1,2),
-				(0,1),
-				(1,1),
 			]
 		elif (n,s,p) == (2,2,3):
 			return [
@@ -190,6 +228,44 @@ def index_set(n, s, p):
 				(1,0,1),
 				(1,1,1),
 				(0,1,1),
+			]
+		elif (n,s,p) == (3,3,4):
+			return [
+				(0,0,0),
+				(4,0,0),
+				(0,4,0),
+				(0,0,4),
+				(1,0,0),
+				(2,0,0),
+				(3,0,0),
+				(3,1,0),
+				(2,2,0),
+				(1,3,0),
+				(0,3,0),
+				(0,2,0),
+				(0,1,0),
+				(0,0,1),
+				(0,0,2),
+				(0,0,3),
+				(3,0,1),
+				(2,0,2),
+				(1,0,3),
+				(0,3,1),
+				(0,2,2),
+				(0,1,3),
+				(1,1,0),
+				(1,2,0),
+				(2,1,0),
+				(1,0,1),
+				(1,0,2),
+				(2,0,1),
+				(2,1,1),
+				(1,1,2),
+				(1,2,1),
+				(0,1,1),
+				(0,1,2),
+				(0,2,1),
+				(1,1,1),
 			]
 		else: raise Exception(f'Unknown signature ({n}, {s}, {p})')
 	else:
@@ -268,9 +344,9 @@ def geo_map(n, s, p, x_name, c_name, t_name):
 
 		futures_combined = [executor.submit(aux_combine_results, arg)
 			for arg in args_combined]
-		combined_results = [future.result() for future in futures_combined]
+		results_combined = [future.result() for future in futures_combined]
 
-	return combined_results + [T]
+	return results_combined + [T]
 
 
 ## Jacobian determinant ##
@@ -403,6 +479,11 @@ def space_subdiv_map(pt, n, s, q):
 	# Divide and return
 	return tuple(r * QQ(1,2) for r in res)
 
+def time_subdiv_maps(pts, shift):
+	return [time_subdiv_map(pt, shift) for pt in pts]
+def space_subdiv_maps(pts, n, s, q):
+	return [space_subdiv_map(pt, n, s, q) for pt in pts]
+
 ## Compress matrix ##
 def mat_compress(m):
 	l = m.rows
@@ -427,6 +508,13 @@ def multinomial(ii):
 	return res
 
 ## Subdivision matrices ##
+def eval_basis(args):
+	xt, basis, pts = args
+	return DomainMatrix.from_Matrix(Matrix(
+	[[b.eval({xt[k]: pt[k] for k in range(len(xt))})
+	for b in basis] for pt in pts])).to_field()
+def aux_matmul(args): return args[0] * args[1]
+
 def subdiv_matrices(n, s, p):
 	simplex_ord = n * p - s
 	tensor_ord = n * p - 1
@@ -438,35 +526,30 @@ def subdiv_matrices(n, s, p):
 		[tensor_ord - e[k] for k in range(s, n)] + [time_ord - e[n]]
 		for e in exponents]
 	r_full = range(len(xt_full))
-	basis = [my_simplify(
+	basis = [Poly(
 			multinomial(list(e[:s]) + [simplex_ord - sum(e[:s])]) *
 			prod(multinomial((ee, tensor_ord - ee)) for ee in e[s:n]) *
 			multinomial((e[n], time_ord - e[n])) *
-			prod([xt_full[k]**exponents_full[i][k] for k in r_full])
-		) for i,e in enumerate(exponents)]
-	assert(expand(sum(basis)) == 1)
+			prod([xt_full[k]**exponents_full[i][k] for k in r_full]),
+		xt, domain='QQ') for i,e in enumerate(exponents)]
+	assert(sum(basis) == 1)
 	if (__debug__): print('Basis computed')
 	pts = domain_pts_J(n, s, p)
 
-	rule = lambda e: {xt[k]: e[k] for k in range(n+1)}
-	b2l = DomainMatrix.from_Matrix(Matrix(
-			[[b.subs(rule(pt)) for b in basis] for pt in pts]
-		)).to_field()
-	if (__debug__): print('B2L computed')
-	l2b = b2l.inv()
-	if (__debug__): print('L2B computed')
-	tsd = [
-		l2b * DomainMatrix.from_Matrix(Matrix([[
-			b.subs(rule(time_subdiv_map(pt, t)))
-			for b in basis] for pt in pts])).to_field()
-		for t in [False, True]]
-	if (__debug__): print('Time subdivision matrices computed')
-	ssd = [
-		l2b * DomainMatrix.from_Matrix(Matrix([[
-			b.subs(rule(space_subdiv_map(pt, n, s, q)))
-			for b in basis] for pt in pts])).to_field()
-		for q in range(2**(n+1))]
-	if (__debug__): print('Space subdivision matrices computed')
+	with ProcessPoolExecutor() as executor:
+		args_combined = [(xt, basis, pts)] + \
+			[(xt, basis, time_subdiv_maps(pts, t)) for t in (False, True)] + \
+			[(xt, basis, space_subdiv_maps(pts, n, s, q)) for q in range(2**(n+1))]
+
+		futures_combined = [executor.submit(eval_basis, args)
+			for args in args_combined]
+		results_combined = [future.result() for future in futures_combined]
+	if (__debug__): print('Prepared subdivision matrices')
+
+	l2b = results_combined[0].inv()
+	tsd = [l2b * m for m in results_combined[1:3]]
+	ssd = [l2b * m for m in results_combined[3:]]
+	if (__debug__): print('Computed subdivision matrices')
 	return [
 		l2b.to_Matrix(),
 		[m.to_Matrix() for m in tsd],
@@ -547,8 +630,15 @@ if WRITE_LAGVEC:
 			f.write('#include "lagrangeVector.hpp"\n\n')
 			f.write('#define R(p, q) (Interval(p) / q)\n\n')
 			f.write('namespace element_validity {\n')
+			f.write('#ifdef LAGVEC_GCC_O0\n')
+			f.write('#pragma GCC push_options\n')
+			f.write('#pragma GCC optimize ("-O0")\n')
+			f.write('#endif\n')
 			f.write(lag_vec_formatted(n,s,p))
 			f.write('}\n')
+			f.write('#ifdef LAGVEC_GCC_O0\n')
+			f.write('#pragma GCC pop_options\n')
+			f.write('#endif\n')
 			f.write('#undef R')
 	print('Done writing Lagrange vectors.')
 else:

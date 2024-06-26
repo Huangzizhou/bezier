@@ -34,6 +34,8 @@ set(SOURCES
 	lagrangeVector_3_3_2.cpp
 	transMatrices_3_3_3.cpp
 	lagrangeVector_3_3_3.cpp
+	transMatrices_3_3_4.cpp
+	lagrangeVector_3_3_4.cpp
 	cornerIndices.cpp
 )
 

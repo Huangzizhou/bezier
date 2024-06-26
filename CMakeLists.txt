@@ -14,9 +14,14 @@ include(ExternalProject)
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(JACOBIAN_WITH_TESTS "Run unit tests" OFF)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
+option(LAGVEC_GCC_O0 "Set -O0 optimization for lagrangeVector functions" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 include(jacobian_cpm_cache)
+
+if(LAGVEC_GCC_O0)
+    add_compile_definitions(LAGVEC_GCC_O0)
+endif()
 
 # Set common compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -fno-strict-aliasing -fopenmp -lpthread")
@@ -27,10 +32,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -pg -ggdb3")
 
 # Use fast interval arithmetic
 if(IPRED_ARITHMETIC)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -frounding-math -O2 -msse2 -mavx2")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -frounding-math -O2 -msse2 -mavx2 -mfma")
     set(USE_SIMD_INSTRUCTIONS ON)
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 endif()
 
 # Ensure the build type is set

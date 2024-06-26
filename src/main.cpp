@@ -26,7 +26,6 @@ void processData(
     std::vector<element_validity::fp_t> nodes,
     std::ostream *out = nullptr
 ) {
-    std::cerr << n << s << p << std::endl;
     using namespace element_validity;
     Timer timer;
     ValidityChecker<n, s, p> checker;
@@ -105,7 +104,6 @@ int main(int argc, char** argv) {
     std::unique_ptr<std::ofstream> out;
     if (args.resultsPath.size() > 0)
         out = std::make_unique<std::ofstream>(args.resultsPath);
-    std::cerr << dimension << " " << nControlGeoMap(3,3,3) << std::endl;
     #define IFPROC(n, s, p) \
         if (dimension == n && nNodesPerElem == nControlGeoMap(n,s,p)) \
         processData<n, s, p>(args, nNodesPerElem, nElements, nodes, out.get());
@@ -123,6 +121,7 @@ int main(int argc, char** argv) {
     else IFPROC(3, 3, 1)
     else IFPROC(3, 3, 2)
     else IFPROC(3, 3, 3)
+    else IFPROC(3, 3, 4)
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
 

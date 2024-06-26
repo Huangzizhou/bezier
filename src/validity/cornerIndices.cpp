@@ -43,5 +43,8 @@ void cornerIndicesT<3, 3, 2>(std::vector<uint> &v) { v = {3,15,39,79}; }
 template<>
 void cornerIndicesT<3, 3, 3>(std::vector<uint> &v) { v = {3,27,111,335}; }
 
+template<>
+void cornerIndicesT<3, 3, 4>(std::vector<uint> &v) { v = {3,39,219,879}; }
+
 
 }
