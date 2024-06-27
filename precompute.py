@@ -20,6 +20,8 @@ COMBINATIONS = [
 	(3,3,4),
 ]
 
+OPTIONAL_OPTIMIZE = [(3,3,4)]
+
 DRY_RUN = False
 POLYFEM_ORDER = True
 
@@ -626,19 +628,22 @@ if WRITE_LAGVEC:
 	path = lambda n,s,p: f'src/validity/lagrangeVector_{n}_{s}_{p}.cpp'
 	if DRY_RUN: path = lambda n,s,p: '/dev/null'
 	for n,s,p in COMBINATIONS:
+		optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 		with open(path(n,s,p), 'w') as f:
 			f.write('#include "lagrangeVector.hpp"\n\n')
 			f.write('#define R(p, q) (Interval(p) / q)\n\n')
 			f.write('namespace element_validity {\n')
-			f.write('#ifdef LAGVEC_GCC_O0\n')
-			f.write('#pragma GCC push_options\n')
-			f.write('#pragma GCC optimize ("-O0")\n')
-			f.write('#endif\n')
+			if optopt:
+				f.write('#ifdef LAGVEC_GCC_O0\n')
+				f.write('#pragma GCC push_options\n')
+				f.write('#pragma GCC optimize ("-O0")\n')
+				f.write('#endif\n')
 			f.write(lag_vec_formatted(n,s,p))
 			f.write('}\n')
-			f.write('#ifdef LAGVEC_GCC_O0\n')
-			f.write('#pragma GCC pop_options\n')
-			f.write('#endif\n')
+			if optopt:
+				f.write('#ifdef LAGVEC_GCC_O0\n')
+				f.write('#pragma GCC pop_options\n')
+				f.write('#endif\n')
 			f.write('#undef R')
 	print('Done writing Lagrange vectors.')
 else:

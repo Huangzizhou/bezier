@@ -14,7 +14,7 @@ include(ExternalProject)
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(JACOBIAN_WITH_TESTS "Run unit tests" OFF)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
-option(LAGVEC_GCC_O0 "Set -O0 optimization for lagrangeVector functions" OFF)
+option(LAGVEC_GCC_O0 "Set -O0 optimization for very long lagrangeVector functions" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 include(jacobian_cpm_cache)

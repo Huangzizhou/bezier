@@ -3,10 +3,6 @@
 #define R(p, q) (Interval(p) / q)
 
 namespace element_validity {
-#ifdef LAGVEC_GCC_O0
-#pragma GCC push_options
-#pragma GCC optimize ("-O0")
-#endif
 template<>
 void lagrangeVectorT<2, 2, 3>(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {
 	out.resize(45);
@@ -1193,7 +1189,4 @@ void lagrangeVectorT<2, 2, 3>(const std::vector<fp_t> &cpFP, std::vector<Interva
 	out[43] = (R(9, 8))*cp[0]*cp[26] + (R(9, 8))*cp[0]*cp[27] + (R(9, 8))*cp[10]*cp[12] + (R(9, 8))*cp[10]*cp[13] + (R(9, 8))*cp[11]*cp[12] + (R(9, 8))*cp[11]*cp[13] + (R(81, 8))*cp[12]*cp[22] + (R(81, 8))*cp[12]*cp[23] + (R(81, 8))*cp[13]*cp[22] + (R(81, 8))*cp[13]*cp[23] + (R(81, 16))*cp[14]*cp[24] + (R(81, 16))*cp[14]*cp[25] + (R(99, 16))*cp[14]*cp[4] + (R(99, 16))*cp[14]*cp[5] - cp[14]*tmp_1127 + (R(81, 16))*cp[15]*cp[24] + (R(81, 16))*cp[15]*cp[25] + (R(99, 16))*cp[15]*cp[4] + (R(99, 16))*cp[15]*cp[5] - cp[15]*tmp_1127 + (R(81, 8))*cp[16]*cp[26] + (R(81, 8))*cp[16]*cp[27] + (R(99, 8))*cp[16]*cp[6] + (R(99, 8))*cp[16]*cp[7] + (R(81, 8))*cp[17]*cp[26] + (R(81, 8))*cp[17]*cp[27] + (R(99, 8))*cp[17]*cp[6] + (R(99, 8))*cp[17]*cp[7] + (R(81, 4))*cp[18]*cp[20] + (R(81, 4))*cp[18]*cp[21] + (R(9, 4))*cp[18]*cp[8] + (R(9, 4))*cp[18]*cp[9] + (R(81, 4))*cp[19]*cp[20] + (R(81, 4))*cp[19]*cp[21] + (R(9, 4))*cp[19]*cp[8] + (R(9, 4))*cp[19]*cp[9] + (R(9, 8))*cp[1]*cp[26] + (R(9, 8))*cp[1]*cp[27] + (R(9, 4))*cp[20]*cp[2] + (R(9, 4))*cp[20]*cp[3] + (R(9, 4))*cp[21]*cp[2] + (R(9, 4))*cp[21]*cp[3] + (R(99, 8))*cp[22]*cp[4] + (R(99, 8))*cp[22]*cp[5] + (R(99, 8))*cp[23]*cp[4] + (R(99, 8))*cp[23]*cp[5] + (R(99, 16))*cp[24]*cp[6] + (R(99, 16))*cp[24]*cp[7] + (R(99, 16))*cp[25]*cp[6] + (R(99, 16))*cp[25]*cp[7] + (R(1, 4))*cp[2]*cp[8] + (R(1, 4))*cp[2]*cp[9] + (R(1, 4))*cp[3]*cp[8] + (R(1, 4))*cp[3]*cp[9] - cp[4]*tmp_1128 - cp[4]*tmp_1129 - cp[5]*tmp_1128 - cp[5]*tmp_1129 - cp[6]*tmp_1130 - cp[6]*tmp_1131 - cp[7]*tmp_1130 - cp[7]*tmp_1131 - R(9, 8)*tmp_1 - R(81, 4)*tmp_1054 - R(81, 16)*tmp_1071 - R(81, 4)*tmp_1082 - R(81, 4)*tmp_1117 - R(9, 8)*tmp_17 - R(9, 4)*tmp_21 - R(9, 4)*tmp_221 - R(1, 4)*tmp_260 - R(1, 4)*tmp_261 - R(9, 4)*tmp_300 - R(9, 4)*tmp_4 - R(1, 4)*tmp_40 - tmp_43 - R(9, 8)*tmp_485 - R(9, 4)*tmp_562 - R(9, 4)*tmp_563 - R(9, 8)*tmp_577 - R(9, 4)*tmp_59 - R(9, 8)*tmp_632 - R(9, 8)*tmp_633 - tmp_642 - R(99, 16)*tmp_651 - R(81, 16)*tmp_670 - R(99, 16)*tmp_687 - R(99, 16)*tmp_742 - R(99, 16)*tmp_746 - R(81, 8)*tmp_747 - R(81, 8)*tmp_783 - R(81, 8)*tmp_785 - R(99, 16)*tmp_788 - R(99, 16)*tmp_823 - R(99, 16)*tmp_826 - R(99, 16)*tmp_827 - R(81, 8)*tmp_857 - R(81, 8)*tmp_863 - R(81, 8)*tmp_864 - R(81, 16)*tmp_869 - R(9, 4)*tmp_87 - R(81, 8)*tmp_875 - R(81, 16)*tmp_896 - R(1, 4)*tmp_9 - R(81, 8)*tmp_945 - R(81, 4)*tmp_999;
 	out[44] = cp[17]*tmp_1133 - cp[19]*tmp_1132 - cp[21]*tmp_1133 + cp[23]*tmp_1132 + 81*tmp_1062 - 81*tmp_1082 - 9*tmp_300 - tmp_40 + 9*tmp_413 + (R(11, 2))*tmp_44 - R(9, 2)*tmp_46 + (R(9, 2))*tmp_48 - 9*tmp_59 + 9*tmp_61 + (R(9, 2))*tmp_615 + tmp_63 - R(9, 2)*tmp_633 - tmp_644 + tmp_68 - R(99, 4)*tmp_742 + (R(81, 2))*tmp_744 + (R(99, 4))*tmp_745 - R(99, 4)*tmp_746 - R(81, 2)*tmp_747 + (R(99, 4))*tmp_748 - R(81, 2)*tmp_875 + (R(81, 2))*tmp_892 - R(81, 4)*tmp_896 + (R(81, 4))*tmp_897;
 }}
-#ifdef LAGVEC_GCC_O0
-#pragma GCC pop_options
-#endif
 #undef R

@@ -29,8 +29,8 @@ void processData(
     using namespace element_validity;
     Timer timer;
     ValidityChecker<n, s, p> checker;
-    checker.setPrecisionTarget(.01);
-    // checker.setMaxSubdiv(30);
+    checker.setPrecisionTarget(args.precision);
+    checker.setMaxSubdiv(args.maxIterations);
     const uint nCoordPerElem = nNodesPerElem*n*2;
     std::vector<fp_t> results;
     const uint ne = args.numElem == 0 ? nElements : args.numElem;
@@ -40,26 +40,23 @@ void processData(
         *out << "ID" << SEP
             << "max_time_step" << SEP
             << "space_depth" << SEP
-            << "time_depth" << SEP
-            << "max_queue_size" << SEP
-            << "microseconds" << std::endl;
+            << "microseconds" << SEP
+            << "description" << std::endl;
     std::vector<fp_t> element(nCoordPerElem);
     for (uint e=0; e<ne; ++e) {
         for(uint i=0; i<nCoordPerElem; ++i) {
             element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
         }
-	    std::array<uint, 3> info;
         timer.start();
-        const fp_t t = checker.maxTimeStep(element, &info);
+        const fp_t t = checker.maxTimeStep(element);
         timer.stop();
         results.push_back(t);
         if (out)
             *out << e + args.firstElem << SEP
                 << fp_fmt << t << SEP
-                << std::get<0>(info) << SEP
-                << std::get<1>(info) << SEP
-                << std::get<2>(info) << SEP
-                << timer.read<std::chrono::microseconds>() << std::endl;
+                << checker.getStopCondition() << SEP
+                << timer.read<std::chrono::microseconds>() << SEP
+                << checker.getStatus() << std::endl;
         timer.reset();
     }
 }

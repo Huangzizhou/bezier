@@ -3,10 +3,6 @@
 #define R(p, q) (Interval(p) / q)
 
 namespace element_validity {
-#ifdef LAGVEC_GCC_O0
-#pragma GCC push_options
-#pragma GCC optimize ("-O0")
-#endif
 template<>
 void lagrangeVectorT<1, 1, 5>(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {
 	out.resize(10);
@@ -24,7 +20,4 @@ void lagrangeVectorT<1, 1, 5>(const std::vector<fp_t> &cpFP, std::vector<Interva
 	out[8] = -cp[0] + (R(137, 12))*cp[10] + (R(25, 4))*cp[2] - R(50, 3)*cp[4] + 25*cp[6] - 25*cp[8];
 	out[9] = (R(137, 12))*cp[11] - cp[1] + (R(25, 4))*cp[3] - R(50, 3)*cp[5] + 25*cp[7] - 25*cp[9];
 }}
-#ifdef LAGVEC_GCC_O0
-#pragma GCC pop_options
-#endif
 #undef R

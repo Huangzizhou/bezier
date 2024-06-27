@@ -5,6 +5,7 @@
 #include "cornerIndices.hpp"
 
 #include <queue>
+#include <memory>
 
 namespace element_validity {
 struct Subdomain {
@@ -35,10 +36,12 @@ struct Subdomain {
 		return ost;
 	}
 
+	inline uint depth() const { return qSequence.size(); }
+
 	// Copy the path I took to get here
 	void copySequence(std::vector<uint> &dst) const {
 		dst.clear();
-		dst.reserve(qSequence.size());
+		dst.reserve(depth());
 		std::copy(
 			qSequence.cbegin(), qSequence.cend(), std::back_inserter(dst)
 		);
@@ -55,6 +58,13 @@ class ValidityChecker {
 	std::array<Matrix<Interval>, subdomains> matQ;
 	std::vector<uint> interpIndices;
 
+	// Additional run info that can be queried
+	enum class Status {
+		unknown, completed, reachedTarget, maxDepth, noSplit
+	};
+	const std::unique_ptr<Status> infoStatus = std::make_unique<Status>();
+	const std::unique_ptr<uint> infoStopCondition = std::make_unique<uint>();
+
 	fp_t precision = .1;
 	fp_t threshold = 0;
 	uint maxSubdiv = 0;
@@ -66,23 +76,41 @@ class ValidityChecker {
 	}
 	fp_t maxTimeStep(
 		const std::vector<fp_t> &cp,
-		std::array<uint, 3> *info = nullptr
-	);
+		std::vector<uint> *adaptiveHierarchy = nullptr
+	) const;
 
 	void setPrecisionTarget(fp_t t) { precision = t; }
 	void setThreshold(fp_t t) { threshold = t; }
 	void setMaxSubdiv(uint v) { maxSubdiv = v; }
 
+	inline uint getStopCondition() const { return *infoStopCondition; }
+
+	std::string getStatus() const {
+		switch (*infoStatus) {
+		case Status::completed:
+			return "Processed all intervals";
+		case Status::reachedTarget:
+			return "Reached target precision";
+		case Status::maxDepth:
+			return "User termination condition satisfied";
+		case Status::noSplit:
+			return "Cannot split due to machine precision";
+		default: return "Something is wrong";
+		}
+	}
+
 	private:
-	Interval minclusion(const std::vector<Interval> &B);
-	Subdomain split(const Subdomain &src, uint q);
-	Subdomain splitTime(const Subdomain &src, bool t);
+	Interval minclusion(const std::vector<Interval> &B) const;
+	Subdomain split(const Subdomain &src, uint q) const;
+	Subdomain splitTime(const Subdomain &src, bool t) const;
 };
 
 //------------------------------------------------------------------------------
 
 template<uint n, uint s, uint p>
-Interval ValidityChecker<n, s, p>::minclusion(const std::vector<Interval>& B) {
+Interval ValidityChecker<n, s, p>::minclusion(
+	const std::vector<Interval>& B
+) const {
 	Interval lo(std::numeric_limits<fp_t>::max());
 	for (const Interval &b : B) lo = min(lo, b);
 	Interval hi(std::numeric_limits<fp_t>::max());
@@ -93,7 +121,7 @@ Interval ValidityChecker<n, s, p>::minclusion(const std::vector<Interval>& B) {
 template<uint n, uint s, uint p>
 Subdomain ValidityChecker<n, s, p>::split(
 	const Subdomain &src, uint q
-) {
+) const {
 	Subdomain res;
 	matQ[q].mult(src.B, res.B);
 	res.time = (q >> n) ?
@@ -108,7 +136,7 @@ Subdomain ValidityChecker<n, s, p>::split(
 template<uint n, uint s, uint p>
 Subdomain ValidityChecker<n, s, p>::splitTime(
 	const Subdomain &src, bool t
-) {
+) const {
 	Subdomain res;
 	(t ? matT.second : matT.first).mult(src.B, res.B);
 	res.time = t ?
@@ -125,8 +153,8 @@ Subdomain ValidityChecker<n, s, p>::splitTime(
 template<uint n, uint s, uint p>
 fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	const std::vector<fp_t> &cp,
-	std::array<uint, 3> *info
-) {
+	std::vector<uint> *hierarchy
+) const {
 	assert(precision <= 1);
 	assert(precision > 0);
 
@@ -146,12 +174,8 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 
 	// Initialize auxiliary variables
 	uint reachedDepthS = 0;
-	uint reachedDepthT = 0;
-	uint maxQueueSize = 0;
 	const bool maxIterCheck = (maxSubdiv > 0);
-	// bool foundInvalid = false;
-	std::vector<uint> invalidSubdivSequence;
-	std::vector<uint> deepestSubdivSequence;
+	bool foundInvalid = false;
 	fp_t tmin = 0;
 	fp_t tmax = 1;
 
@@ -159,34 +183,31 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	while(true) {
 		if (queue.empty()) {
 			tmin = 1;
+			*infoStatus = Status::completed;
 			break;
 		}
 		// Check whether we reached precision
-		if (tmax - tmin < precision && tmin > 0) break;
+		if (tmax - tmin < precision && tmin > 0) {
+			*infoStatus = Status::reachedTarget;
+			break;
+		}
 
 		// Check whether we satisfy early termination
 		// if (tmin >= earlyStop) break;
 
 		// Get box from top of the queue
-		maxQueueSize = std::max(maxQueueSize, static_cast<uint>(queue.size()));
 		const Subdomain dom = queue.top();
 		queue.pop();
 
 		assert(dom.time.lower() < tmax);
 		assert(dom.time.lower() >= tmin);
 
-		if (dom.qSequence.size() > reachedDepthS) {
-			dom.copySequence(deepestSubdivSequence);
-			reachedDepthS = deepestSubdivSequence.size();
-		}
-
-		uint td = 0;
-		for (double d=dom.time.width(); d<1.; d*=2) { ++td; }
-		reachedDepthT = std::max(reachedDepthT, td);
+		reachedDepthS = std::max(reachedDepthS, dom.depth());
 
 		// Check whether we need to give up
 		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) {
-			std::cerr << "Reached max subdivisions: giving up" << std::endl;
+			if (hierarchy && !foundInvalid) dom.copySequence(*hierarchy);
+			*infoStatus = Status::maxDepth;
 			break;
 		}
 
@@ -198,13 +219,12 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			// foundInvalid = true;
 			if (tmax > dom.time.upper()) {
 				tmax = dom.time.upper();				// update tmax
-				dom.copySequence(invalidSubdivSequence);	// save trace
+				if (hierarchy) dom.copySequence(*hierarchy);
 			}
 			// Split on time only and push to queue
 			const auto mid = dom.time.middle();
 			if (mid == dom.time.upper() || mid == dom.time.lower()) {
-				// Cannot split
-				std::cerr << "Cannot split in time: giving up" << std::endl;
+				*infoStatus = Status::noSplit;
 				break;
 			}
 			queue.push(splitTime(dom, false));
@@ -217,11 +237,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		}
 	}
 
-	if (info) {
-		info->at(0) = reachedDepthS;
-		info->at(1) = reachedDepthT;
-		info->at(2) = maxQueueSize;
-	}
+	*infoStopCondition = reachedDepthS;
 
 	return tmin;
 }
