@@ -5,6 +5,7 @@
 #include "cornerIndices.hpp"
 
 #include <queue>
+#include <span>
 #include <memory>
 
 namespace element_validity {
@@ -58,9 +59,11 @@ class ValidityChecker {
 	std::array<Matrix<Interval>, subdomains> matQ;
 	std::vector<uint> interpIndices;
 
+	const uint nThreads;
+
 	// Additional run info that can be queried
 	enum class Status {
-		unknown, completed, reachedTarget, maxDepth, noSplit
+		unknown, completed, reachedTarget, globalCondition, maxDepth, noSplit
 	};
 	const std::unique_ptr<Status> infoStatus = std::make_unique<Status>();
 	const std::unique_ptr<uint> infoStopCondition = std::make_unique<uint>();
@@ -70,12 +73,18 @@ class ValidityChecker {
 	uint maxSubdiv = 0;
 
 	public:
-	ValidityChecker() {
+	ValidityChecker(uint nThreads = 1) : nThreads(nThreads) {
 		initMatricesT<n, s, p>(matL2B, matT, matQ);
 		cornerIndicesT<n, s, p>(interpIndices);
 	}
 	fp_t maxTimeStep(
-		const std::vector<fp_t> &cp,
+		std::span<const fp_t> cp,
+		std::vector<uint> *adaptiveHierarchy = nullptr
+	) const;
+
+	fp_t maxTimeStepVec(
+		std::span<const fp_t> cp,
+		uint *invalidElemID = nullptr,
 		std::vector<uint> *adaptiveHierarchy = nullptr
 	) const;
 
@@ -93,6 +102,8 @@ class ValidityChecker {
 			return "Reached target precision";
 		case Status::maxDepth:
 			return "User termination condition satisfied";
+		case Status::globalCondition:
+			return "Global early termination condition satisfied";
 		case Status::noSplit:
 			return "Cannot split due to machine precision";
 		default: return "Something is wrong";
@@ -152,14 +163,14 @@ Subdomain ValidityChecker<n, s, p>::splitTime(
 
 template<uint n, uint s, uint p>
 fp_t ValidityChecker<n, s, p>::maxTimeStep(
-	const std::vector<fp_t> &cp,
+	std::span<const fp_t> cp,
 	std::vector<uint> *hierarchy
 ) const {
 	assert(precision <= 1);
 	assert(precision > 0);
 
 	// Compute Lagrange coefficients
-	std::vector<Interval> vL;
+	std::vector<Interval> vL(nControlJacobian(n,s,p,true));
 	lagrangeVectorT<n, s, p>(cp, vL);
 
 	// Create initial subdomain
@@ -178,6 +189,8 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	bool foundInvalid = false;
 	fp_t tmin = 0;
 	fp_t tmax = 1;
+
+	if (hierarchy) hierarchy->clear();
 
 	// Loop
 	while(true) {
@@ -244,11 +257,29 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 
 //------------------------------------------------------------------------------
 
-// template<uint n, uint s, uint p>
-// fp_t ValidityChecker<n, s, p>::isValid(
-// 	const std::vector<fp_t> &cp
-// ) {
+template<uint n, uint s, uint p>
+fp_t ValidityChecker<n, s, p>::maxTimeStepVec(
+	std::span<const fp_t> cp,
+	uint *invalidElemID,
+	std::vector<uint> *adaptiveHierarchy
+) const {
+	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
+	const uint numEl = cp.size() / (numCoordsPerElem);
+	std::cerr << "number of polys: " << numEl << std::endl;
+	fp_t minT = 1;
+	std::vector<fp_t> timeOfInversion(numEl);
+	std::vector<fp_t> depthOfSequence(numEl);
+	std::vector<fp_t> timings(numEl);
+	std::vector<std::vector<fp_t>> hierarchies(numEl);
 
-// }
+	#pragma omp parallel for \
+		reduction(min : minT) num_threads(nThreads)
+	for (uint e=0; e<numEl; ++e) {
+		std::span<const fp_t> element(
+			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
+		fp_t t = maxTimeStep(element, hierarchies.at(e));
+	}
+	return 0;
+}
 
 }

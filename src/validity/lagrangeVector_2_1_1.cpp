@@ -4,8 +4,8 @@
 
 namespace element_validity {
 template<>
-void lagrangeVectorT<2, 1, 1>(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {
-	out.resize(12);
+void lagrangeVectorT<2, 1, 1>(const std::span<const fp_t> cpFP, const std::span<Interval> out) {
+	assert(out.size() == 12);
 	const uint S = cpFP.size();
 	std::vector<Interval> cp(S);
 	for (uint i = 0; i < S; ++i) cp[i] = cpFP[i];

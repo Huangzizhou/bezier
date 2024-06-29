@@ -41,22 +41,27 @@ void processData(
             << "max_time_step" << SEP
             << "space_depth" << SEP
             << "microseconds" << SEP
+            << "hierarchy" << SEP
             << "description" << std::endl;
     std::vector<fp_t> element(nCoordPerElem);
     for (uint e=0; e<ne; ++e) {
         for(uint i=0; i<nCoordPerElem; ++i) {
             element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
         }
+        std::vector<uint> h;
         timer.start();
-        const fp_t t = checker.maxTimeStep(element);
+        const fp_t t = checker.maxTimeStep(element, &h);
         timer.stop();
         results.push_back(t);
-        if (out)
-            *out << e + args.firstElem << SEP
-                << fp_fmt << t << SEP
-                << checker.getStopCondition() << SEP
-                << timer.read<std::chrono::microseconds>() << SEP
-                << checker.getStatus() << std::endl;
+        if (out) {
+            *out << e + args.firstElem << SEP;
+            *out << fp_fmt << t << SEP;
+            *out << checker.getStopCondition() << SEP;
+            *out << timer.read<std::chrono::microseconds>() << SEP;
+            for (uint u : h) *out << u << ' ';
+            *out << SEP;
+            *out << checker.getStatus() << std::endl;
+        }
         timer.reset();
     }
 }
@@ -98,12 +103,13 @@ int main(int argc, char** argv) {
         std::cout << "Done." << std::endl;
     }
 
-    std::unique_ptr<std::ofstream> out;
+    std::unique_ptr<std::ostream> out;
     if (args.resultsPath.size() > 0)
         out = std::make_unique<std::ofstream>(args.resultsPath);
+    std::ostream *const outptr = out ? out.get() : &std::cout;
     #define IFPROC(n, s, p) \
         if (dimension == n && nNodesPerElem == nControlGeoMap(n,s,p)) \
-        processData<n, s, p>(args, nNodesPerElem, nElements, nodes, out.get());
+        processData<n, s, p>(args, nNodesPerElem, nElements, nodes, outptr);
     IFPROC(1, 1, 1)
     else IFPROC(1, 1, 2)
     else IFPROC(1, 1, 3)

@@ -20,7 +20,7 @@ COMBINATIONS = [
 	(3,3,4),
 ]
 
-OPTIONAL_OPTIMIZE = [(3,3,4)]
+OPTIONAL_OPTIMIZE = [(2,2,4),(3,3,3),(3,3,4)]
 
 DRY_RUN = False
 POLYFEM_ORDER = True
@@ -28,7 +28,7 @@ POLYFEM_ORDER = True
 WRITE_CMAKE = False
 WRITE_MATRICES = False
 WRITE_LAGVEC = True
-WRITE_CORNERS = True
+WRITE_CORNERS = False
 
 INFO_ORDER = False
 INFO_JAC_ORDER = False
@@ -62,9 +62,10 @@ def C_print(expr, n, s, p):
 	lines = [
 		'template<>\n' +
 		f'void lagrangeVectorT<{n}, {s}, {p}>' +
-		'(const std::vector<fp_t> &cpFP, std::vector<Interval> &out) {'
+		'(const std::span<const fp_t> cpFP, const std::span<Interval> out) {'
 	]
-	lines.append(f'out.resize({len(expr)});')
+	# lines.append(f'out.resize({len(expr)});')
+	lines.append(f'assert(out.size() == {len(expr)});')
 	assert len(expr) == len(CSE_results[1])
 	lines.append('const uint S = cpFP.size();')
 	lines.append('std::vector<Interval> cp(S);')
