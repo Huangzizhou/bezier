@@ -60,7 +60,7 @@ void processData(
             *out << timer.read<std::chrono::microseconds>() << SEP;
             for (uint u : h) *out << u << ' ';
             *out << SEP;
-            *out << checker.getStatus() << std::endl;
+            *out << checker.getStatusDesc() << std::endl;
         }
         timer.reset();
     }

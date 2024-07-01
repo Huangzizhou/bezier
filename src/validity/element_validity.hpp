@@ -79,7 +79,9 @@ class ValidityChecker {
 	}
 	fp_t maxTimeStep(
 		std::span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr
+		std::vector<uint> *adaptiveHierarchy = nullptr,
+		fp_t earlyStop = 1,
+		fp_t *timeOfInversion = nullptr
 	) const;
 
 	fp_t maxTimeStepVec(
@@ -94,7 +96,17 @@ class ValidityChecker {
 
 	inline uint getStopCondition() const { return *infoStopCondition; }
 
-	std::string getStatus() const {
+	bool getStatusSuccess() const {
+		switch (*infoStatus) {
+		case Status::completed:
+		case Status::reachedTarget:
+		case Status::globalCondition:
+			return true;
+		default:
+			return false;
+		}
+	}
+	std::string getStatusDesc() const {
 		switch (*infoStatus) {
 		case Status::completed:
 			return "Processed all intervals";
@@ -164,7 +176,9 @@ Subdomain ValidityChecker<n, s, p>::splitTime(
 template<uint n, uint s, uint p>
 fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	std::span<const fp_t> cp,
-	std::vector<uint> *hierarchy
+	std::vector<uint> *hierarchy,
+	fp_t earlyStop,
+	fp_t *timeOfInversion
 ) const {
 	assert(precision <= 1);
 	assert(precision > 0);
@@ -206,7 +220,10 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		}
 
 		// Check whether we satisfy early termination
-		// if (tmin >= earlyStop) break;
+		if (tmin >= earlyStop) {
+			*infoStatus = Status::globalCondition;
+			break;
+		}
 
 		// Get box from top of the queue
 		const Subdomain dom = queue.top();
@@ -229,7 +246,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		
 		// Subdomain contains invalidity
 		if (dom.incl <= 0) {
-			// foundInvalid = true;
+			foundInvalid = true;
 			if (tmax > dom.time.upper()) {
 				tmax = dom.time.upper();				// update tmax
 				if (hierarchy) dom.copySequence(*hierarchy);
@@ -251,7 +268,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	}
 
 	*infoStopCondition = reachedDepthS;
-
+	if (timeOfInversion) *timeOfInversion = foundInvalid ? tmax : -1.;
 	return tmin;
 }
 
@@ -271,13 +288,42 @@ fp_t ValidityChecker<n, s, p>::maxTimeStepVec(
 	std::vector<fp_t> depthOfSequence(numEl);
 	std::vector<fp_t> timings(numEl);
 	std::vector<std::vector<fp_t>> hierarchies(numEl);
+	bool foundInvalid = false;
 
 	#pragma omp parallel for \
 		reduction(min : minT) num_threads(nThreads)
 	for (uint e=0; e<numEl; ++e) {
 		std::span<const fp_t> element(
 			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
-		fp_t t = maxTimeStep(element, hierarchies.at(e));
+		Timer timer;
+		fp_t invT;
+		timer.start();
+		fp_t t = maxTimeStep(element, hierarchies.at(e), minT, &invT);
+		timer.stop();
+		timeOfInversion.at(e) = invT;
+		if (invT >= 0) foundInvalid = true;
+		timings.at(e) = timer.read<std::chrono::microseconds>();
+		minT = std::min(minT, t);
+	}
+	if (foundInvalid) {
+		const uint i = std::distance(timeOfInversion.cbegin(),
+			std::min_element(
+				timeOfInversion.cbegin(),
+				timeOfInversion.cend()
+			)
+		);
+		if (invalidElemID) *invalidElemID = i;
+		*adaptiveHierarchy = std::move(hierarchies.at(i));
+	}
+	else {
+		const uint i = std::distance(depthOfSequence.cbegin(),
+			std::max_element(
+				depthOfSequence.cbegin(),
+				depthOfSequence.cend()
+			)
+		);
+		if (invalidElemID) *invalidElemID = i;
+		*adaptiveHierarchy = std::move(hierarchies.at(i));
 	}
 	return 0;
 }
