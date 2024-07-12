@@ -39,6 +39,7 @@ void processData(
     if (out)
         *out << "ID" << SEP
             << "max_time_step" << SEP
+            << "time_of_inversion" << SEP
             << "space_depth" << SEP
             << "microseconds" << SEP
             << "hierarchy" << SEP
@@ -49,18 +50,21 @@ void processData(
             element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
         }
         std::vector<uint> h;
+        CheckerInfo info;
+        fp_t tInv;
         timer.start();
-        const fp_t t = checker.maxTimeStep(element, &h);
+        const fp_t t = checker.maxTimeStep(element, &h, 1, &tInv, &info);
         timer.stop();
         results.push_back(t);
         if (out) {
             *out << e + args.firstElem << SEP;
             *out << fp_fmt << t << SEP;
-            *out << checker.getStopCondition() << SEP;
+            *out << fp_fmt << tInv << SEP;
+            *out << info.spaceDepth << SEP;
             *out << timer.read<std::chrono::microseconds>() << SEP;
             for (uint u : h) *out << u << ' ';
             *out << SEP;
-            *out << checker.getStatusDesc() << std::endl;
+            *out << info.description() << std::endl;
         }
         timer.reset();
     }

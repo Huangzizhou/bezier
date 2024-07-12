@@ -24,7 +24,8 @@ if(LAGVEC_GCC_O0)
 endif()
 
 # Set common compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -fno-strict-aliasing -fopenmp -lpthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall \
+    -Wno-unknown-pragmas -fno-strict-aliasing -fopenmp -lpthread")
 
 # Set release and debug specific compiler flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
@@ -32,7 +33,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -pg -ggdb3")
 
 # Use fast interval arithmetic
 if(IPRED_ARITHMETIC)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -frounding-math -O2 -msse2 -mavx2 -mfma")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} \
+    -Og -frounding-math -msse2 -mavx2 -mfma \
+    "
+    )
     set(USE_SIMD_INSTRUCTIONS ON)
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")

@@ -1,33 +1,23 @@
 ### Bezier subdivision pre-computations ###
+from polyfem_indices import index_set_polyfem
 
 ## Setup ##
 COMBINATIONS = [
-	(1,1,1),
-	(1,1,2),
-	(1,1,3),
-	(1,1,4),
-	(1,1,5),
-	(2,1,1),
-	(2,1,2),
-	(2,2,1),
-	(2,2,2),
-	(2,2,3),
-	(2,2,4),
-	# (3,1,1),
-	(3,3,1),
-	(3,3,2),
-	(3,3,3),
-	(3,3,4),
+	(1,1,1), (1,1,2), (1,1,3), (1,1,4), (1,1,5), # segments
+	(2,1,1), (2,1,2), # quadrilaterals
+	(2,2,1), (2,2,2), (2,2,3), (2,2,4), # triangles
+	(3,1,1), (3,1,2), # hexahedra
+	(3,3,1), (3,3,2), (3,3,3), (3,3,4), # tetrahedra
 ]
 
-OPTIONAL_OPTIMIZE = [(2,2,4),(3,3,3),(3,3,4)]
+OPTIONAL_OPTIMIZE = [(3,3,4),]
 
 DRY_RUN = False
 POLYFEM_ORDER = True
 
-WRITE_CMAKE = False
+WRITE_CMAKE = True
 WRITE_MATRICES = False
-WRITE_LAGVEC = True
+WRITE_LAGVEC = False
 WRITE_CORNERS = False
 
 INFO_ORDER = False
@@ -86,194 +76,9 @@ def subscripts(b, i):
 ## Index set ##
 def index_set(n, s, p):
 	assert(0 < s <= n)
-	if POLYFEM_ORDER:
-		if n == 1:
-			return [(i,) for i in range(p+1)]
-		# elif n == 2:
-		# 	I = [0 for i in range(((p+1)*(p+2))//2)]
-		# 	I[0] = (0,0)
-		# 	I[1] = (p,0)
-		# 	I[2] = (0,p)
-		# 	if p > 1:
-		# 		for i in range(p-1):
-		# 			I[i+3] = (i+1,0)
-		# 			I[i+p+2] = (p-i-1, i+1)
-		# 			I[i+p*2+1] = (0, p-i-1)
-		# 	if p>2:
-		# 		inner_node_id = 3*p
-		# 		for i in range(p-2):
-		# 			for j in range(p-2-i):
-		# 				I[inner_node_id] = (i+1, j+1)
-		# 				inner_node_id += 1
-		elif (n,s,p) == (2,1,1):
-			return [
-				(0,0),
-				(1,0),
-				(1,1),
-				(0,1),
-			]
-		elif (n,s,p) == (2,1,2):
-			return [
-				(0,0),
-				(2,0),
-				(2,2),
-				(0,2),
-				(1,0),
-				(2,1),
-				(1,2),
-				(0,1),
-				(1,1),
-			]
-		elif (n,s,p) == (2,1,3):
-			return [
-				(0,0),
-				(3,0),
-				(3,3),
-				(0,3),
-				(1,0),
-				(2,0),
-				(3,1),
-				(3,2),
-				(2,3),
-				(1,3),
-				(0,2),
-				(0,1),
-				(1,1),
-				(1,2),
-				(2,1),
-				(2,2),
-			]
-		elif (n,s,p) == (2,2,1):
-			return [
-				(0,0),
-				(1,0),
-				(0,1),
-			]
-		elif (n,s,p) == (2,2,2):
-			return [
-				(0,0),
-				(2,0),
-				(0,2),
-				(1,0),
-				(1,1),
-				(0,1),
-			]
-		elif (n,s,p) == (2,2,3):
-			return [
-				(0,0),
-				(3,0),
-				(0,3),
-				(1,0),
-				(2,0),
-				(2,1),
-				(1,2),
-				(0,2),
-				(0,1),
-				(1,1),
-			]
-		elif (n,s,p) == (2,2,4):
-			return [
-				(0,0),
-				(4,0),
-				(0,4),
-				(1,0),
-				(2,0),
-				(3,0),
-				(3,1),
-				(2,2),
-				(1,3),
-				(0,3),
-				(0,2),
-				(0,1),
-				(1,1),
-				(1,2),
-				(2,1),
-			]
-		elif (n,s,p) == (3,3,1):
-			return [
-				(0,0,0),
-				(1,0,0),
-				(0,1,0),
-				(0,0,1),
-			]
-		elif (n,s,p) == (3,3,2):
-			return [
-				(0,0,0),
-				(2,0,0),
-				(0,2,0),
-				(0,0,2),
-				(1,0,0),
-				(1,1,0),
-				(0,1,0),
-				(0,0,1),
-				(1,0,1),
-				(0,1,1),
-			]
-		elif (n,s,p) == (3,3,3):
-			return [
-				(0,0,0),
-				(3,0,0),
-				(0,3,0),
-				(0,0,3),
-				(1,0,0),
-				(2,0,0),
-				(2,1,0),
-				(1,2,0),
-				(0,2,0),
-				(0,1,0),
-				(0,0,1),
-				(0,0,2),
-				(2,0,1),
-				(1,0,2),
-				(0,2,1),
-				(0,1,2),
-				(1,1,0),
-				(1,0,1),
-				(1,1,1),
-				(0,1,1),
-			]
-		elif (n,s,p) == (3,3,4):
-			return [
-				(0,0,0),
-				(4,0,0),
-				(0,4,0),
-				(0,0,4),
-				(1,0,0),
-				(2,0,0),
-				(3,0,0),
-				(3,1,0),
-				(2,2,0),
-				(1,3,0),
-				(0,3,0),
-				(0,2,0),
-				(0,1,0),
-				(0,0,1),
-				(0,0,2),
-				(0,0,3),
-				(3,0,1),
-				(2,0,2),
-				(1,0,3),
-				(0,3,1),
-				(0,2,2),
-				(0,1,3),
-				(1,1,0),
-				(1,2,0),
-				(2,1,0),
-				(1,0,1),
-				(1,0,2),
-				(2,0,1),
-				(2,1,1),
-				(1,1,2),
-				(1,2,1),
-				(0,1,1),
-				(0,1,2),
-				(0,2,1),
-				(1,1,1),
-			]
-		else: raise Exception(f'Unknown signature ({n}, {s}, {p})')
-	else:
-		return [tup for tup in product(range(p+1), repeat=n)
-			if sum(tup[:s]) <= p and all(x <= p for x in tup[s:])]
+	if POLYFEM_ORDER: return index_set_polyfem(n,s,p)
+	else: return [tup for tup in product(range(p+1), repeat=n)
+		if sum(tup[:s]) <= p and all(x <= p for x in tup[s:])]
 
 ## Simplification
 def my_simplify(expr):

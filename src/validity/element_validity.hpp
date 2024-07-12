@@ -49,6 +49,39 @@ struct Subdomain {
 	}
 };
 
+struct CheckerInfo {
+	uint spaceDepth = 0;
+	enum class Status {
+		unknown, completed, reachedTarget, globalCondition, maxDepth, noSplit
+	};
+	Status status;
+
+	bool success() const {
+		switch (status) {
+		case Status::completed:
+		case Status::reachedTarget:
+		case Status::globalCondition:
+			return true;
+		default:
+			return false;
+		}
+	}
+	std::string description() const {
+		switch (status) {
+		case Status::completed:
+			return "Processed all intervals";
+		case Status::reachedTarget:
+			return "Reached target precision";
+		case Status::maxDepth:
+			return "User termination condition satisfied";
+		case Status::globalCondition:
+			return "Global early termination condition satisfied";
+		case Status::noSplit:
+			return "Cannot split due to machine precision";
+		default: return "Something is wrong";
+		}
+	}
+};
 
 template<uint n, uint s, uint p>
 class ValidityChecker {
@@ -60,13 +93,6 @@ class ValidityChecker {
 	std::vector<uint> interpIndices;
 
 	const uint nThreads;
-
-	// Additional run info that can be queried
-	enum class Status {
-		unknown, completed, reachedTarget, globalCondition, maxDepth, noSplit
-	};
-	const std::unique_ptr<Status> infoStatus = std::make_unique<Status>();
-	const std::unique_ptr<uint> infoStopCondition = std::make_unique<uint>();
 
 	fp_t precision = .1;
 	fp_t threshold = 0;
@@ -81,7 +107,8 @@ class ValidityChecker {
 		std::span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		fp_t earlyStop = 1,
-		fp_t *timeOfInversion = nullptr
+		fp_t *timeOfInversion = nullptr,
+		CheckerInfo *info = nullptr
 	) const;
 
 	fp_t maxTimeStepVec(
@@ -93,34 +120,6 @@ class ValidityChecker {
 	void setPrecisionTarget(fp_t t) { precision = t; }
 	void setThreshold(fp_t t) { threshold = t; }
 	void setMaxSubdiv(uint v) { maxSubdiv = v; }
-
-	inline uint getStopCondition() const { return *infoStopCondition; }
-
-	bool getStatusSuccess() const {
-		switch (*infoStatus) {
-		case Status::completed:
-		case Status::reachedTarget:
-		case Status::globalCondition:
-			return true;
-		default:
-			return false;
-		}
-	}
-	std::string getStatusDesc() const {
-		switch (*infoStatus) {
-		case Status::completed:
-			return "Processed all intervals";
-		case Status::reachedTarget:
-			return "Reached target precision";
-		case Status::maxDepth:
-			return "User termination condition satisfied";
-		case Status::globalCondition:
-			return "Global early termination condition satisfied";
-		case Status::noSplit:
-			return "Cannot split due to machine precision";
-		default: return "Something is wrong";
-		}
-	}
 
 	private:
 	Interval minclusion(const std::vector<Interval> &B) const;
@@ -178,7 +177,8 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	std::span<const fp_t> cp,
 	std::vector<uint> *hierarchy,
 	fp_t earlyStop,
-	fp_t *timeOfInversion
+	fp_t *timeOfInversion,
+	CheckerInfo *info
 ) const {
 	assert(precision <= 1);
 	assert(precision > 0);
@@ -210,18 +210,18 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	while(true) {
 		if (queue.empty()) {
 			tmin = 1;
-			*infoStatus = Status::completed;
+			info->status = CheckerInfo::Status::completed;
 			break;
 		}
 		// Check whether we reached precision
 		if (tmax - tmin < precision && tmin > 0) {
-			*infoStatus = Status::reachedTarget;
+			info->status = CheckerInfo::Status::reachedTarget;
 			break;
 		}
 
 		// Check whether we satisfy early termination
 		if (tmin >= earlyStop) {
-			*infoStatus = Status::globalCondition;
+			info->status = CheckerInfo::Status::globalCondition;
 			break;
 		}
 
@@ -237,7 +237,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		// Check whether we need to give up
 		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) {
 			if (hierarchy && !foundInvalid) dom.copySequence(*hierarchy);
-			*infoStatus = Status::maxDepth;
+			info->status = CheckerInfo::Status::maxDepth;
 			break;
 		}
 
@@ -254,7 +254,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			// Split on time only and push to queue
 			const auto mid = dom.time.middle();
 			if (mid == dom.time.upper() || mid == dom.time.lower()) {
-				*infoStatus = Status::noSplit;
+				info->status = CheckerInfo::Status::noSplit;
 				break;
 			}
 			queue.push(splitTime(dom, false));
@@ -267,7 +267,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		}
 	}
 
-	*infoStopCondition = reachedDepthS;
+	info->spaceDepth = reachedDepthS;
 	if (timeOfInversion) *timeOfInversion = foundInvalid ? tmax : -1.;
 	return tmin;
 }

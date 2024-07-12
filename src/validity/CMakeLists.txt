@@ -28,6 +28,10 @@ set(SOURCES
 	lagrangeVector_2_2_3.cpp
 	transMatrices_2_2_4.cpp
 	lagrangeVector_2_2_4.cpp
+	transMatrices_3_1_1.cpp
+	lagrangeVector_3_1_1.cpp
+	transMatrices_3_1_2.cpp
+	lagrangeVector_3_1_2.cpp
 	transMatrices_3_3_1.cpp
 	lagrangeVector_3_3_1.cpp
 	transMatrices_3_3_2.cpp
