@@ -95,7 +95,7 @@ class ValidityChecker {
 	const uint nThreads;
 
 	fp_t precision = .1;
-	fp_t threshold = 0;
+	fp_t epsilon = 0.;
 	uint maxSubdiv = 0;
 
 	public:
@@ -118,7 +118,7 @@ class ValidityChecker {
 	) const;
 
 	void setPrecisionTarget(fp_t t) { precision = t; }
-	void setThreshold(fp_t t) { threshold = t; }
+	void setEpsilon(fp_t t) { epsilon = t; }
 	void setMaxSubdiv(uint v) { maxSubdiv = v; }
 
 	private:
@@ -180,8 +180,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	fp_t *timeOfInversion,
 	CheckerInfo *info
 ) const {
-	assert(precision <= 1);
-	assert(precision > 0);
+	assert(precision > 0 && precision <= 1);
 
 	// Compute Lagrange coefficients
 	std::vector<Interval> vL(nControlJacobian(n,s,p,true));
@@ -201,8 +200,8 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	uint reachedDepthS = 0;
 	const bool maxIterCheck = (maxSubdiv > 0);
 	bool foundInvalid = false;
-	fp_t tmin = 0;
-	fp_t tmax = 1;
+	fp_t tmin = 0.;
+	fp_t tmax = 1.;
 
 	if (hierarchy) hierarchy->clear();
 
@@ -214,7 +213,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			break;
 		}
 		// Check whether we reached precision
-		if (tmax - tmin < precision && tmin > 0) {
+		if (tmax - tmin < precision && tmin > 0.) {
 			info->status = CheckerInfo::Status::reachedTarget;
 			break;
 		}
@@ -245,7 +244,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		tmin = dom.time.lower();
 		
 		// Subdomain contains invalidity
-		if (dom.incl <= 0) {
+		if (dom.incl <= epsilon) {
 			foundInvalid = true;
 			if (tmax > dom.time.upper()) {
 				tmax = dom.time.upper();				// update tmax
@@ -261,7 +260,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			queue.push(splitTime(dom, true));
 		}
 		// Subdomain is undetermined and needs refinement
-		else if (!(dom.incl > 0)) {
+		else if (!(dom.incl > epsilon)) {
 			// Split on all axes and push to queue
 			for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
 		}
@@ -325,7 +324,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStepVec(
 		if (invalidElemID) *invalidElemID = i;
 		*adaptiveHierarchy = std::move(hierarchies.at(i));
 	}
-	return 0;
+	return minT;
 }
 
 }
