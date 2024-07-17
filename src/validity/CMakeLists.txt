@@ -1,11 +1,12 @@
 set(HEADERS
-	element_validity.hpp
+	ValidityChecker.hpp
 	cornerIndices.hpp
 	lagrangeVector.hpp
 	transMatrices.hpp
 )
 
 set(SOURCES
+	ValidityChecker.cpp
 	transMatrices_1_1_1.cpp
 	lagrangeVector_1_1_1.cpp
 	transMatrices_1_1_2.cpp

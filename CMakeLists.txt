@@ -12,7 +12,7 @@ include(ExternalProject)
 
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
-option(JACOBIAN_WITH_TESTS "Run unit tests" OFF)
+option(UNIT_TESTS "Run unit tests" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(LAGVEC_GCC_O0 "Set -O0 optimization for very long lagrangeVector functions" ON)
 
@@ -69,6 +69,7 @@ set(JACOBIAN_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
 add_subdirectory(${JACOBIAN_SOURCE_DIR})
 
 # Include folders
+target_include_directories(bezier PUBLIC ${PROJECT_SOURCE_DIR})
 target_include_directories(bezier PUBLIC ${JACOBIAN_INCLUDE_DIR})
 
 ################################################################################
@@ -115,7 +116,7 @@ endif()
 ################################################################################
 
 # Compile extras only if this is a top-level project
-if(BEZIER_TOPLEVEL_PROJECT AND JACOBIAN_WITH_TESTS)
+if(BEZIER_TOPLEVEL_PROJECT AND UNIT_TESTS)
     include(CTest)
     enable_testing()
     add_subdirectory(tests)

@@ -397,13 +397,14 @@ def corners_formatted(n, s, p):
 if WRITE_CMAKE and not DRY_RUN:
 	with open('src/validity/CMakeLists.txt', 'w') as f:
 		f.write('set(HEADERS\n')
-		f.write('\telement_validity.hpp\n')
+		f.write('\tValidityChecker.hpp\n')
 		f.write('\tcornerIndices.hpp\n')
 		f.write('\tlagrangeVector.hpp\n')
 		f.write('\ttransMatrices.hpp\n')
 		f.write(')\n\n')
 
 		f.write('set(SOURCES\n')
+		f.write('\tValidityChecker.cpp\n')
 		for n,s,p in COMBINATIONS:
 			f.write(f'\ttransMatrices_{n}_{s}_{p}.cpp\n')
 			f.write(f'\tlagrangeVector_{n}_{s}_{p}.cpp\n')

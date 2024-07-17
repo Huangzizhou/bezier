@@ -1,4 +1,5 @@
 #pragma once
+#include "utils/combinatorics.hpp"
 #include "utils/Timer.hpp"
 #include "transMatrices.hpp"
 #include "lagrangeVector.hpp"
@@ -17,37 +18,14 @@ struct Subdomain {
 	Interval incl;
 
 	// Priority function
-	bool operator<(const Subdomain &o) const {
-		if (time.lower() != o.time.lower())
-			return time.lower() > o.time.lower();
-		else return incl.lower() > o.incl.lower();
-	}
-
-
+	bool operator<(const Subdomain &o) const;
 	// Debug print
-	friend std::ostream& operator<<(std::ostream& ost, const Subdomain &s) {
-		ost << "t: " << s.time << std::endl;
-		ost << "I: " << s.incl << std::endl;
-		ost << "Q: ";
-		for (const uint x : s.qSequence) ost << x << ", ";
-		ost << std::endl;
-		ost << "B: ";
-		for (const Interval &b : s.B) ost << '\t' << b << std::endl;
-
-		return ost;
-	}
-
+	friend std::ostream& operator<<(std::ostream& ost, const Subdomain &s);
 	inline uint depth() const { return qSequence.size(); }
-
 	// Copy the path I took to get here
-	void copySequence(std::vector<uint> &dst) const {
-		dst.clear();
-		dst.reserve(depth());
-		std::copy(
-			qSequence.cbegin(), qSequence.cend(), std::back_inserter(dst)
-		);
-	}
+	void copySequence(std::vector<uint> &dst) const;
 };
+
 
 struct CheckerInfo {
 	uint spaceDepth = 0;
@@ -56,32 +34,10 @@ struct CheckerInfo {
 	};
 	Status status;
 
-	bool success() const {
-		switch (status) {
-		case Status::completed:
-		case Status::reachedTarget:
-		case Status::globalCondition:
-			return true;
-		default:
-			return false;
-		}
-	}
-	std::string description() const {
-		switch (status) {
-		case Status::completed:
-			return "Processed all intervals";
-		case Status::reachedTarget:
-			return "Reached target precision";
-		case Status::maxDepth:
-			return "User termination condition satisfied";
-		case Status::globalCondition:
-			return "Global early termination condition satisfied";
-		case Status::noSplit:
-			return "Cannot split due to machine precision";
-		default: return "Something is wrong";
-		}
-	}
+	bool success() const;
+	std::string description() const;
 };
+
 
 template<uint n, uint s, uint p>
 class ValidityChecker {
@@ -127,8 +83,10 @@ class ValidityChecker {
 	Subdomain splitTime(const Subdomain &src, bool t) const;
 };
 
-//------------------------------------------------------------------------------
+}
 
+
+namespace element_validity {
 template<uint n, uint s, uint p>
 Interval ValidityChecker<n, s, p>::minclusion(
 	const std::vector<Interval>& B
@@ -209,18 +167,18 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 	while(true) {
 		if (queue.empty()) {
 			tmin = 1;
-			info->status = CheckerInfo::Status::completed;
+			if (info) info->status = CheckerInfo::Status::completed;
 			break;
 		}
 		// Check whether we reached precision
 		if (tmax - tmin < precision && tmin > 0.) {
-			info->status = CheckerInfo::Status::reachedTarget;
+			if (info) info->status = CheckerInfo::Status::reachedTarget;
 			break;
 		}
 
 		// Check whether we satisfy early termination
 		if (tmin >= earlyStop) {
-			info->status = CheckerInfo::Status::globalCondition;
+			if (info) info->status = CheckerInfo::Status::globalCondition;
 			break;
 		}
 
@@ -236,7 +194,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		// Check whether we need to give up
 		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) {
 			if (hierarchy && !foundInvalid) dom.copySequence(*hierarchy);
-			info->status = CheckerInfo::Status::maxDepth;
+			if (info) info->status = CheckerInfo::Status::maxDepth;
 			break;
 		}
 
@@ -253,7 +211,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 			// Split on time only and push to queue
 			const auto mid = dom.time.middle();
 			if (mid == dom.time.upper() || mid == dom.time.lower()) {
-				info->status = CheckerInfo::Status::noSplit;
+				if (info) info->status = CheckerInfo::Status::noSplit;
 				break;
 			}
 			queue.push(splitTime(dom, false));
@@ -266,7 +224,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 		}
 	}
 
-	info->spaceDepth = reachedDepthS;
+	if (info) info->spaceDepth = reachedDepthS;
 	if (timeOfInversion) *timeOfInversion = foundInvalid ? tmax : -1.;
 	return tmin;
 }

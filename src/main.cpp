@@ -1,8 +1,4 @@
-#include "utils/globals.hpp"
-#include "numbers/Interval.hpp"
-#include "utils/combinatorics.hpp"
-#include "validity/element_validity.hpp"
-#include "utils/combinatorics.hpp"
+#include "element_validity.hpp"
 #include "utils/Timer.hpp"
 #include "utils/Settings.hpp"
 
