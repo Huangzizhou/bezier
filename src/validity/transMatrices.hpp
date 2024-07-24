@@ -1,12 +1,18 @@
 #pragma once
 #include "numbers/Matrix.hpp"
-#include <array>
+#include <span>
 
 namespace element_validity {
 	template<uint n, uint s, uint p>
+	void initMatrices(
+		Matrix<Interval> &l2b,
+		std::span<Matrix<Interval>> ssd
+	);
+	
+	template<uint n, uint s, uint p>
 	void initMatricesT(
 		Matrix<Interval> &l2b,
-		std::pair<Matrix<Interval>, Matrix<Interval>> &tsd,
-		std::array<Matrix<Interval>, 2<<n> &ssd
+		std::span<Matrix<Interval>> tsd,
+		std::span<Matrix<Interval>> ssd
 	);
 }

@@ -34,9 +34,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -pg -ggdb3")
 # Use fast interval arithmetic
 if(IPRED_ARITHMETIC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} \
-    -Og -frounding-math -msse2 -mavx2 -mfma \
-    "
-    )
+        -O2 -frounding-math -msse2 -mavx2 -mfma")
     set(USE_SIMD_INSTRUCTIONS ON)
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")

@@ -44,7 +44,7 @@ class ValidityChecker {
 	private:
 	static constexpr uint subdomains = 2 << n;
 	Matrix<Interval> matL2B;
-	std::pair<Matrix<Interval>, Matrix<Interval>> matT;
+	std::array<Matrix<Interval>, 2> matT;
 	std::array<Matrix<Interval>, subdomains> matQ;
 	std::vector<uint> interpIndices;
 
@@ -118,7 +118,7 @@ Subdomain ValidityChecker<n, s, p>::splitTime(
 	const Subdomain &src, bool t
 ) const {
 	Subdomain res;
-	(t ? matT.second : matT.first).mult(src.B, res.B);
+	(t ? matT[1] : matT[0]).mult(src.B, res.B);
 	res.time = t ?
 		Interval(src.time.middle(), src.time.upper()) :
 		Interval(src.time.lower(), src.time.middle());

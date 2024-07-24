@@ -8,39 +8,73 @@ set(HEADERS
 set(SOURCES
 	ValidityChecker.cpp
 	transMatrices_1_1_1.cpp
+	transMatricesT_1_1_1.cpp
 	lagrangeVector_1_1_1.cpp
+	lagrangeVectorT_1_1_1.cpp
 	transMatrices_1_1_2.cpp
+	transMatricesT_1_1_2.cpp
 	lagrangeVector_1_1_2.cpp
+	lagrangeVectorT_1_1_2.cpp
 	transMatrices_1_1_3.cpp
+	transMatricesT_1_1_3.cpp
 	lagrangeVector_1_1_3.cpp
+	lagrangeVectorT_1_1_3.cpp
 	transMatrices_1_1_4.cpp
+	transMatricesT_1_1_4.cpp
 	lagrangeVector_1_1_4.cpp
+	lagrangeVectorT_1_1_4.cpp
 	transMatrices_1_1_5.cpp
+	transMatricesT_1_1_5.cpp
 	lagrangeVector_1_1_5.cpp
+	lagrangeVectorT_1_1_5.cpp
 	transMatrices_2_1_1.cpp
+	transMatricesT_2_1_1.cpp
 	lagrangeVector_2_1_1.cpp
+	lagrangeVectorT_2_1_1.cpp
 	transMatrices_2_1_2.cpp
+	transMatricesT_2_1_2.cpp
 	lagrangeVector_2_1_2.cpp
+	lagrangeVectorT_2_1_2.cpp
 	transMatrices_2_2_1.cpp
+	transMatricesT_2_2_1.cpp
 	lagrangeVector_2_2_1.cpp
+	lagrangeVectorT_2_2_1.cpp
 	transMatrices_2_2_2.cpp
+	transMatricesT_2_2_2.cpp
 	lagrangeVector_2_2_2.cpp
+	lagrangeVectorT_2_2_2.cpp
 	transMatrices_2_2_3.cpp
+	transMatricesT_2_2_3.cpp
 	lagrangeVector_2_2_3.cpp
+	lagrangeVectorT_2_2_3.cpp
 	transMatrices_2_2_4.cpp
+	transMatricesT_2_2_4.cpp
 	lagrangeVector_2_2_4.cpp
+	lagrangeVectorT_2_2_4.cpp
 	transMatrices_3_1_1.cpp
+	transMatricesT_3_1_1.cpp
 	lagrangeVector_3_1_1.cpp
+	lagrangeVectorT_3_1_1.cpp
 	transMatrices_3_1_2.cpp
+	transMatricesT_3_1_2.cpp
 	lagrangeVector_3_1_2.cpp
+	lagrangeVectorT_3_1_2.cpp
 	transMatrices_3_3_1.cpp
+	transMatricesT_3_3_1.cpp
 	lagrangeVector_3_3_1.cpp
+	lagrangeVectorT_3_3_1.cpp
 	transMatrices_3_3_2.cpp
+	transMatricesT_3_3_2.cpp
 	lagrangeVector_3_3_2.cpp
+	lagrangeVectorT_3_3_2.cpp
 	transMatrices_3_3_3.cpp
+	transMatricesT_3_3_3.cpp
 	lagrangeVector_3_3_3.cpp
+	lagrangeVectorT_3_3_3.cpp
 	transMatrices_3_3_4.cpp
+	transMatricesT_3_3_4.cpp
 	lagrangeVector_3_3_4.cpp
+	lagrangeVectorT_3_3_4.cpp
 	cornerIndices.cpp
 )
 
