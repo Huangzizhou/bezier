@@ -2,3 +2,5 @@ build/
 .vscode/
 other/
 __pycache__/
+*.swp
+*.swo
