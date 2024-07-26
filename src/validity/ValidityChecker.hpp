@@ -40,7 +40,7 @@ struct CheckerInfo {
 
 
 template<uint n, uint s, uint p>
-class ValidityChecker {
+class ContinuousValidityChecker {
 	private:
 	static constexpr uint subdomains = 2 << n;
 	Matrix<Interval> matL2B;
@@ -55,7 +55,7 @@ class ValidityChecker {
 	uint maxSubdiv = 0;
 
 	public:
-	ValidityChecker(uint nThreads = 1) : nThreads(nThreads) {
+	ContinuousValidityChecker(uint nThreads = 1) : nThreads(nThreads) {
 		initMatricesT<n, s, p>(matL2B, matT, matQ);
 		cornerIndicesT<n, s, p>(interpIndices);
 	}
@@ -83,12 +83,44 @@ class ValidityChecker {
 	Subdomain splitTime(const Subdomain &src, bool t) const;
 };
 
+template<uint n, uint s, uint p>
+class ValidityChecker {
+	private:
+	static constexpr uint subdomains = 1 << n;
+	Matrix<Interval> matL2B;
+	std::array<Matrix<Interval>, subdomains> matQ;
+	std::vector<uint> interpIndices;
+
+	const uint nThreads;
+
+	fp_t epsilon = 0.;
+	uint maxSubdiv = 0;
+
+	public:
+	ValidityChecker(uint nThreads = 1) : nThreads(nThreads) {
+		initMatrices<n, s, p>(matL2B, matQ);
+		cornerIndices<n, s, p>(interpIndices);
+	}
+	Validity isValid (
+		std::span<const fp_t> cp,
+		std::vector<uint> *adaptiveHierarchy = nullptr,
+		CheckerInfo *info = nullptr
+	) const;
+
+	void setEpsilon(fp_t t) { epsilon = t; }
+	void setMaxSubdiv(uint v) { maxSubdiv = v; }
+
+	private:
+	Interval minclusion(const std::vector<Interval> &B) const;
+	Subdomain split(const Subdomain &src, uint q) const;
+};
+
 }
 
 
 namespace element_validity {
 template<uint n, uint s, uint p>
-Interval ValidityChecker<n, s, p>::minclusion(
+Interval ContinuousValidityChecker<n, s, p>::minclusion(
 	const std::vector<Interval>& B
 ) const {
 	Interval lo(std::numeric_limits<fp_t>::max());
@@ -97,6 +129,36 @@ Interval ValidityChecker<n, s, p>::minclusion(
 	for (const uint c : interpIndices) hi = min(hi, B.at(c));
 	return {lo.lower(), hi.upper()};
 }
+
+template<uint n, uint s, uint p>
+Subdomain ContinuousValidityChecker<n, s, p>::split(
+	const Subdomain &src, uint q
+) const {
+	Subdomain res;
+	matQ[q].mult(src.B, res.B);
+	res.time = (q >> n) ?
+		Interval(src.time.middle(), src.time.upper()) :
+		Interval(src.time.lower(), src.time.middle());
+	res.incl = minclusion(res.B);
+	src.copySequence(res.qSequence);
+	res.qSequence.push_back(q % (1U << (n-1)));
+	return res;
+}
+
+template<uint n, uint s, uint p>
+Subdomain ContinuousValidityChecker<n, s, p>::splitTime(
+	const Subdomain &src, bool t
+) const {
+	Subdomain res;
+	(t ? matT[1] : matT[0]).mult(src.B, res.B);
+	res.time = t ?
+		Interval(src.time.middle(), src.time.upper()) :
+		Interval(src.time.lower(), src.time.middle());
+	res.incl = minclusion(res.B);
+	src.copySequence(res.qSequence);
+	return res;
+}
+
 
 template<uint n, uint s, uint p>
 Subdomain ValidityChecker<n, s, p>::split(
@@ -113,25 +175,22 @@ Subdomain ValidityChecker<n, s, p>::split(
 	return res;
 }
 
-template<uint n, uint s, uint p>
-Subdomain ValidityChecker<n, s, p>::splitTime(
-	const Subdomain &src, bool t
-) const {
-	Subdomain res;
-	(t ? matT[1] : matT[0]).mult(src.B, res.B);
-	res.time = t ?
-		Interval(src.time.middle(), src.time.upper()) :
-		Interval(src.time.lower(), src.time.middle());
-	res.incl = minclusion(res.B);
-	src.copySequence(res.qSequence);
-	return res;
-}
 
+template<uint n, uint s, uint p>
+Interval ValidityChecker<n, s, p>::minclusion(
+	const std::vector<Interval>& B
+) const {
+	Interval lo(std::numeric_limits<fp_t>::max());
+	for (const Interval &b : B) lo = min(lo, b);
+	Interval hi(std::numeric_limits<fp_t>::max());
+	for (const uint c : interpIndices) hi = min(hi, B.at(c));
+	return {lo.lower(), hi.upper()};
+}
 
 //------------------------------------------------------------------------------
 
 template<uint n, uint s, uint p>
-fp_t ValidityChecker<n, s, p>::maxTimeStep(
+fp_t ContinuousValidityChecker<n, s, p>::maxTimeStep(
 	std::span<const fp_t> cp,
 	std::vector<uint> *hierarchy,
 	fp_t earlyStop,
@@ -232,7 +291,7 @@ fp_t ValidityChecker<n, s, p>::maxTimeStep(
 //------------------------------------------------------------------------------
 
 template<uint n, uint s, uint p>
-fp_t ValidityChecker<n, s, p>::maxTimeStepVec(
+fp_t ContinuousValidityChecker<n, s, p>::maxTimeStepVec(
 	std::span<const fp_t> cp,
 	uint *invalidElemID,
 	std::vector<uint> *adaptiveHierarchy
@@ -284,5 +343,82 @@ fp_t ValidityChecker<n, s, p>::maxTimeStepVec(
 	}
 	return minT;
 }
+
+
+//------------------------------------------------------------------------------
+
+template<uint n, uint s, uint p>
+Validity ValidityChecker<n, s, p>::isValid(
+	std::span<const fp_t> cp,
+	std::vector<uint> *hierarchy,
+	CheckerInfo *info
+) const {
+	// Compute Lagrange coefficients
+	std::vector<Interval> vL(nControlJacobian(n,s,p,false));
+	lagrangeVector<n, s, p>(cp, vL);
+
+	// Check for early termination
+	for (const Interval &l : vL) {
+		if (l < 0) {
+			if (info) info->status = CheckerInfo::Status::reachedTarget;
+			return Validity::invalid;
+		}
+	}
+
+
+	// Create initial subdomain
+	Subdomain sd0;
+	matL2B.mult(vL, sd0.B);
+	sd0.incl = minclusion(sd0.B);
+	
+	// Initialize queue
+	std::priority_queue<Subdomain> queue;
+	queue.push(sd0);
+
+	// Initialize auxiliary variables
+	uint reachedDepth = 0;
+	const bool maxIterCheck = (maxSubdiv > 0);
+	bool foundInvalid = false;
+	bool gaveUp = false;
+
+	if (hierarchy) hierarchy->clear();
+
+	// Loop
+	while(true) {
+		if (queue.empty()) {
+			if (info) info->status = CheckerInfo::Status::completed;
+			break;
+		}
+	
+		// Get box from top of the queue
+		const Subdomain dom = queue.top();
+		queue.pop();
+
+		reachedDepth = std::max(reachedDepth, dom.depth());
+
+		// Check whether we need to give up
+		if (maxIterCheck && (reachedDepth >= maxSubdiv)) {
+			gaveUp = true;
+			if (hierarchy && !foundInvalid) dom.copySequence(*hierarchy);
+			if (info) info->status = CheckerInfo::Status::maxDepth;
+			break;
+		}
+
+		// Subdomain contains invalidity
+		if (dom.incl <= epsilon) {
+			foundInvalid = true;
+			if (info) info->status = CheckerInfo::Status::reachedTarget;
+		}
+		// Subdomain is undetermined and needs refinement
+		else if (!(dom.incl > epsilon)) {
+			// Split on all axes and push to queue
+			for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+		}
+	}
+
+	if (info) info->spaceDepth = reachedDepth;
+	return gaveUp ? Validity::uncertain : (foundInvalid ? Validity::invalid : Validity::valid);
+}
+
 
 }
