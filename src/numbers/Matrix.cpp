@@ -23,14 +23,13 @@ void Matrix<T>::fill(const std::vector<lint> &data) {
 }
 
 template<typename T>
-void Matrix<T>::mult(const std::vector<T> &src, std::vector<T> &dst) const {
-	assert(src != dst);
+void Matrix<T>::mult(const std::span<const T> src, const std::span<T> dst) const {
 	assert(src.size() == s);
-	dst.resize(s);
+	assert(dst.size() == s);
 	for(uint i=0; i<s; ++i) {
 		T acc = 0;
-		for(const auto &p : getRow(i)) acc += p.second * src.at(p.first);
-		dst.at(i) = acc;
+		for(const auto &p : getRow(i)) acc += p.second * src[p.first];
+		dst[i] = acc;
 	}
 }
 }

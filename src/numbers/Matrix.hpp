@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <span>
 #include "Interval.hpp"
 
 /* Simple class for precomputed matrices */
@@ -10,10 +11,7 @@ namespace element_validity {
 template<typename T>
 class Matrix{
 	private:
-	/*
-	Since the matrix is sparse but no row is zero, and since we want to have
-	fast matrix-vector products, storage is dense on rows and sparse on columns.
-	*/
+	// Store each row as a list of column indices and values 
 	using Row = std::vector<std::pair<uint, T>>;
 	std::vector<Row> store;
 	uint s;
@@ -34,14 +32,14 @@ class Matrix{
 	inline void resize(uint size) { s = size; store.resize(s); }
 
 	// Apply matrix to column vector src and directly into dst 
-	void mult(const std::vector<T> &src, std::vector<T> &dst) const;
+	void mult(const std::span<const T> src, const std::span<T> dst) const;
 
 	// Apply matrix to column vector v
-	inline std::vector<T> mult(const std::vector<T> &src) const {
-		std::vector<T> res;
-		mult(src, res);
-		return res;
-	};
+	// inline std::vector<T> mult(const std::vector<T> &src) const {
+	// 	std::vector<T> res;
+	// 	mult(src, res);
+	// 	return res;
+	// };
 
 	// Stream output
 	template<typename U>
