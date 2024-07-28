@@ -67,7 +67,7 @@ class ContinuousValidityChecker {
 		CheckerInfo *info = nullptr
 	) const;
 
-	fp_t maxTimeStepVec(
+	fp_t maxTimeStepMesh(
 		std::span<const fp_t> cp,
 		uint *invalidElemID = nullptr,
 		std::vector<uint> *adaptiveHierarchy = nullptr
@@ -105,6 +105,11 @@ class ValidityChecker {
 		std::span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		CheckerInfo *info = nullptr
+	) const;
+	Validity isValidMesh (
+		std::span<const fp_t> cp,
+		uint *invalidElemID = nullptr,
+		std::vector<uint> *adaptiveHierarchy = nullptr
 	) const;
 
 	void setEpsilon(fp_t t) { epsilon = t; }
@@ -291,7 +296,7 @@ fp_t ContinuousValidityChecker<n, s, p>::maxTimeStep(
 //------------------------------------------------------------------------------
 
 template<uint n, uint s, uint p>
-fp_t ContinuousValidityChecker<n, s, p>::maxTimeStepVec(
+fp_t ContinuousValidityChecker<n, s, p>::maxTimeStepMesh(
 	std::span<const fp_t> cp,
 	uint *invalidElemID,
 	std::vector<uint> *adaptiveHierarchy
@@ -301,7 +306,6 @@ fp_t ContinuousValidityChecker<n, s, p>::maxTimeStepVec(
 	std::cerr << "number of polys: " << numEl << std::endl;
 	fp_t minT = 1;
 	std::vector<fp_t> timeOfInversion(numEl);
-	std::vector<fp_t> depthOfSequence(numEl);
 	std::vector<fp_t> timings(numEl);
 	std::vector<std::vector<fp_t>> hierarchies(numEl);
 	bool foundInvalid = false;
@@ -332,6 +336,9 @@ fp_t ContinuousValidityChecker<n, s, p>::maxTimeStepVec(
 		*adaptiveHierarchy = std::move(hierarchies.at(i));
 	}
 	else {
+		std::vector<fp_t> depthOfSequence(numEl);
+		for (uint j = 0; j < numEl; ++j)
+			depthOfSequence.at(j) = hierarchies.at(j).size();
 		const uint i = std::distance(depthOfSequence.cbegin(),
 			std::max_element(
 				depthOfSequence.cbegin(),
@@ -420,5 +427,63 @@ Validity ValidityChecker<n, s, p>::isValid(
 	return gaveUp ? Validity::uncertain : (foundInvalid ? Validity::invalid : Validity::valid);
 }
 
+//------------------------------------------------------------------------------
+
+template<uint n, uint s, uint p>
+Validity ValidityChecker<n, s, p>::isValidMesh(
+	std::span<const fp_t> cp,
+	uint *invalidElemID,
+	std::vector<uint> *adaptiveHierarchy
+) const {
+	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
+	const uint numEl = cp.size() / (numCoordsPerElem);
+	std::cerr << "number of polys: " << numEl << std::endl;
+	std::vector<Validity> results(numEl);
+	std::vector<fp_t> timings(numEl);
+	std::vector<std::vector<fp_t>> hierarchies(numEl);
+	bool gaveUp = false;
+	bool foundInvalid = false;
+
+	#pragma omp parallel for num_threads(nThreads)
+	for (uint e=0; e<numEl; ++e) {
+		if (foundInvalid) {
+			timings.at(e) = 0;
+			continue;
+		}
+		std::span<const fp_t> element(
+			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
+		Timer timer;
+		timer.start();
+		Validity v = isValid(element, hierarchies.at(e));
+		timer.stop();
+		results.at(e) = v;
+		if (v == Validity::invalid) foundInvalid = true;
+		if (v == Validity::uncertain) gaveUp = true;
+		timings.at(e) = timer.read<std::chrono::microseconds>();
+	}
+	if (foundInvalid) {
+		uint invalidIndex = 0;
+		while (results.at(invalidIndex) != Validity::invalid) ++invalidIndex;
+		if (invalidElemID) *invalidElemID = invalidIndex;
+		*adaptiveHierarchy = std::move(hierarchies.at(invalidIndex));
+		return Validity::invalid;
+	}
+	else if (gaveUp) {
+		std::vector<int> depthOfSequence(numEl);
+		for (uint j = 0; j < numEl; ++j)
+			depthOfSequence.at(j) = (results.at(j) == Validity::valid) ?
+				-1 : hierarchies.at(j).size();
+		const uint i = std::distance(depthOfSequence.cbegin(),
+			std::max_element(
+				depthOfSequence.cbegin(),
+				depthOfSequence.cend()
+			)
+		);
+		if (invalidElemID) *invalidElemID = i;
+		*adaptiveHierarchy = std::move(hierarchies.at(i));
+		return Validity::uncertain;
+	}
+	return Validity::valid;
+}
 
 }
