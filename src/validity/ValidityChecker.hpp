@@ -435,7 +435,7 @@ Validity ValidityChecker<n, s, p>::isValidMesh(
 	uint *invalidElemID,
 	std::vector<uint> *adaptiveHierarchy
 ) const {
-	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
+	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
 	const uint numEl = cp.size() / (numCoordsPerElem);
 	std::cerr << "number of polys: " << numEl << std::endl;
 	std::vector<Validity> results(numEl);
