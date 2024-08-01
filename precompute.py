@@ -9,7 +9,8 @@ COMBINATIONS = [
 	(3,1,1), (3,1,2), # hexahedra
 	(3,3,1), (3,3,2), (3,3,3), (3,3,4), # tetrahedra
 ]
-OPTIONAL_OPTIMIZE = [(3,1,2), (3,3,4)]
+COMBINATIONS = [(2,1,2)]
+OPTIONAL_OPTIMIZE = []
 
 DRY_RUN = False
 POLYFEM_ORDER = True
@@ -18,8 +19,8 @@ STATIC = True
 
 WRITE_CMAKE = False						
 WRITE_MATRICES = False
-WRITE_LAGVEC = False
-WRITE_CORNERS = True
+WRITE_LAGVEC = True
+WRITE_CORNERS = False
 
 INFO_ORDER = False
 INFO_JAC_ORDER = False
@@ -41,7 +42,8 @@ from concurrent.futures import ProcessPoolExecutor
 ## Custom printer for rationals ##
 class MyCodePrinter(CXX11CodePrinter):
 	def _print_Rational(self, expr):
-		return f'R({expr.p}, {expr.q})'
+		return f'R_{expr.p}_{expr.q}'
+		# return f'R({expr.p}, {expr.q})'
 
 
 ## Subscripting ##
@@ -190,15 +192,18 @@ def domain_pts_J(n, s, p, dynamic):
 def aux_evaluate_det(args):
 	pt, J, xt, n = args
 	if (__debug__): print(f"\t Det eval {pt} start")
+	# d = J.subs({xt[k]: pt[k] for k in range(len(xt))})[0,0]
 	d = J.subs({xt[k]: pt[k] for k in range(len(xt))}).det(method='berkowitz')
 	if (__debug__): print(f"\t Det eval {pt} end")
 	return d
 
 def lagrange_vector(n, s, p, c_name, dynamic):
 	x_name = 'u'
-	t_name = 't'
+	t_name = ''
 	xt = subscripts(x_name, range(n))
-	if dynamic: xt += [symbols(t_name)]
+	if dynamic:
+		t_name = 't'
+		xt += [symbols(t_name)]
 
 	if (__debug__): print("Jac start")
 	gmap = geo_map(n, s, p, x_name, c_name, t_name)
@@ -418,6 +423,17 @@ def matrices_formatted(n, s, p, dynamic):
 		lines.append(f'ssd[{q}].fill(' + '{' + mat_compress(a) + '});')
 	return '\n\t'.join(lines) + '\n}'
 
+def unique_rational_coefficients(polynomials):
+	unique_coeffs = set()
+	
+	for poly in polynomials:
+		coeffs = poly.as_coefficients_dict()
+		for coeff in coeffs.values():
+			if coeff.is_rational and coeff.denominator != 1:
+				unique_coeffs.add(abs(coeff))
+	
+	return list(unique_coeffs)
+
 ## Format lag vector ##
 def lag_vec_formatted(n, s, p, dynamic):
 	optopt = (n,s,p) in OPTIONAL_OPTIMIZE
@@ -425,14 +441,16 @@ def lag_vec_formatted(n, s, p, dynamic):
 	expr = lagrange_vector(n, s, p, 'cp', dynamic)
 	if (__debug__): print('Simplification/CSE start')
 	# temp_expr = cse([expand(e) for e in expr], numbered_symbols('tmp_'), order='canonical')
-	if dynamic:
-		temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
-	else:
-		if optopt:
-			coll = expr
-		else:
-			coll = [collect(e, Poly(e).gens) for e in expr]
-		temp_expr = ((), coll)
+	temp_coef = unique_rational_coefficients(expr)
+	temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
+	# if dynamic:
+	# 	temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
+	# else:
+	# 	if optopt:
+	# 		coll = expr
+	# 	else:
+	# 		coll = [collect(e, Poly(e).gens) for e in expr]
+	# 	temp_expr = ((), coll)
 	if (__debug__): print('Simplification/CSE end')
 	lines = [
 		'template<>\n' +
@@ -448,13 +466,16 @@ def lag_vec_formatted(n, s, p, dynamic):
 		lines.append(f'for (int i = S-1; i >= 0; --i) cp[i] -= cp[i%{n}];')
 	my_ccode = MyCodePrinter().doprint
 	if (__debug__): print('Writing temporaries')
+	for qq in temp_coef:
+		num, den = qq.as_numer_denom()
+		lines.append(f'I R_{num}_{den} = (Interval({num}) / {den});')
 	for helper in temp_expr[0]:
 		lines.append('I ' + my_ccode(helper[1], helper[0]))
 	if (__debug__): print('Writing expressions')
 	for i,result in enumerate(temp_expr[1]):
 		lines.append(my_ccode(result, f'out[{i}]'))
 	if (__debug__): print('Finished writing')
-	return '\n\t'.join(lines) + '\n}'
+	return '\n\t'.join(lines) + '}\n'
 
 ## Format corner indices
 def corners_formatted(n, s, p, dynamic):
@@ -525,7 +546,7 @@ if WRITE_LAGVEC:
 				if optopt:
 				 	f.write('#ifdef LAGVEC_GCC_O0\n')
 				 	f.write('#pragma GCC push_options\n')
-				 	f.write('#pragma GCC optimize ("-O0")\n')
+				 	f.write('#pragma GCC optimize ("0")\n')
 				 	f.write('#endif\n')
 				f.write(lag_vec_formatted(n,s,p,True))
 				f.write('}\n')
@@ -552,7 +573,6 @@ if WRITE_LAGVEC:
 				 	f.write('#ifdef LAGVEC_GCC_O0\n')
 				 	f.write('#pragma GCC pop_options\n')
 				 	f.write('#endif\n')
-				f.write('}\n')
 				f.write('#undef R\n')
 				f.write('#undef I')
 	print('Done writing Lagrange vectors.')
