@@ -13,8 +13,9 @@ include(ExternalProject)
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(UNIT_TESTS "Run unit tests" ON)
+option(LAGVEC_GCC_O0 "Disable optimization for some complicated functions" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
-option(LAGVEC_GCC_O0 "Set -O0 optimization for very long lagrangeVector functions" ON)
+option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 include(jacobian_cpm_cache)
@@ -75,8 +76,11 @@ target_include_directories(bezier PUBLIC ${JACOBIAN_INCLUDE_DIR})
 ################################################################################
 
 ##### Eigen ####################################################################
-# include(eigen)
-# target_link_libraries(bezier PUBLIC Eigen3::Eigen)
+if (EIGEN_INTERFACE)
+    add_compile_definitions(EIGEN_INTERFACE)
+    include(eigen)
+    target_link_libraries(bezier PUBLIC Eigen3::Eigen)
+endif()
 
 ##### GMP ######################################################################
 find_package(GMP REQUIRED)

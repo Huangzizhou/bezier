@@ -1,6 +1,7 @@
 #pragma once
 #include "numbers/Interval.hpp"
 #include <span>
+#include <array>
 
 namespace element_validity {
 	template<uint n, uint s, uint p>

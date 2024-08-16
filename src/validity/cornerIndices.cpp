@@ -62,22 +62,10 @@ template<>
 void cornerIndicesT<2, 2, 3>(std::vector<uint> &v) { v = {2,14,44}; }
 
 template<>
-void cornerIndices<2, 2, 4>(std::vector<uint> &v) { v = {0,6,27}; }
-
-template<>
-void cornerIndicesT<2, 2, 4>(std::vector<uint> &v) { v = {2,20,83}; }
-
-template<>
 void cornerIndices<3, 1, 1>(std::vector<uint> &v) { v = {0,2,6,8,18,20,24,26}; }
 
 template<>
 void cornerIndicesT<3, 1, 1>(std::vector<uint> &v) { v = {3,11,27,35,75,83,99,107}; }
-
-template<>
-void cornerIndices<3, 1, 2>(std::vector<uint> &v) { v = {0,5,30,35,180,185,210,215}; }
-
-template<>
-void cornerIndicesT<3, 1, 2>(std::vector<uint> &v) { v = {3,23,123,143,723,743,843,863}; }
 
 template<>
 void cornerIndices<3, 3, 1>(std::vector<uint> &v) { v = {0}; }
@@ -90,6 +78,12 @@ void cornerIndices<3, 3, 2>(std::vector<uint> &v) { v = {0,3,9,19}; }
 
 template<>
 void cornerIndicesT<3, 3, 2>(std::vector<uint> &v) { v = {3,15,39,79}; }
+
+template<>
+void cornerIndices<2, 2, 4>(std::vector<uint> &v) { v = {0,6,27}; }
+
+template<>
+void cornerIndicesT<2, 2, 4>(std::vector<uint> &v) { v = {2,20,83}; }
 
 template<>
 void cornerIndices<3, 3, 3>(std::vector<uint> &v) { v = {0,6,27,83}; }

@@ -6,10 +6,10 @@
 namespace element_validity {
 template<>
 void lagrangeVectorT<1, 1, 4>(const std::span<const fp_t> cpFP, const std::span<Interval> out) {
+	assert(cpFP.size() == 10);
 	assert(out.size() == 8);
-	const uint S = cpFP.size();
-	std::vector<Interval> cp(S);
-	for (uint i = 0; i < S; ++i) cp[i] = cpFP[i];
+	std::array<Interval, 10> cp;
+	for (uint i = 0; i < 10; ++i) cp[i] = cpFP[i];
 	I tmp_0 = 12*cp[4];
 	I tmp_1 = 12*cp[5];
 	I tmp_2 = -R(148, 27)*cp[4];

@@ -18,8 +18,8 @@ namespace element_validity {
 	}
 
 	// Positive integer power
-	template<typename bType>
-	constexpr bType powi(bType n, uint e) {
+	template<typename T>
+	constexpr T powi(T n, uint e) {
 		switch(e) {
 		// Base cases
 		case 0: return 1;
@@ -27,7 +27,7 @@ namespace element_validity {
 		default:
 			// Exponent is even: divide by 2 and recurse
 			if ((e % 2) == 0) {
-				const bType a = powi(n, e >> 1);
+				const T a = powi(n, e >> 1);
 				return a*a;
 			}
 			// Exponent is not divisible by 2

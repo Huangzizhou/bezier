@@ -49,7 +49,7 @@ void processData(
         CheckerInfo info;
         fp_t tInv;
         timer.start();
-        const fp_t t = checker.maxTimeStep(element, &h, 1, &tInv, &info);
+        const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
         timer.stop();
         results.push_back(t);
         if (out) {
@@ -57,7 +57,7 @@ void processData(
             *out << fp_fmt << t << SEP;
             *out << fp_fmt << tInv << SEP;
             *out << info.spaceDepth << SEP;
-            *out << timer.read<std::chrono::microseconds>() << SEP;
+            *out << static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000 << SEP;
             for (uint u : h) *out << u << ' ';
             *out << SEP;
             *out << info.description() << std::endl;

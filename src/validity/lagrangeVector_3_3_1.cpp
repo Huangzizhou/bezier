@@ -6,11 +6,17 @@
 namespace element_validity {
 template<>
 void lagrangeVector<3, 3, 1>(const std::span<const fp_t> cpFP, const std::span<Interval> out) {
+	assert(cpFP.size() == 12);
 	assert(out.size() == 1);
-	const uint S = cpFP.size();
-	std::vector<Interval> cp(S);
-	for (uint i = 0; i < S; ++i) cp[i] = cpFP[i];
-	out[0] = cp[0]*(-cp[10]*cp[5] + cp[10]*cp[8] + cp[11]*cp[4] - cp[11]*cp[7] - cp[4]*cp[8] + cp[5]*cp[7]) + cp[10]*(cp[2]*cp[3] - cp[2]*cp[6] - cp[3]*cp[8] + cp[5]*cp[6]) + cp[11]*(-cp[1]*cp[3] + cp[1]*cp[6] + cp[3]*cp[7] - cp[4]*cp[6]) + cp[1]*(cp[3]*cp[8] - cp[5]*cp[6] + cp[5]*cp[9] - cp[8]*cp[9]) + cp[2]*(-cp[3]*cp[7] + cp[4]*cp[6] - cp[4]*cp[9] + cp[7]*cp[9]) + cp[4]*cp[8]*cp[9] - cp[5]*cp[7]*cp[9];
+	std::array<Interval, 12> cp;
+	for (uint i = 0; i < 12; ++i) cp[i] = cpFP[i];
+	I tmp_0 = cp[10] - cp[1];
+	I tmp_1 = -cp[2] + cp[8];
+	I tmp_2 = cp[11] - cp[2];
+	I tmp_3 = -cp[1] + cp[7];
+	I tmp_4 = -cp[2] + cp[5];
+	I tmp_5 = -cp[1] + cp[4];
+	out[0] = (-cp[0] + cp[3])*(-tmp_0*tmp_1 + tmp_2*tmp_3) + (-cp[0] + cp[6])*(tmp_0*tmp_4 - tmp_2*tmp_5) + (-cp[0] + cp[9])*(tmp_1*tmp_5 - tmp_3*tmp_4);
 }}
 #undef R
 #undef I

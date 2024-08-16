@@ -3,24 +3,27 @@ from polyfem_indices import index_set_polyfem
 
 ## Setup ##
 COMBINATIONS = [
-	(1,1,1), (1,1,2), (1,1,3), (1,1,4), (1,1,5), # segments
-	(2,1,1), (2,1,2), # quadrilaterals
-	(2,2,1), (2,2,2), (2,2,3), (2,2,4), # triangles
-	(3,1,1), (3,1,2), # hexahedra
-	(3,3,1), (3,3,2), (3,3,3), (3,3,4), # tetrahedra
+	(1,1,1), (1,1,2), (1,1,3), (1,1,4), (1,1,5),
+	(2,1,1), (2,1,2),
+	(2,2,1), (2,2,2), (2,2,3),
+	(3,1,1),
+	(3,3,1), (3,3,2),
+	(2,2,4),
+	(3,3,3),
+	(3,3,4),
 ]
-COMBINATIONS = [(2,1,2)]
-OPTIONAL_OPTIMIZE = []
+
+OPTIONAL_OPTIMIZE = [(3,1,2),(3,3,4)]
 
 DRY_RUN = False
 POLYFEM_ORDER = True
 DYNAMIC = True
 STATIC = True
 
-WRITE_CMAKE = False						
+WRITE_CMAKE = True						
 WRITE_MATRICES = False
 WRITE_LAGVEC = True
-WRITE_CORNERS = False
+WRITE_CORNERS = True
 
 INFO_ORDER = False
 INFO_JAC_ORDER = False
@@ -42,8 +45,8 @@ from concurrent.futures import ProcessPoolExecutor
 ## Custom printer for rationals ##
 class MyCodePrinter(CXX11CodePrinter):
 	def _print_Rational(self, expr):
-		return f'R_{expr.p}_{expr.q}'
-		# return f'R({expr.p}, {expr.q})'
+		# return f'R_{expr.p}_{expr.q}'
+		return f'R({expr.p}, {expr.q})'
 
 
 ## Subscripting ##
@@ -187,13 +190,31 @@ def domain_pts_J(n, s, p, dynamic):
 			)
 			for tup in index_set_J(n, s, p, False)]
 
+## Determinant ##
+def determinant(J, dynamic):
+	off = 1 if dynamic else 0
+	if J.shape == (1 + off,1 + off):
+		return J[0,0]
+	elif J.shape == (2 + off,2 + off):
+		return (J[0,0] * J[1,1]) - (J[0,1] * J[1,0])
+	elif J.shape == (3 + off,3 + off):
+		return \
+			(J[0,0] * ((J[1,1] * J[2,2]) - (J[1,2] * J[2,1]))) +\
+			(J[0,1] * ((J[1,2] * J[2,0]) - (J[1,0] * J[2,2]))) +\
+			(J[0,2] * ((J[1,0] * J[2,1]) - (J[1,1] * J[2,0])))
+	else: raise ValueError
 
 ## Lagrange vector ##
 def aux_evaluate_det(args):
 	pt, J, xt, n = args
 	if (__debug__): print(f"\t Det eval {pt} start")
-	# d = J.subs({xt[k]: pt[k] for k in range(len(xt))})[0,0]
-	d = J.subs({xt[k]: pt[k] for k in range(len(xt))}).det(method='berkowitz')
+	# if J.shape == (n+1,n+1):
+	# 	assert(all(elem == 0 for elem in J[-1, :-1]) and J[-1, -1] == 1)
+	# 	J = J[:-1, :-1]
+	# assert(J.shape == (n,n))
+	# d = J.subs({xt[k]: pt[k] for k in range(len(xt))}).det(method='berkowitz')
+	dyn = J.shape == (n+1,n+1)
+	d = determinant(J.subs({xt[k]: pt[k] for k in range(len(xt))}), dynamic=dyn)
 	if (__debug__): print(f"\t Det eval {pt} end")
 	return d
 
@@ -427,55 +448,52 @@ def unique_rational_coefficients(polynomials):
 	unique_coeffs = set()
 	
 	for poly in polynomials:
-		coeffs = poly.as_coefficients_dict()
-		for coeff in coeffs.values():
+		coeffs = Poly(poly, domain='QQ').coeffs()
+		for coeff in coeffs:
 			if coeff.is_rational and coeff.denominator != 1:
 				unique_coeffs.add(abs(coeff))
 	
 	return list(unique_coeffs)
 
 ## Format lag vector ##
-def lag_vec_formatted(n, s, p, dynamic):
+def lag_vec_formatted(file, n, s, p, dynamic):
 	optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 	func_name = 'lagrangeVector' + ('T' if dynamic else '')
 	expr = lagrange_vector(n, s, p, 'cp', dynamic)
-	if (__debug__): print('Simplification/CSE start')
-	# temp_expr = cse([expand(e) for e in expr], numbered_symbols('tmp_'), order='canonical')
-	temp_coef = unique_rational_coefficients(expr)
+	if (__debug__): print('CSE start')
 	temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
-	# if dynamic:
-	# 	temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
-	# else:
-	# 	if optopt:
-	# 		coll = expr
-	# 	else:
-	# 		coll = [collect(e, Poly(e).gens) for e in expr]
-	# 	temp_expr = ((), coll)
-	if (__debug__): print('Simplification/CSE end')
-	lines = [
+	if (__debug__): print('CSE end')
+
+	# if (__debug__): print('Unique coefficients listing start')
+	# temp_coef = unique_rational_coefficients(expr)
+	# if (__debug__): print('Unique coefficients listing end')
+
+	file.write(
 		'template<>\n' +
 		f'void {func_name}<{n}, {s}, {p}>' +
 		'(const std::span<const fp_t> cpFP, const std::span<Interval> out) {'
-	]
-	lines.append(f'assert(out.size() == {len(expr)});')
+	)
+	NCP = len(index_set(n,s,p)) * n
+	if dynamic: NCP *= 2
+	file.write(f'\n\tassert(cpFP.size() == {NCP});')
+	file.write(f'\n\tassert(out.size() == {len(expr)});')
 	assert len(expr) == len(temp_expr[1])
-	lines.append('const uint S = cpFP.size();')
-	lines.append('std::vector<Interval> cp(S);')
-	lines.append('for (uint i = 0; i < S; ++i) cp[i] = cpFP[i];')
+	file.write(f'\n\tstd::array<Interval, {NCP}> cp;')
+	file.write(f'\n\tfor (uint i = 0; i < {NCP}; ++i) cp[i] = cpFP[i];')
 	if TO_ORIGIN:
-		lines.append(f'for (int i = S-1; i >= 0; --i) cp[i] -= cp[i%{n}];')
+		file.write(f'\n\tfor (int i = S-1; i >= 0; --i) cp[i] -= cp[i%{n}];')
 	my_ccode = MyCodePrinter().doprint
 	if (__debug__): print('Writing temporaries')
-	for qq in temp_coef:
-		num, den = qq.as_numer_denom()
-		lines.append(f'I R_{num}_{den} = (Interval({num}) / {den});')
+	# for qq in temp_coef:
+	# 	num, den = qq.as_numer_denom()
+	# 	file.write(f'\n\tI R_{num}_{den} = R({num},{den});')
 	for helper in temp_expr[0]:
-		lines.append('I ' + my_ccode(helper[1], helper[0]))
+		file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
 	if (__debug__): print('Writing expressions')
 	for i,result in enumerate(temp_expr[1]):
-		lines.append(my_ccode(result, f'out[{i}]'))
+		file.write('\n\t' + my_ccode(result, f'out[{i}]'))
 	if (__debug__): print('Finished writing')
-	return '\n\t'.join(lines) + '}\n'
+	file.write('\n}')
 
 ## Format corner indices
 def corners_formatted(n, s, p, dynamic):
@@ -548,7 +566,7 @@ if WRITE_LAGVEC:
 				 	f.write('#pragma GCC push_options\n')
 				 	f.write('#pragma GCC optimize ("0")\n')
 				 	f.write('#endif\n')
-				f.write(lag_vec_formatted(n,s,p,True))
+				lag_vec_formatted(f,n,s,p,True)
 				f.write('}\n')
 				if optopt:
 				 	f.write('#ifdef LAGVEC_GCC_O0\n')
@@ -567,7 +585,7 @@ if WRITE_LAGVEC:
 				 	f.write('#pragma GCC push_options\n')
 				 	f.write('#pragma GCC optimize ("-O0")\n')
 				 	f.write('#endif\n')
-				f.write(lag_vec_formatted(n,s,p,False))
+				lag_vec_formatted(f,n,s,p,False)
 				f.write('}\n')
 				if optopt:
 				 	f.write('#ifdef LAGVEC_GCC_O0\n')
