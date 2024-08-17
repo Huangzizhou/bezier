@@ -15,7 +15,7 @@ COMBINATIONS = [
 
 OPTIONAL_OPTIMIZE = [(3,1,2),(3,3,4)]
 
-DRY_RUN = True
+DRY_RUN = False
 POLYFEM_ORDER = True
 DYNAMIC = True
 STATIC = True
@@ -504,26 +504,21 @@ def corners_formatted(n, s, p, dynamic):
 
 ## Write ##
 if WRITE_CMAKE and not DRY_RUN:
-	with open('src/validity/CMakeLists.txt', 'w') as f:
-		f.write('set(HEADERS\n')
-		f.write('\tValidityChecker.hpp\n')
-		f.write('\tcornerIndices.hpp\n')
-		f.write('\tlagrangeVector.hpp\n')
-		f.write('\ttransMatrices.hpp\n')
-		f.write(')\n\n')
+	comb = [
+		('lagvec', 'lagrangeVector'),
+		('transmat', 'transMatrices'),
+		('lagvecT', 'lagrangeVectorT'),
+		('transmatT', 'transMatricesT'),
+	]
+	for cc in comb:
+		with open(f'src/validity/{cc[0]}/CMakeLists.txt', 'w') as f:
+			f.write('set(SOURCES\n')
+			for n,s,p in COMBINATIONS:
+				f.write(f'\t{cc[1]}_{n}_{s}_{p}.cpp\n')
+			f.write(')\n\n')
 
-		f.write('set(SOURCES\n')
-		f.write('\tValidityChecker.cpp\n')
-		for n,s,p in COMBINATIONS:
-			f.write(f'\ttransmat/transMatrices_{n}_{s}_{p}.cpp\n')
-			f.write(f'\ttransmatT/transMatricesT_{n}_{s}_{p}.cpp\n')
-			f.write(f'\tlagvec/lagrangeVector_{n}_{s}_{p}.cpp\n')
-			f.write(f'\tlagvecT/lagrangeVectorT_{n}_{s}_{p}.cpp\n')
-		f.write('\tcornerIndices.cpp\n')
-		f.write(')\n\n')
-
-		f.write('source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})\n')
-		f.write('target_sources(bezier PRIVATE ${SOURCES})')
+			f.write('source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})\n')
+			f.write('target_sources(bezier PRIVATE ${SOURCES})')
 
 if WRITE_MATRICES:
 	print('Writing matrices...')

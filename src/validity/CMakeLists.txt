@@ -7,72 +7,13 @@ set(HEADERS
 
 set(SOURCES
 	ValidityChecker.cpp
-	transmat/transMatrices_1_1_1.cpp
-	transmatT/transMatricesT_1_1_1.cpp
-	lagvec/lagrangeVector_1_1_1.cpp
-	lagvecT/lagrangeVectorT_1_1_1.cpp
-	transmat/transMatrices_1_1_2.cpp
-	transmatT/transMatricesT_1_1_2.cpp
-	lagvec/lagrangeVector_1_1_2.cpp
-	lagvecT/lagrangeVectorT_1_1_2.cpp
-	transmat/transMatrices_1_1_3.cpp
-	transmatT/transMatricesT_1_1_3.cpp
-	lagvec/lagrangeVector_1_1_3.cpp
-	lagvecT/lagrangeVectorT_1_1_3.cpp
-	transmat/transMatrices_1_1_4.cpp
-	transmatT/transMatricesT_1_1_4.cpp
-	lagvec/lagrangeVector_1_1_4.cpp
-	lagvecT/lagrangeVectorT_1_1_4.cpp
-	transmat/transMatrices_1_1_5.cpp
-	transmatT/transMatricesT_1_1_5.cpp
-	lagvec/lagrangeVector_1_1_5.cpp
-	lagvecT/lagrangeVectorT_1_1_5.cpp
-	transmat/transMatrices_2_1_1.cpp
-	transmatT/transMatricesT_2_1_1.cpp
-	lagvec/lagrangeVector_2_1_1.cpp
-	lagvecT/lagrangeVectorT_2_1_1.cpp
-	transmat/transMatrices_2_1_2.cpp
-	transmatT/transMatricesT_2_1_2.cpp
-	lagvec/lagrangeVector_2_1_2.cpp
-	lagvecT/lagrangeVectorT_2_1_2.cpp
-	transmat/transMatrices_2_2_1.cpp
-	transmatT/transMatricesT_2_2_1.cpp
-	lagvec/lagrangeVector_2_2_1.cpp
-	lagvecT/lagrangeVectorT_2_2_1.cpp
-	transmat/transMatrices_2_2_2.cpp
-	transmatT/transMatricesT_2_2_2.cpp
-	lagvec/lagrangeVector_2_2_2.cpp
-	lagvecT/lagrangeVectorT_2_2_2.cpp
-	transmat/transMatrices_2_2_3.cpp
-	transmatT/transMatricesT_2_2_3.cpp
-	lagvec/lagrangeVector_2_2_3.cpp
-	lagvecT/lagrangeVectorT_2_2_3.cpp
-	transmat/transMatrices_3_1_1.cpp
-	transmatT/transMatricesT_3_1_1.cpp
-	lagvec/lagrangeVector_3_1_1.cpp
-	lagvecT/lagrangeVectorT_3_1_1.cpp
-	transmat/transMatrices_3_3_1.cpp
-	transmatT/transMatricesT_3_3_1.cpp
-	lagvec/lagrangeVector_3_3_1.cpp
-	lagvecT/lagrangeVectorT_3_3_1.cpp
-	transmat/transMatrices_3_3_2.cpp
-	transmatT/transMatricesT_3_3_2.cpp
-	lagvec/lagrangeVector_3_3_2.cpp
-	lagvecT/lagrangeVectorT_3_3_2.cpp
-	transmat/transMatrices_2_2_4.cpp
-	transmatT/transMatricesT_2_2_4.cpp
-	lagvec/lagrangeVector_2_2_4.cpp
-	lagvecT/lagrangeVectorT_2_2_4.cpp
-	transmat/transMatrices_3_3_3.cpp
-	transmatT/transMatricesT_3_3_3.cpp
-	lagvec/lagrangeVector_3_3_3.cpp
-	lagvecT/lagrangeVectorT_3_3_3.cpp
-	transmat/transMatrices_3_3_4.cpp
-	transmatT/transMatricesT_3_3_4.cpp
-	lagvec/lagrangeVector_3_3_4.cpp
-	lagvecT/lagrangeVectorT_3_3_4.cpp
 	cornerIndices.cpp
 )
+
+add_subdirectory(lagvec)
+add_subdirectory(lagvecT)
+add_subdirectory(transmat)
+add_subdirectory(transmatT)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})
 target_sources(bezier PRIVATE ${SOURCES})
