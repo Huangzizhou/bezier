@@ -68,7 +68,7 @@ void processData(
 
 int main(int argc, char** argv) {
     using namespace element_validity;
-    Interval().init();
+    Interval::init();
     Settings args(argc, argv);
 
     uint dimension;

@@ -15,15 +15,15 @@ COMBINATIONS = [
 
 OPTIONAL_OPTIMIZE = [(3,1,2),(3,3,4)]
 
-DRY_RUN = False
+DRY_RUN = True
 POLYFEM_ORDER = True
 DYNAMIC = True
 STATIC = True
 
 WRITE_CMAKE = True						
 WRITE_MATRICES = False
-WRITE_LAGVEC = True
-WRITE_CORNERS = True
+WRITE_LAGVEC = False
+WRITE_CORNERS = False
 
 INFO_ORDER = False
 INFO_JAC_ORDER = False
@@ -515,10 +515,10 @@ if WRITE_CMAKE and not DRY_RUN:
 		f.write('set(SOURCES\n')
 		f.write('\tValidityChecker.cpp\n')
 		for n,s,p in COMBINATIONS:
-			f.write(f'\ttransMatrices_{n}_{s}_{p}.cpp\n')
-			f.write(f'\ttransMatricesT_{n}_{s}_{p}.cpp\n')
-			f.write(f'\tlagrangeVector_{n}_{s}_{p}.cpp\n')
-			f.write(f'\tlagrangeVectorT_{n}_{s}_{p}.cpp\n')
+			f.write(f'\ttransmat/transMatrices_{n}_{s}_{p}.cpp\n')
+			f.write(f'\ttransmatT/transMatricesT_{n}_{s}_{p}.cpp\n')
+			f.write(f'\tlagvec/lagrangeVector_{n}_{s}_{p}.cpp\n')
+			f.write(f'\tlagvecT/lagrangeVectorT_{n}_{s}_{p}.cpp\n')
 		f.write('\tcornerIndices.cpp\n')
 		f.write(')\n\n')
 
@@ -527,7 +527,7 @@ if WRITE_CMAKE and not DRY_RUN:
 
 if WRITE_MATRICES:
 	print('Writing matrices...')
-	path = lambda n,s,p,d: f'src/validity/transMatrices{"T" if d else ""}_{n}_{s}_{p}.cpp'
+	path = lambda n,s,p,d: f'src/validity/transmat{"T" if d else ""}/transMatrices{"T" if d else ""}_{n}_{s}_{p}.cpp'
 	if DRY_RUN: path = lambda n,s,p,d: '/dev/null'
 	for n,s,p in COMBINATIONS:
 		if DYNAMIC:
@@ -551,7 +551,7 @@ else:
 
 if WRITE_LAGVEC:
 	print('Writing Lagrange vectors...')
-	path = lambda n,s,p,d: f'src/validity/lagrangeVector{"T" if d else ""}_{n}_{s}_{p}.cpp'
+	path = lambda n,s,p,d: f'src/validity/lagvec{"T" if d else ""}/lagrangeVector{"T" if d else ""}_{n}_{s}_{p}.cpp'
 	if DRY_RUN: path = lambda n,s,p,d: '/dev/null'
 	for n,s,p in COMBINATIONS:
 		optopt = (n,s,p) in OPTIONAL_OPTIMIZE
