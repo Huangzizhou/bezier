@@ -1,12 +1,14 @@
 set(HEADERS
-	ValidityChecker.hpp
+	Validator.hpp
+	StaticValidator.hpp
+	ContinuousValidator.hpp
 	cornerIndices.hpp
 	lagrangeVector.hpp
 	transMatrices.hpp
 )
 
 set(SOURCES
-	ValidityChecker.cpp
+	Validator.cpp
 	cornerIndices.cpp
 )
 

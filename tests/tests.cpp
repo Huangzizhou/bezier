@@ -2,8 +2,8 @@
 #include <element_validity.hpp>
 
 using element_validity::Validity;
-using element_validity::ValidityChecker;
-using element_validity::ContinuousValidityChecker;
+using element_validity::StaticValidator;
+using element_validity::ContinuousValidator;
 
 // TEST_CASE("Multiple linear tets static validity") {
 // 	Eigen::MatrixXd cp(8, 3);
@@ -17,7 +17,7 @@ using element_validity::ContinuousValidityChecker;
 // 		0.,1.,0.,
 // 		0.,0.,1.;
 // 	std::tuple<unsigned, unsigned, unsigned> counter;
-// 	element_validity::StaticChecker<3> check(cp, SHAPETET, 1);
+// 	element_validity::StaticValidator<3> check(cp, SHAPETET, 1);
 // 	const Validity valid = check.isValid(0, nullptr, nullptr, &counter);
 // 	CHECK(valid == Validity::Invalid);
 // 	CHECK(std::get<0>(counter)==1);
@@ -26,7 +26,7 @@ using element_validity::ContinuousValidityChecker;
 // }
 
 TEST_CASE("Standard linear tet validity") {
-	ValidityChecker<3, 3, 1> checker;
+	StaticValidator<3, 3, 1> checker;
     checker.setMaxSubdiv(1);
     const std::vector<double> cp = {
 		0.,0.,0.,
@@ -40,7 +40,7 @@ TEST_CASE("Standard linear tet validity") {
 }
 
 TEST_CASE("Invalid linear tet validity") {
-	ValidityChecker<3, 3, 1> checker;
+	StaticValidator<3, 3, 1> checker;
     checker.setMaxSubdiv(1);
     const std::vector<double> cp = {
 		.5,.5,.5,
@@ -54,7 +54,7 @@ TEST_CASE("Invalid linear tet validity") {
 }
 
 TEST_CASE("Standard quadratic tet validity") {
-	ValidityChecker<3, 3, 2> checker;
+	StaticValidator<3, 3, 2> checker;
     checker.setMaxSubdiv(1);
     const std::vector<double> cp = {
 		0.,0.,0.,
@@ -75,7 +75,7 @@ TEST_CASE("Standard quadratic tet validity") {
 
 
 TEST_CASE("Invalid quadratic tet validity") {
-	ValidityChecker<3, 3, 2> checker;
+	StaticValidator<3, 3, 2> checker;
     checker.setMaxSubdiv(1);
     const std::vector<double> cp = {
 		.5,.5,.5,
@@ -95,7 +95,7 @@ TEST_CASE("Invalid quadratic tet validity") {
 }
 
 TEST_CASE("Difficult quadratic tet validity") {
-	ValidityChecker<3, 3, 2> checker;
+	StaticValidator<3, 3, 2> checker;
     checker.setMaxSubdiv(1);
     const std::vector<double> cp = {
 		-0.42452634383930121231, 	-0.15199946433181563132, 	-0.52560337937709855626,
@@ -115,7 +115,7 @@ TEST_CASE("Difficult quadratic tet validity") {
 }
 
 TEST_CASE("Standard linear tet MTS") {
-	ContinuousValidityChecker<3, 3, 1> checker;
+	ContinuousValidator<3, 3, 1> checker;
 	const double prec = .1;
     checker.setPrecisionTarget(prec);
     checker.setMaxSubdiv(1);
@@ -132,7 +132,7 @@ TEST_CASE("Standard linear tet MTS") {
 }
 
 TEST_CASE("Standard quadratic tet MTS") {
-	ContinuousValidityChecker<3, 3, 2> checker;
+	ContinuousValidator<3, 3, 2> checker;
 	const double prec = .1;
     checker.setPrecisionTarget(prec);
     checker.setMaxSubdiv(1);
@@ -155,7 +155,7 @@ TEST_CASE("Standard quadratic tet MTS") {
 }
 
 TEST_CASE("Invalid quadratic tet MTS") {
-	ContinuousValidityChecker<3, 3, 2> checker;
+	ContinuousValidator<3, 3, 2> checker;
 	const double prec = .1;
     checker.setPrecisionTarget(prec);
     const std::vector<double> cp = {
@@ -177,7 +177,7 @@ TEST_CASE("Invalid quadratic tet MTS") {
 }
 
 TEST_CASE("Exact zero at corner quadratic tet MTS") {
-	ContinuousValidityChecker<3, 3, 2> checker;
+	ContinuousValidator<3, 3, 2> checker;
 	const double prec = .001;
     checker.setPrecisionTarget(prec);
     const std::vector<double> cp = {

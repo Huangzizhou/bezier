@@ -24,7 +24,7 @@ void processData(
 ) {
     using namespace element_validity;
     Timer timer;
-    ContinuousValidityChecker<n, s, p> checker;
+    ContinuousValidator<n, s, p> checker;
     checker.setPrecisionTarget(args.precision);
     checker.setMaxSubdiv(args.maxIterations);
     const uint nCoordPerElem = nNodesPerElem*n*2;
@@ -46,7 +46,7 @@ void processData(
             element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
         }
         std::vector<uint> h;
-        CheckerInfo info;
+        Validator::Info info;
         fp_t tInv;
         timer.start();
         const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);

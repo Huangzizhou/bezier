@@ -1,2 +1,3 @@
 #pragma once
-#include "validity/ValidityChecker.hpp"
+#include "validity/StaticValidator.hpp"
+#include "validity/ContinuousValidator.hpp"

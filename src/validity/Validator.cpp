@@ -1,9 +1,19 @@
-#include "ValidityChecker.hpp"
+#include "Validator.hpp"
 
 namespace element_validity {
 
+Interval Validator::minclusion(
+	const std::vector<Interval>& B
+) const {
+	Interval lo(std::numeric_limits<fp_t>::max());
+	for (const Interval &b : B) lo = min(lo, b);
+	Interval hi(std::numeric_limits<fp_t>::max());
+	for (const uint c : interpIndices) hi = min(hi, B.at(c));
+	return {lo.lower(), hi.upper()};
+}
+
 // Priority function
-bool Subdomain::operator<(const Subdomain &o) const {
+bool Validator::Subdomain::operator<(const Validator::Subdomain &o) const {
 	if (time.lower() != o.time.lower())
 		return time.lower() > o.time.lower();
 	else return incl.lower() > o.incl.lower();
@@ -11,7 +21,7 @@ bool Subdomain::operator<(const Subdomain &o) const {
 
 
 // Debug print
-std::ostream& operator<<(std::ostream& ost, const Subdomain &s) {
+std::ostream& operator<<(std::ostream& ost, const Validator::Subdomain &s) {
 	ost << "t: " << s.time << std::endl;
 	ost << "I: " << s.incl << std::endl;
 	ost << "Q: ";
@@ -24,7 +34,7 @@ std::ostream& operator<<(std::ostream& ost, const Subdomain &s) {
 }
 
 // Copy the path I took to get here
-void Subdomain::copySequence(std::vector<uint> &dst) const {
+void Validator::Subdomain::copySequence(std::vector<uint> &dst) const {
 	dst.clear();
 	dst.reserve(depth());
 	std::copy(
@@ -32,7 +42,7 @@ void Subdomain::copySequence(std::vector<uint> &dst) const {
 	);
 }
 
-bool CheckerInfo::success() const {
+bool Validator::Info::success() const {
 	switch (status) {
 	case Status::completed:
 	case Status::reachedTarget:
@@ -42,7 +52,7 @@ bool CheckerInfo::success() const {
 		return false;
 	}
 }
-std::string CheckerInfo::description() const {
+std::string Validator::Info::description() const {
 	switch (status) {
 	case Status::completed:
 		return "Processed all intervals";
