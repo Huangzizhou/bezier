@@ -15,7 +15,7 @@ class ContinuousValidator : public Validator {
 		std::span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		fp_t *timeOfInversion = nullptr,
-		fp_t earlyStop = 1,
+		fp_t earlyStop = 1.,
 		Info *info = nullptr
 	) const;
 
@@ -91,7 +91,7 @@ fp_t ContinuousValidator<n,s,p>::maxTimeStep(
 	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
 	const uint numEl = cp.size() / (numCoordsPerElem);
 	if (numEl == 1) return maxTimeStepElement(
-		cp, adaptiveHierarchy, timeOfInversion, 2, info);
+		cp, adaptiveHierarchy, timeOfInversion, 1., info);
 	else return maxTimeStepMesh(
 		cp, adaptiveHierarchy, invalidElemID, timeOfInversion);
 }
