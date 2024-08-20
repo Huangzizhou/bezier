@@ -24,6 +24,7 @@ WRITE_CMAKE = True
 WRITE_MATRICES = False
 WRITE_LAGVEC = False
 WRITE_CORNERS = False
+WRITE_LAGPOLY = True
 
 INFO_ORDER = False
 INFO_JAC_ORDER = False
@@ -47,6 +48,10 @@ class MyCodePrinter(CXX11CodePrinter):
 	def _print_Rational(self, expr):
 		# return f'R_{expr.p}_{expr.q}'
 		return f'R({expr.p}, {expr.q})'
+	def _print_Pow(self, expr):
+		base, exp = expr.as_base_exp()
+		return f"powi({self._print(base)}, {exp})"
+		
 
 
 ## Subscripting ##
@@ -495,6 +500,53 @@ def lag_vec_formatted(file, n, s, p, dynamic):
 	if (__debug__): print('Finished writing')
 	file.write('\n}')
 
+## Format lag basis ##
+def lag_eval_formatted(file, n, s, p, dynamic):
+	optopt = (n,s,p) in OPTIONAL_OPTIMIZE
+	func_name = 'lagrangeEvaluate' + ('T' if dynamic else '')
+	indices = index_set(n, s, p)
+	lag = [lagrange(n, s, p, k, 'x') for k in indices]
+	if dynamic:
+		tlag = [lagrange_uni(n, n, i, symbols(f'x[{n}]')) for i in range(n+1)]
+		expr = [pa * pb for pa in lag for pb in tlag]
+	else: expr = lag
+	if (__debug__): print('CSE start')
+	temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
+	if (__debug__): print('CSE end')
+
+	# if (__debug__): print('Unique coefficients listing start')
+	# temp_coef = unique_rational_coefficients(expr)
+	# if (__debug__): print('Unique coefficients listing end')
+
+	file.write(
+		'template<>\n' +
+		f'Interval {func_name}<{n}, {s}, {p}>(\n' +
+		'\tconst std::span<const fp_t> xFP,\n' +
+		'\tconst std::span<const Interval> lagVec\n' + 
+		') {'
+	)
+	nx = n
+	if dynamic: nx += 1
+	file.write(f'\n\tassert(xFP.size() == {nx});')
+	file.write(f'\n\tassert(lagVec.size() == {len(expr)});')
+	assert len(expr) == len(temp_expr[1])
+	file.write(f'\n\tstd::array<Interval, {nx}> x;')
+	file.write(f'\n\tfor (uint i = 0; i < {nx}; ++i) x[i] = xFP[i];')
+	file.write(f'\n\tInterval acc = 0.;')
+	my_ccode = MyCodePrinter().doprint
+	if (__debug__): print('Writing temporaries')
+	# for qq in temp_coef:
+	# 	num, den = qq.as_numer_denom()
+	# 	file.write(f'\n\tI R_{num}_{den} = R({num},{den});')
+	for helper in temp_expr[0]:
+		file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
+	if (__debug__): print('Writing expressions')
+	for i,result in enumerate(temp_expr[1]):
+		file.write(f'\n\tacc += lagVec[{i}] * {my_ccode(result)};')
+	file.write(f'\n\treturn acc;')
+	if (__debug__): print('Finished writing')
+	file.write('\n}')
+
 ## Format corner indices
 def corners_formatted(n, s, p, dynamic):
 	func_name = 'cornerIndices' + ('T' if dynamic else '')
@@ -509,6 +561,8 @@ if WRITE_CMAKE and not DRY_RUN:
 		('transmat', 'transMatrices'),
 		('lagvecT', 'lagrangeVectorT'),
 		('transmatT', 'transMatricesT'),
+		('lageval', 'lagrangeEvaluate'),
+		# ('lagevalT', 'lagrangeEvaluateT'),
 	]
 	for cc in comb:
 		with open(f'src/validity/{cc[0]}/CMakeLists.txt', 'w') as f:
@@ -591,6 +645,36 @@ if WRITE_LAGVEC:
 	print('Done writing Lagrange vectors.')
 else:
 	print('Not writing Lagrange vectors.')
+
+if WRITE_LAGPOLY:
+	print('Writing Lagrange basis polynomials...')
+	path = lambda n,s,p,d: f'src/validity/lageval{"T" if d else ""}/lagrangeEvaluate{"T" if d else ""}_{n}_{s}_{p}.cpp'
+	if DRY_RUN: path = lambda n,s,p,d: '/dev/null'
+	for n,s,p in COMBINATIONS:
+		optopt = (n,s,p) in OPTIONAL_OPTIMIZE
+		# if DYNAMIC:
+		# 	with open(path(n,s,p,True), 'w') as f:
+		# 		f.write('#include "../lagrangeEvaluate.hpp"\n\n')
+		# 		f.write('#define R(p, q) (Interval(p) / q)\n')
+		# 		f.write('#define I const Interval \n\n')
+		# 		f.write('namespace element_validity {\n')
+		# 		lag_eval_formatted(f,n,s,p,True)
+		# 		f.write('}\n')
+		# 		f.write('#undef R\n')
+		# 		f.write('#undef I')
+		if STATIC:
+			with open(path(n,s,p,False), 'w') as f:
+				f.write('#include "../lagrangeEvaluate.hpp"\n\n')
+				f.write('#define R(p, q) (Interval(p) / q)\n')
+				f.write('#define I const Interval \n\n')
+				f.write('namespace element_validity {\n')
+				lag_eval_formatted(f,n,s,p,False)
+				f.write('}\n')
+				f.write('#undef R\n')
+				f.write('#undef I')
+	print('Done writing Lagrange basis.')
+else:
+	print('Not writing Lagrange basis.')
 
 if WRITE_CORNERS:
 	print('Writing corner indices...')
