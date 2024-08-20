@@ -100,6 +100,21 @@ def lagrange(n, s, p, i, x_name):
 		prod([lagrange_uni(p, p, i[k], x[k]) for k in range(s,n)])
 	)
 
+## Multivariate Lagrange polynomial ##
+def lagrange_J(n, s, p, i, x_name):
+	assert(len(i) == n)
+	Ps = n*p - s
+	Pt = n*p - 1
+	x = subscripts(x_name, range(n))
+	i_slack = Ps - sum(i[:s])
+	assert(i_slack >= 0)
+	x_slack = 1 - sum(x[:s])
+	return expand(
+		lagrange_uni(Ps, i_slack, i_slack, x_slack) * \
+		prod([lagrange_uni(Ps, i[k], i[k], x[k]) for k in range(s)]) * \
+		prod([lagrange_uni(Pt, Pt, i[k], x[k]) for k in range(s,n)])
+	)
+
 ## Geometric map component ##
 def geo_map_component(n, s, p, t, x_name, c_name, ni):
 	indices = index_set(n, s, p)
@@ -504,8 +519,8 @@ def lag_vec_formatted(file, n, s, p, dynamic):
 def lag_eval_formatted(file, n, s, p, dynamic):
 	optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 	func_name = 'lagrangeEvaluate' + ('T' if dynamic else '')
-	indices = index_set(n, s, p)
-	lag = [lagrange(n, s, p, k, 'x') for k in indices]
+	indices = index_set_J(n, s, p, dynamic)
+	lag = [lagrange_J(n, s, p, k, 'x') for k in indices]
 	if dynamic:
 		tlag = [lagrange_uni(n, n, i, symbols(f'x[{n}]')) for i in range(n+1)]
 		expr = [pa * pb for pa in lag for pb in tlag]
@@ -542,7 +557,7 @@ def lag_eval_formatted(file, n, s, p, dynamic):
 		file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
 	if (__debug__): print('Writing expressions')
 	for i,result in enumerate(temp_expr[1]):
-		file.write(f'\n\tacc += lagVec[{i}] * {my_ccode(result)};')
+		file.write(f'\n\tacc += lagVec[{i}] * ({my_ccode(result)});')
 	file.write(f'\n\treturn acc;')
 	if (__debug__): print('Finished writing')
 	file.write('\n}')

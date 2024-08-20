@@ -10,12 +10,11 @@ Interval lagrangeEvaluate<1, 1, 1>(
 	const std::span<const Interval> lagVec
 ) {
 	assert(xFP.size() == 1);
-	assert(lagVec.size() == 2);
+	assert(lagVec.size() == 1);
 	std::array<Interval, 1> x;
 	for (uint i = 0; i < 1; ++i) x[i] = xFP[i];
 	Interval acc = 0.;
-	acc += lagVec[0] * 1 - x[0];
-	acc += lagVec[1] * x[0];
+	acc += lagVec[0] * (1);
 	return acc;
 }}
 #undef R

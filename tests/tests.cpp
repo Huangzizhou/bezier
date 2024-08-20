@@ -1,9 +1,13 @@
 #include <catch2/catch_test_macros.hpp>
 #include <element_validity.hpp>
 
+using element_validity::fp_t;
 using element_validity::Validity;
 using element_validity::StaticValidator;
 using element_validity::ContinuousValidator;
+using element_validity::JacobianEvaluator;
+
+bool almostEq(fp_t a, fp_t b) { return std::fabs(a - b) <= 0.000001; }
 
 // TEST_CASE("Multiple linear tets static validity") {
 // 	Eigen::MatrixXd cp(8, 3);
@@ -37,20 +41,24 @@ TEST_CASE("Standard linear tet validity") {
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::valid);
+	JacobianEvaluator<3, 3, 1> evaluator(cp);
+	CHECK(evaluator.eval({0,0,0}) == 1);
 }
 
 TEST_CASE("Invalid linear tet validity") {
 	StaticValidator<3, 3, 1> checker;
     checker.setMaxSubdiv(1);
     const std::vector<double> cp = {
-		.5,.5,.5,
- 		1.,0.,0.,
- 		0.,1.,0.,
- 		0.,0.,1.,
+		1.,1.,1.,
+ 		0.,1.,1.,
+ 		1.,0.,1.,
+ 		1.,1.,0.,
 	};
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::invalid);
+	JacobianEvaluator<3, 3, 1> evaluator(cp);
+	CHECK(evaluator.eval({0,0,0}) == -1.);
 }
 
 TEST_CASE("Standard quadratic tet validity") {
@@ -71,6 +79,12 @@ TEST_CASE("Standard quadratic tet validity") {
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::valid);
+	JacobianEvaluator<3, 3, 2> evaluator(cp);
+	CHECK(evaluator.eval({0,0,0}) == 1.);
+	CHECK(evaluator.eval({1,0,0}) == 1.);
+	CHECK(evaluator.eval({0,1,0}) == 1.);
+	CHECK(evaluator.eval({0,0,1}) == 1.);
+	CHECK(almostEq(evaluator.eval({.3,.3,.3}), 1.));
 }
 
 
@@ -92,6 +106,11 @@ TEST_CASE("Invalid quadratic tet validity") {
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::invalid);
+	JacobianEvaluator<3, 3, 2> evaluator(cp);
+	CHECK(evaluator.eval({0,0,0}) < 0.);
+	CHECK(evaluator.eval({1,0,0}) > .5);
+	CHECK(evaluator.eval({0,1,0}) > .5);
+	CHECK(evaluator.eval({0,0,1}) > .5);
 }
 
 TEST_CASE("Difficult quadratic tet validity") {
