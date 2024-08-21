@@ -41,6 +41,25 @@ class ContinuousValidator : public Validator {
 		Info *info = nullptr
 	) const;
 
+	#ifdef EIGEN_INTERFACE
+	fp_t maxTimeStep(
+		const Eigen::MatrixXd& cp0,
+		const Eigen::MatrixXd& cp1,
+		std::vector<uint> *adaptiveHierarchy = nullptr,
+		uint *invalidElemID = nullptr,
+		fp_t *timeOfInversion = nullptr,
+		Info *info = nullptr
+	) const {
+		return maxTimeStep(
+			convertEigenMatrix(cp0, cp1),
+			adaptiveHierarchy,
+			invalidElemID,
+			timeOfInversion,
+			info
+		);
+	}
+	#endif
+
 	void setPrecisionTarget(fp_t t) { precision = t; }
 
 	private:

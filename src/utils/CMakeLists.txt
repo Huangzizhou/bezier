@@ -4,6 +4,7 @@ set(HEADERS
     combinatorics.hpp
     Settings.hpp
     helpString.hpp
+    eigen.hpp
 )
 set(SOURCES
     Settings.cpp

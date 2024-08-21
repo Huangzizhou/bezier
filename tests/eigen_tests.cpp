@@ -11,13 +11,13 @@ bool almostEq(fp_t a, fp_t b) { return std::fabs(a - b) <= 0.000001; }
 
 TEST_CASE("Standard linear tet validity") {
 	StaticValidator<3, 3, 1> checker;
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(4, 3);
+	cp <<
 		0.,0.,0.,
  		1.,0.,0.,
  		0.,1.,0.,
- 		0.,0.,1.,
-	};
+ 		0.,0.,1.;
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::valid);
@@ -27,13 +27,13 @@ TEST_CASE("Standard linear tet validity") {
 
 TEST_CASE("Invalid linear tet validity") {
 	StaticValidator<3, 3, 1> checker;
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(4, 3);
+	cp <<
 		1.,1.,1.,
  		0.,1.,1.,
  		1.,0.,1.,
- 		1.,1.,0.,
-	};
+ 		1.,1.,0.;
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::invalid);
@@ -43,8 +43,9 @@ TEST_CASE("Invalid linear tet validity") {
 
 TEST_CASE("Standard quadratic tet validity") {
 	StaticValidator<3, 3, 2> checker;
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(10, 3);
+	cp <<
 		0.,0.,0.,
 		1.,0.,0.,
 		0.,1.,0.,
@@ -54,8 +55,7 @@ TEST_CASE("Standard quadratic tet validity") {
 		0.,.5,0.,
 		0.,0.,.5,
 		.5,0.,.5,
-		0.,.5,.5,
-	};
+		0.,.5,.5;
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::valid);
@@ -70,8 +70,9 @@ TEST_CASE("Standard quadratic tet validity") {
 
 TEST_CASE("Invalid quadratic tet validity") {
 	StaticValidator<3, 3, 2> checker;
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(10, 3);
+	cp <<
 		.5,.5,.5,
 		1.,0.,0.,
 		0.,1.,0.,
@@ -81,8 +82,7 @@ TEST_CASE("Invalid quadratic tet validity") {
 		0.,.5,0.,
 		0.,0.,.5,
 		.5,0.,.5,
-		0.,.5,.5,
-	};
+		0.,.5,.5;
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::invalid);
@@ -95,8 +95,9 @@ TEST_CASE("Invalid quadratic tet validity") {
 
 TEST_CASE("Difficult quadratic tet validity") {
 	StaticValidator<3, 3, 2> checker;
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(10, 3);
+	cp <<
 		-0.42452634383930121231, 	-0.15199946433181563132, 	-0.52560337937709855626,
 		-0.44050913176895295508, 	-0.15470197781589292707, 	-0.53435160512323620629,
 		-0.42918452277309032671, 	-0.16301150961501897906, 	-0.52689501546960226807,
@@ -106,8 +107,7 @@ TEST_CASE("Difficult quadratic tet validity") {
 		-0.42647517075677771059, 	-0.15685809076376799886, 	-0.5264561675879664282,
 		-0.4314661156158717814, 	-0.15098007388019624164, 	-0.52468553005828000301,
 		-0.43654101656446037127, 	-0.15442916576536502848, 	-0.53114214085428379519,
-		-0.43290118494677543026, 	-0.1583252066831398741, 	-0.52536247464088814407,
-	};
+		-0.43290118494677543026, 	-0.1583252066831398741, 	-0.52536247464088814407;
 	std::vector<unsigned> ah;
 	const Validity res = checker.isValid(cp, &ah);
 	CHECK(res == Validity::uncertain);
@@ -116,16 +116,22 @@ TEST_CASE("Difficult quadratic tet validity") {
 TEST_CASE("Standard linear tet MTS") {
 	ContinuousValidator<3, 3, 1> checker;
 	const double prec = .1;
-    checker.setPrecisionTarget(prec);
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
-		0.,0.,	0.,0.,	0.,0.,
-		1.,1.,	0.,0.,	0.,0.,
-		0.,0.,	1.,1.,	0.,0.,
-		0.,0.,	0.,0.,	1.,1.,
-	};
+	checker.setPrecisionTarget(prec);
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp0(4, 3);
+	Eigen::MatrixXd cp1(4, 3);
+	cp0 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.;
+	cp1 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.;
 	std::vector<unsigned> ah;
-	const double mts = checker.maxTimeStep(cp, &ah);
+	const double mts = checker.maxTimeStep(cp0, cp1, &ah);
 	INFO(mts);
 	CHECK(mts == 1);
 }
@@ -133,22 +139,34 @@ TEST_CASE("Standard linear tet MTS") {
 TEST_CASE("Standard quadratic tet MTS") {
 	ContinuousValidator<3, 3, 2> checker;
 	const double prec = .1;
-    checker.setPrecisionTarget(prec);
-    checker.setMaxSubdiv(1);
-    const std::vector<double> cp = {
-		0.,0.,	0.,0.,	0.,0.,
-		1.,1.,	0.,0.,	0.,0.,
-		0.,0.,	1.,1.,	0.,0.,
-		0.,0.,	0.,0.,	1.,1.,
-		.5,.5,	0.,0.,	0.,0.,
-		.5,.5,	.5,.5,	0.,0.,
-		0.,0.,	.5,.5,	0.,0.,
-		0.,0.,	0.,0.,	.5,.5,
-		.5,.5,	0.,0.,	.5,.5,
-		0.,0.,	.5,.5,	.5,.5,
-	};
+	checker.setPrecisionTarget(prec);
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp0(10, 3);
+	Eigen::MatrixXd cp1(10, 3);
+	cp0 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.,
+		.5,	0.,	0.,
+		.5,	.5,	0.,
+		0.,	.5,	0.,
+		0.,	0.,	.5,
+		.5,	0.,	.5,
+		0.,	.5,	.5;
+	cp1 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.,
+		.5,	0.,	0.,
+		.5,	.5,	0.,
+		0.,	.5,	0.,
+		0.,	0.,	.5,
+		.5,	0.,	.5,
+		0.,	.5,	.5;
 	std::vector<unsigned> ah;
-	const double mts = checker.maxTimeStep(cp, &ah);
+	const double mts = checker.maxTimeStep(cp0, cp1, &ah);
 	INFO(mts);
 	CHECK(mts == 1);
 }
@@ -156,21 +174,33 @@ TEST_CASE("Standard quadratic tet MTS") {
 TEST_CASE("Invalid quadratic tet MTS") {
 	ContinuousValidator<3, 3, 2> checker;
 	const double prec = .1;
-    checker.setPrecisionTarget(prec);
-    const std::vector<double> cp = {
-		0.,.5,	0.,.5,	0.,.5,
-		1.,1.,	0.,0.,	0.,0.,
-		0.,0.,	1.,1.,	0.,0.,
-		0.,0.,	0.,0.,	1.,1.,
-		.5,.5,	0.,0.,	0.,0.,
-		.5,.5,	.5,.5,	0.,0.,
-		0.,0.,	.5,.5,	0.,0.,
-		0.,0.,	0.,0.,	.5,.5,
-		.5,.5,	0.,0.,	.5,.5,
-		0.,0.,	.5,.5,	.5,.5,
-	};
+	checker.setPrecisionTarget(prec);
+	Eigen::MatrixXd cp0(10, 3);
+	Eigen::MatrixXd cp1(10, 3);
+	cp0 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.,
+		.5,	0.,	0.,
+		.5,	.5,	0.,
+		0.,	.5,	0.,
+		0.,	0.,	.5,
+		.5,	0.,	.5,
+		0.,	.5,	.5;
+	cp1 <<
+		.5,	.5,	.5,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.,
+		.5,	0.,	0.,
+		.5,	.5,	0.,
+		0.,	.5,	0.,
+		0.,	0.,	.5,
+		.5,	0.,	.5,
+		0.,	.5,	.5;
 	std::vector<unsigned> ah;
-	const double mts = checker.maxTimeStep(cp, &ah);
+	const double mts = checker.maxTimeStep(cp0, cp1, &ah);
 	INFO(mts);
 	CHECK(mts < 1);
 }
@@ -178,21 +208,33 @@ TEST_CASE("Invalid quadratic tet MTS") {
 TEST_CASE("Exact zero at corner quadratic tet MTS") {
 	ContinuousValidator<3, 3, 2> checker;
 	const double prec = .001;
-    checker.setPrecisionTarget(prec);
-    const std::vector<double> cp = {
-		0.,0.,	0.,0.,	0.,0.,
-		1.,1.,	0.,0.,	0.,0.,
-		0.,0.,	1.,1.,	0.,0.,
-		0.,0.,	0.,0.,	1.,1.,
-		.5,.5,	0.,0.,	0.,0.,
-		.5,.25,	.5,.5,	0.,0.,
-		0.,0.,	.5,.5,	0.,0.,
-		0.,0.,	0.,0.,	.5,.5,
-		.5,.5,	0.,0.,	.5,.5,
-		0.,0.,	.5,.5,	.5,.5,
-	};
+	checker.setPrecisionTarget(prec);
+	Eigen::MatrixXd cp0(10, 3);
+	Eigen::MatrixXd cp1(10, 3);
+	cp0 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.,
+		.5,	0.,	0.,
+		.5,.5,	0.,
+		0.,	.5,	0.,
+		0.,	0.,	.5,
+		.5,	0.,	.5,
+		0.,	.5,	.5;
+	cp1 <<
+		0.,	0.,	0.,
+		1.,	0.,	0.,
+		0.,	1.,	0.,
+		0.,	0.,	1.,
+		.5,	0.,	0.,
+		.25,.5,	0.,
+		0.,	.5,	0.,
+		0.,	0.,	.5,
+		.5,	0.,	.5,
+		0.,	.5,	.5;
 	std::vector<unsigned> ah;
-	const double mts = checker.maxTimeStep(cp, &ah);
+	const double mts = checker.maxTimeStep(cp0, cp1, &ah);
 	INFO(mts);
 	CHECK(mts < 1);
 	CHECK(mts > 1-prec);

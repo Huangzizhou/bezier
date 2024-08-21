@@ -1,6 +1,7 @@
 #pragma once
 #include "utils/combinatorics.hpp"
 #include "utils/Timer.hpp"
+#include "utils/eigen.hpp"
 #include "transMatrices.hpp"
 #include "lagrangeVector.hpp"
 #include "cornerIndices.hpp"

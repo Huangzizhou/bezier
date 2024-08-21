@@ -34,6 +34,22 @@ class StaticValidator : public Validator {
 		uint *invalidElemID = nullptr,
 		Info *info = nullptr
 	) const;
+
+	#ifdef EIGEN_INTERFACE
+	Validity isValid(
+		const Eigen::MatrixXd& cp,
+		std::vector<uint> *adaptiveHierarchy = nullptr,
+		uint *invalidElemID = nullptr,
+		Info *info = nullptr
+	) const {
+		return isValid(
+			convertEigenMatrix(cp),
+			adaptiveHierarchy,
+			invalidElemID,
+			info
+		);
+	}
+	#endif
 };
 
 //------------------------------------------------------------------------------
