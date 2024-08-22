@@ -10,6 +10,12 @@ cmake_minimum_required(VERSION 3.18)
 project(bezier)
 include(ExternalProject)
 
+# Set the C++ standard
+if(BEZIER_TOPLEVEL_PROJECT)
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(UNIT_TESTS "Run unit tests" ON)
@@ -18,7 +24,7 @@ option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
-include(jacobian_cpm_cache)
+include(bezier_cpm_cache)
 
 if(LAGVEC_GCC_O0)
     add_compile_definitions(LAGVEC_GCC_O0)
@@ -61,15 +67,15 @@ endif()
 add_library(bezier)
 add_library(bezier::bezier ALIAS bezier)
 
-set(JACOBIAN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
-set(JACOBIAN_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
+set(BEZIER_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
+set(BEZIER_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
 
 # Add source and header files to bezier
-add_subdirectory(${JACOBIAN_SOURCE_DIR})
+add_subdirectory(${BEZIER_SOURCE_DIR})
 
 # Include folders
 target_include_directories(bezier PUBLIC ${PROJECT_SOURCE_DIR})
-target_include_directories(bezier PUBLIC ${JACOBIAN_INCLUDE_DIR})
+target_include_directories(bezier PUBLIC ${BEZIER_INCLUDE_DIR})
 
 ################################################################################
 # Required libraries
@@ -108,9 +114,6 @@ endif()
 if (BEZIER_TOPLEVEL_PROJECT)
     add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
     target_link_libraries(bin PUBLIC bezier::bezier)
-
-    # add_executable(testbin ${PROJECT_SOURCE_DIR}/src/test.cpp)
-    # target_link_libraries(testbin PUBLIC bezier::bezier)
 endif()
 
 ################################################################################
