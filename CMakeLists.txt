@@ -66,6 +66,7 @@ endif()
 
 add_library(bezier)
 add_library(bezier::bezier ALIAS bezier)
+set_target_properties(bezier PROPERTIES CXX_STANDARD 20)
 
 set(BEZIER_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(BEZIER_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
@@ -74,7 +75,6 @@ set(BEZIER_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
 add_subdirectory(${BEZIER_SOURCE_DIR})
 
 # Include folders
-target_include_directories(bezier PUBLIC ${PROJECT_SOURCE_DIR})
 target_include_directories(bezier PUBLIC ${BEZIER_INCLUDE_DIR})
 
 ################################################################################
