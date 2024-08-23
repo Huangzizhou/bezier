@@ -10,6 +10,7 @@ cmake_minimum_required(VERSION 3.18)
 project(bezier)
 include(ExternalProject)
 
+
 # Set the C++ standard
 if(BEZIER_TOPLEVEL_PROJECT)
     set(CMAKE_CXX_STANDARD 20)
@@ -35,13 +36,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall \
     -Wno-unknown-pragmas -fno-strict-aliasing -fopenmp -lpthread")
 
 # Set release and debug specific compiler flags
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -pg -ggdb3")
 
+add_library(bezier)
+add_library(bezier::bezier ALIAS bezier)
+set_target_properties(bezier PROPERTIES CXX_STANDARD 20)
+
 # Use fast interval arithmetic
-if(IPRED_ARITHMETIC)
+if(DEFINED IPRED_ARITHMETIC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} \
         -O2 -frounding-math -msse2 -mavx2 -mfma")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} \
+        -frounding-math -msse2 -mavx2 -mfma")
     set(USE_SIMD_INSTRUCTIONS ON)
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
@@ -53,28 +60,17 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-# Set the C++ standard
-if(BEZIER_TOPLEVEL_PROJECT)
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+##### EXECUTABLES ##############################################################
+if (BEZIER_TOPLEVEL_PROJECT)
+    add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
+    target_link_libraries(bin PUBLIC bezier::bezier)
 endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
-
-
-add_library(bezier)
-add_library(bezier::bezier ALIAS bezier)
-set_target_properties(bezier PROPERTIES CXX_STANDARD 20)
 
 set(BEZIER_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(BEZIER_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
 
-# Add source and header files to bezier
 add_subdirectory(${BEZIER_SOURCE_DIR})
 
-# Include folders
 target_include_directories(bezier PUBLIC ${BEZIER_INCLUDE_DIR})
 
 ################################################################################
@@ -109,12 +105,6 @@ if (HDF5_INTERFACE)
     target_link_libraries(bezier PUBLIC ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES})
 endif()
 
-
-##### EXECUTABLES ##############################################################
-if (BEZIER_TOPLEVEL_PROJECT)
-    add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
-    target_link_libraries(bin PUBLIC bezier::bezier)
-endif()
 
 ################################################################################
 # Tests
