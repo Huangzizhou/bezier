@@ -10,7 +10,6 @@ cmake_minimum_required(VERSION 3.18)
 project(bezier)
 include(ExternalProject)
 
-
 # Set the C++ standard
 if(BEZIER_TOPLEVEL_PROJECT)
     set(CMAKE_CXX_STANDARD 20)
@@ -39,10 +38,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall \
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -pg -ggdb3")
 
-add_library(bezier)
-add_library(bezier::bezier ALIAS bezier)
-set_target_properties(bezier PROPERTIES CXX_STANDARD 20)
-
 # Use fast interval arithmetic
 if(DEFINED IPRED_ARITHMETIC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} \
@@ -60,11 +55,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-##### EXECUTABLES ##############################################################
-if (BEZIER_TOPLEVEL_PROJECT)
-    add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
-    target_link_libraries(bin PUBLIC bezier::bezier)
-endif()
+
+add_library(bezier)
+add_library(bezier::bezier ALIAS bezier)
+set_target_properties(bezier PROPERTIES CXX_STANDARD 20)
 
 set(BEZIER_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(BEZIER_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
@@ -105,6 +99,12 @@ if (HDF5_INTERFACE)
     target_link_libraries(bezier PUBLIC ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES})
 endif()
 
+
+##### EXECUTABLES ##############################################################
+if (BEZIER_TOPLEVEL_PROJECT)
+    add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
+    target_link_libraries(bin PUBLIC bezier::bezier)
+endif()
 
 ################################################################################
 # Tests
