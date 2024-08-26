@@ -1,6 +1,6 @@
-build/
-.vscode/
-other/
-__pycache__/
-*.swp
-*.swo
+/*
+!src/
+!cmake/
+!tests/
+!CMakeLists.txt
+!*.py
