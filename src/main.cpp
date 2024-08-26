@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
     using namespace element_validity;
     Interval::init();
     Settings args(argc, argv);
+    if (args.abort) return 0;
 
     uint dimension;
     uint nNodesPerElem;

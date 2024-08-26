@@ -4,8 +4,7 @@
 
 namespace element_validity {
 const std::string helpString = R"HELP(
-Usage: bin resultsFilePath [flags]
-Enumerated sequences of paths must be specified using the "#" character as a wildcard.
+Usage: bin <inputHDF5> [flags]
 
 List of available flags:
 -f Set the first element to be processed (inclusive, defaults to 0)

@@ -19,7 +19,9 @@ Settings::Settings(int argc, char** argv) {
 				break;
 			case 'g': globalQuery = true; break;
 			case '?':
-				std::cout << helpString << std::endl; break;
+				abort = true;
+				std::cout << helpString << std::endl;
+				break;
 			default: 
 				infoHelp = true;
 				std::cout << "Ignoring flag \"-" << flag <<
@@ -45,7 +47,10 @@ Settings::Settings(int argc, char** argv) {
 		}
 	}
 	if (filePath.size() == 0) infoHelp = true;
-	if (infoHelp) std::cout << "Use -? for available flags." << std::endl;;
+	if (infoHelp && !abort) {
+		std::cout << "No input file. Use -? for help." << std::endl;
+		abort = true;
+	}
 }
 
 }

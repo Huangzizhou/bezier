@@ -17,6 +17,7 @@ class Settings {
 	uint firstElem = 0;
 	uint numThreads = 16;
 	fp_t precision = .01;
+	bool abort = false;
 
 	// Argument parser
 	Settings(int argc, char** argv);
