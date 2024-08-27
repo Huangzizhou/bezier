@@ -143,6 +143,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 
 	// Initialize auxiliary variables
 	uint reachedDepthS = 0;
+	uint reachedDepthT = 0;
 	const bool maxIterCheck = (maxSubdiv > 0);
 	bool foundInvalid = false;
 	fp_t tmin = 0.;
@@ -177,6 +178,17 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 		assert(dom.time.lower() >= tmin);
 
 		reachedDepthS = std::max(reachedDepthS, dom.depth());
+		{
+			uint domTimeDepth = 0;
+			const fp_t w = dom.time.width(); 
+			fp_t l = 1.;
+			while (l > w) {
+				l /= 2;
+				++domTimeDepth;
+			}
+			domTimeDepth -= dom.depth();
+			reachedDepthT = std::max(reachedDepthT, domTimeDepth);
+		}
 
 		// Check whether we need to give up
 		if (maxIterCheck && (reachedDepthS >= maxSubdiv)) {
@@ -206,12 +218,24 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 		}
 		// Subdomain is undetermined and needs refinement
 		else if (!(dom.incl > epsilon)) {
-			// Split on all axes and push to queue
-			for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+			if constexpr (p == 1) {
+				const auto mid = dom.time.middle();
+				if (mid == dom.time.upper() || mid == dom.time.lower()) {
+					if (info) info->status = Info::Status::noSplit;
+					break;
+				}
+				queue.push(splitTime(dom, false));
+				queue.push(splitTime(dom, true));
+			}
+			else {
+				// Split on all axes and push to queue
+				for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+			}
 		}
 	}
 
 	if (info) info->spaceDepth = reachedDepthS;
+	if (info) info->timeDepth = reachedDepthT;
 	if (timeOfInversion) *timeOfInversion = foundInvalid ? tmax : -1.;
 	return tmin;
 }

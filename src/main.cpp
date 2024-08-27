@@ -37,6 +37,7 @@ void processData(
             << "max_time_step" << SEP
             << "time_of_inversion" << SEP
             << "space_depth" << SEP
+            << "time_depth" << SEP
             << "microseconds" << SEP
             << "hierarchy" << SEP
             << "description" << std::endl;
@@ -57,6 +58,7 @@ void processData(
             *out << fp_fmt << t << SEP;
             *out << fp_fmt << tInv << SEP;
             *out << info.spaceDepth << SEP;
+            *out << info.timeDepth << SEP;
             *out << static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000 << SEP;
             for (uint u : h) *out << u << ' ';
             *out << SEP;

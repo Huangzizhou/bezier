@@ -54,6 +54,7 @@ struct Validator::Subdomain {
 
 struct Validator::Info {
 	uint spaceDepth = 0;
+	uint timeDepth = 0;
 	enum class Status {
 		unknown, completed, reachedTarget, globalCondition, maxDepth, noSplit
 	};
