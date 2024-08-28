@@ -3,11 +3,6 @@
 #define R(p, q) (Interval(p) / q)
 #define I const Interval 
 
-#ifdef LAGVEC_GCC_O0
-#pragma GCC push_options
-#pragma GCC optimize ("0")
-#endif
-
 namespace element_validity {
 template<>
 void lagrangeVectorT<3, 3, 4>(const std::span<const fp_t> cpFP, const std::span<Interval> out) {
@@ -60288,10 +60283,6 @@ void lagrangeVectorT<3, 3, 4>(const std::span<const fp_t> cpFP, const std::span<
 	out[878] = (tmp_59372*tmp_59375 - tmp_59376*tmp_59377)*((R(32, 3))*cp[43] + tmp_2334 + tmp_25936 + tmp_25975 + tmp_48621 + tmp_57763 + tmp_59369) + (-tmp_59372*tmp_59378 + tmp_59376*tmp_59379)*((R(32, 3))*cp[97] + tmp_19098 + tmp_4569 + tmp_4662 + tmp_49975 + tmp_58356 + tmp_59369) + (-tmp_59375*tmp_59379 + tmp_59377*tmp_59378)*((R(25, 9))*cp[6] + (R(50, 9))*cp[7] + tmp_59369);
 	out[879] = (tmp_59384*tmp_59387 - tmp_59388*tmp_59389)*(-cp[13] + 16*cp[43] + (R(16, 3))*cp[55] - tmp_25982 - tmp_4689 - tmp_59381) + (-tmp_59384*tmp_59390 + tmp_59388*tmp_59391)*((R(16, 3))*cp[109] - cp[19] + 16*cp[97] - tmp_4690 - tmp_59381) + (-tmp_59387*tmp_59391 + tmp_59389*tmp_59390)*(cp[1] + (R(25, 3))*cp[7] + tmp_110 + tmp_230 - tmp_59380);
 }}
-
-#ifdef LAGVEC_GCC_O0
-#pragma GCC pop_options
-#endif
 
 #undef R
 #undef I
