@@ -14,7 +14,7 @@ set(SOURCES
 	lagrangeEvaluate_3_3_2.cpp
 	lagrangeEvaluate_2_2_4.cpp
 	lagrangeEvaluate_3_3_3.cpp
-	# lagrangeEvaluate_3_3_4.cpp
+	lagrangeEvaluate_3_3_4.cpp
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})
