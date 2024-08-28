@@ -11,10 +11,8 @@ project(bezier)
 include(ExternalProject)
 
 # Set the C++ standard
-if(BEZIER_TOPLEVEL_PROJECT)
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
@@ -58,7 +56,6 @@ endif()
 
 add_library(bezier)
 add_library(bezier::bezier ALIAS bezier)
-set_target_properties(bezier PROPERTIES CXX_STANDARD 20)
 
 set(BEZIER_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(BEZIER_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
