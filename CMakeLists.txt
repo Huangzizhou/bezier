@@ -21,6 +21,7 @@ message("${BEZIER_SOURCES}")
 add_library(bezier ${GLOB_BEZIER_SOURCES})
 add_library(bezier::bezier ALIAS bezier)
 add_library(bezier_interface INTERFACE)
+target_link_libraries(bezier PRIVATE bezier_interface)
 
 # Set the C++ standard
 target_compile_features(bezier PUBLIC cxx_std_20)
@@ -39,6 +40,7 @@ if(LAGVEC_GCC_O0)
     target_compile_definitions(bezier PRIVATE LAGVEC_GCC_O0)
 endif()
 
+set_target_properties(bezier PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 target_compile_options(bezier INTERFACE
     -Wall
     -Wno-unknown-pragmas
@@ -114,6 +116,7 @@ endif()
 if (BEZIER_TOPLEVEL_PROJECT)
     add_executable(bin ${PROJECT_SOURCE_DIR}/src/main.cpp)
     target_link_libraries(bin PRIVATE bezier::bezier)
+    target_link_libraries(bin PRIVATE bezier_interface)
 endif()
 
 ################################################################################
@@ -126,6 +129,3 @@ if(BEZIER_TOPLEVEL_PROJECT AND UNIT_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
-
-target_link_libraries(bezier PRIVATE bezier_interface)
-target_link_libraries(bin PRIVATE bezier_interface)
