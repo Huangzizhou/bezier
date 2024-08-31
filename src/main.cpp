@@ -24,7 +24,7 @@ void processData(
 ) {
     using namespace element_validity;
     Timer timer;
-    ContinuousValidator<n, s, p> checker;
+    ContinuousValidator<n, s, p> checker(args.numThreads);
     checker.setPrecisionTarget(args.precision);
     checker.setMaxSubdiv(args.maxIterations);
     const uint nCoordPerElem = nNodesPerElem*n*2;
