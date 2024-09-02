@@ -23,7 +23,7 @@ void Matrix<T>::fill(const std::vector<lint> &data) {
 }
 
 template<typename T>
-void Matrix<T>::mult(const std::span<const T> src, const std::span<T> dst) const {
+void Matrix<T>::mult(const span<const T> src, const span<T> dst) const {
 	assert(src.size() == s);
 	assert(dst.size() == s);
 	for(uint i=0; i<s; ++i) {

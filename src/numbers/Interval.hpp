@@ -11,15 +11,7 @@ namespace element_validity {
 
 class Interval {
 	public:
-	static void init() {
-		#ifdef IPRED_ARITHMETIC
-		static bool initialized = false;
-		if (initialized) return;
-		initFPU();
-		setFPUModeToRoundUP();
-		initialized = true;
-		#endif
-	};
+	static void init();
 
 	private:
 	interval_number data;
@@ -31,12 +23,7 @@ class Interval {
 		// TODO change this function to not use nextafter
 		const double inf = std::numeric_limits<double>::max();
 		const double d = static_cast<double>(rat);
-		/*double a=d, b=d;
-		for (uint z=0; z<10; ++z) {
-			a = std::nextafter(a, -inf);
-			b = std::nextafter(b, inf);
-		}
-		return Interval(a,b);*/
+
 		if (rat < 0) return Interval(std::nextafter(d, -inf), d);
 		if (rat > 0) return Interval(d, std::nextafter(d, inf));
 		return Interval(0);

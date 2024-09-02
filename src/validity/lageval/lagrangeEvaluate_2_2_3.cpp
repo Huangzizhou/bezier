@@ -6,8 +6,8 @@
 namespace element_validity {
 template<>
 Interval lagrangeEvaluate<2, 2, 3>(
-	const std::span<const fp_t> xFP,
-	const std::span<const Interval> lagVec
+	const span<const fp_t> xFP,
+	const span<const Interval> lagVec
 ) {
 	assert(xFP.size() == 2);
 	assert(lagVec.size() == 15);

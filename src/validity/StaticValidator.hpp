@@ -10,12 +10,12 @@ class StaticValidator : public Validator {
 	std::vector<uint> interpIndices;
 
 	Validity isValidElement(
-		std::span<const fp_t> cp,
+		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		Info *info = nullptr
 	) const;
 	Validity isValidMesh(
-		std::span<const fp_t> cp,
+		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr
 	) const;
@@ -29,7 +29,7 @@ class StaticValidator : public Validator {
 	}
 	
 	Validity isValid(
-		std::span<const fp_t> cp,
+		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		Info *info = nullptr
@@ -70,7 +70,7 @@ Validator::Subdomain StaticValidator<n,s,p>::split(
 
 template<uint n, uint s, uint p>
 Validity StaticValidator<n,s,p>::isValid(
-	std::span<const fp_t> cp,
+	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
 	Info *info
@@ -85,7 +85,7 @@ Validity StaticValidator<n,s,p>::isValid(
 
 template<uint n, uint s, uint p>
 Validity StaticValidator<n, s, p>::isValidElement(
-	std::span<const fp_t> cp,
+	span<const fp_t> cp,
 	std::vector<uint> *hierarchy,
 	Info *info
 ) const {
@@ -160,7 +160,7 @@ Validity StaticValidator<n, s, p>::isValidElement(
 
 template<uint n, uint s, uint p>
 Validity StaticValidator<n, s, p>::isValidMesh(
-	std::span<const fp_t> cp,
+	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID
 ) const {
@@ -179,7 +179,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 			timings.at(e) = 0;
 			continue;
 		}
-		std::span<const fp_t> element(
+		span<const fp_t> element(
 			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
 		Timer timer;
 		timer.start();

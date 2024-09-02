@@ -7,7 +7,6 @@
 #include "cornerIndices.hpp"
 
 #include <queue>
-#include <span>
 #include <memory>
 
 namespace element_validity {

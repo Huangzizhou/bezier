@@ -5,6 +5,7 @@ set(HEADERS
     Settings.hpp
     helpString.hpp
     eigen.hpp
+    cxx17span.hpp
 )
 set(SOURCES
     Settings.cpp

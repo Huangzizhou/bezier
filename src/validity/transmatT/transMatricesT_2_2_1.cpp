@@ -2,7 +2,7 @@
 
 namespace element_validity {
 template<>
-void initMatricesT<2, 2, 1> (Matrix<Interval> &l2b, std::span<Matrix<Interval>> tsd, std::span<Matrix<Interval>> ssd) {
+void initMatricesT<2, 2, 1> (Matrix<Interval> &l2b, span<Matrix<Interval>> tsd, span<Matrix<Interval>> ssd) {
 	l2b.fill({3, 0, 0, 1, 1, 1, 0, -1, 2, 1, 1, 2, 1, 1, 2, -1, 2, 2, 2, 1, 1});
 	tsd[0].fill({3, 0, 0, 1, 1, 1, 0, 1, 2, 1, 1, 1, 2, 2, 0, 1, 4, 2, 1, 1, 2, 2, 2, 1, 4});
 	tsd[1].fill({3, 0, 0, 1, 4, 0, 1, 1, 2, 0, 2, 1, 4, 1, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 1});

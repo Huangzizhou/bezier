@@ -1,8 +1,22 @@
 #include "Interval.hpp"
 
-#ifndef IPRED_ARITHMETIC
-
 namespace element_validity {
+
+
+#ifdef IPRED_ARITHMETIC
+
+void Interval::init() {
+	#ifdef IPRED_ARITHMETIC
+	static bool initialized = false;
+	if (initialized) return;
+	initFPU();
+	setFPUModeToRoundUP();
+	initialized = true;
+	#endif
+};
+
+#else
+
 const fp_t Interval::POSINF = std::numeric_limits<fp_t>::max();
 const fp_t Interval::NEGINF = std::copysign(POSINF, -1);
 
@@ -26,5 +40,7 @@ Interval Interval::fromRational(const Rational &rat) {
 		if (rat > 0) return Interval(d, roundUp(d));
 		return Interval(0);
 	}
-}
 #endif
+
+
+}

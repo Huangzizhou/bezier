@@ -12,7 +12,7 @@ class ContinuousValidator : public Validator {
 	fp_t precision = .1;
 
 	fp_t maxTimeStepElement(
-		std::span<const fp_t> cp,
+		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		fp_t *timeOfInversion = nullptr,
 		fp_t earlyStop = 1.,
@@ -20,7 +20,7 @@ class ContinuousValidator : public Validator {
 	) const;
 
 	fp_t maxTimeStepMesh(
-		std::span<const fp_t> cp,
+		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		fp_t *timeOfInversion = nullptr
@@ -34,7 +34,7 @@ class ContinuousValidator : public Validator {
 		cornerIndicesT<n, s, p>(interpIndices);
 	}
 	fp_t maxTimeStep(
-		std::span<const fp_t> cp,
+		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		fp_t *timeOfInversion = nullptr,
@@ -101,7 +101,7 @@ Validator::Subdomain ContinuousValidator<n, s, p>::splitTime(
 
 template<uint n, uint s, uint p>
 fp_t ContinuousValidator<n,s,p>::maxTimeStep(
-	std::span<const fp_t> cp,
+	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
 	fp_t *timeOfInversion,
@@ -119,7 +119,7 @@ fp_t ContinuousValidator<n,s,p>::maxTimeStep(
 
 template<uint n, uint s, uint p>
 fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
-	std::span<const fp_t> cp,
+	span<const fp_t> cp,
 	std::vector<uint> *hierarchy,
 	fp_t *timeOfInversion,
 	fp_t earlyStop,
@@ -244,7 +244,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 
 template<uint n, uint s, uint p>
 fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
-	std::span<const fp_t> cp,
+	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
 	fp_t *toi
@@ -260,7 +260,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 	#pragma omp parallel for \
 		reduction(min : minT) num_threads(nThreads)
 	for (uint e=0; e<numEl; ++e) {
-		std::span<const fp_t> element(
+		span<const fp_t> element(
 			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
 		Timer timer;
 		fp_t invT;

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <span>
 #include "Interval.hpp"
 
 /* Simple class for precomputed matrices */
@@ -32,10 +31,10 @@ class Matrix{
 	inline void resize(uint size) { s = size; store.resize(s); }
 
 	// Apply matrix to column vector src and directly into dst 
-	void mult(const std::span<const T> src, const std::span<T> dst) const;
-	void mult(const std::span<const T> src, std::vector<T> &dst) const {
+	void mult(const span<const T> src, const span<T> dst) const;
+	void mult(const span<const T> src, std::vector<T> &dst) const {
 		dst.resize(s);
-		mult(src, std::span<T>(dst));
+		mult(src, span<T>(dst));
 	}
 
 	// Apply matrix to column vector v

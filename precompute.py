@@ -446,14 +446,14 @@ def matrices_formatted(n, s, p, dynamic):
 		lines += ['template<>\n' +
 			f'void initMatricesT<{n}, {s}, {p}> ' +
 			'(Matrix<Interval> &l2b, ' +
-			'std::span<Matrix<Interval>> tsd, ' +
-			'std::span<Matrix<Interval>> ssd) ' +
+			'span<Matrix<Interval>> tsd, ' +
+			'span<Matrix<Interval>> ssd) ' +
 			'{']
 	else:
 		lines += ['template<>\n' +
 			f'void initMatrices<{n}, {s}, {p}> ' +
 			'(Matrix<Interval> &l2b, ' +
-			f'std::span<Matrix<Interval>> ssd) ' +
+			f'span<Matrix<Interval>> ssd) ' +
 			'{']
 	
 	mm = subdiv_matrices(n, s, p, dynamic)
@@ -492,7 +492,7 @@ def lag_vec_formatted(file, n, s, p, dynamic):
 	file.write(
 		'template<>\n' +
 		f'void {func_name}<{n}, {s}, {p}>' +
-		'(const std::span<const fp_t> cpFP, const std::span<Interval> out) {'
+		'(const span<const fp_t> cpFP, const span<Interval> out) {'
 	)
 	NCP = len(index_set(n,s,p)) * n
 	if dynamic: NCP *= 2
@@ -537,8 +537,8 @@ def lag_eval_formatted(file, n, s, p, dynamic):
 	file.write(
 		'template<>\n' +
 		f'Interval {func_name}<{n}, {s}, {p}>(\n' +
-		'\tconst std::span<const fp_t> xFP,\n' +
-		'\tconst std::span<const Interval> lagVec\n' + 
+		'\tconst span<const fp_t> xFP,\n' +
+		'\tconst span<const Interval> lagVec\n' + 
 		') {'
 	)
 	nx = n

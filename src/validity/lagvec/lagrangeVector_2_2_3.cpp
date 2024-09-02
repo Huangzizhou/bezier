@@ -5,7 +5,7 @@
 
 namespace element_validity {
 template<>
-void lagrangeVector<2, 2, 3>(const std::span<const fp_t> cpFP, const std::span<Interval> out) {
+void lagrangeVector<2, 2, 3>(const span<const fp_t> cpFP, const span<Interval> out) {
 	assert(cpFP.size() == 20);
 	assert(out.size() == 15);
 	std::array<Interval, 20> cp;
