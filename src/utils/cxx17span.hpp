@@ -11,13 +11,26 @@ private:
     T* ptr;
     std::size_t sz;
 public:
-    cxx17span(T* ptr, std::size_t size) : ptr(ptr), sz(size) {}
-    cxx17span(std::vector<std::remove_const_t<T>> &vec) : ptr(vec.data()), sz(vec.size()) {}
-    cxx17span(const std::vector<std::remove_const_t<T>> &vec) : ptr(const_cast<T*>(vec.data())), sz(vec.size()) {}
+    cxx17span(T* ptr, std::size_t size) :
+        ptr(ptr), sz(size) {}
+
+    cxx17span(cxx17span<std::remove_const_t<T>> &vec) :
+        ptr(const_cast<T*>(vec.data())), sz(vec.size()) {}
+
+    cxx17span(std::vector<std::remove_const_t<T>> &vec) :
+        ptr(vec.data()), sz(vec.size()) {}
+
+    cxx17span(const std::vector<std::remove_const_t<T>> &vec) :
+        ptr(const_cast<T*>(vec.data())), sz(vec.size()) {}
+
     template <std::size_t N>
-    cxx17span(std::array<std::remove_const_t<T>, N> &arr) : ptr(arr.data()), sz(N) {}
+    cxx17span(std::array<std::remove_const_t<T>, N> &arr) :
+        ptr(arr.data()), sz(N) {}
+
     template <std::size_t N>
-    cxx17span(const std::array<std::remove_const_t<T>, N> &arr) : ptr(const_cast<T*>(arr.data())), sz(N) {}
+    cxx17span(const std::array<std::remove_const_t<T>, N> &arr) :
+        ptr(const_cast<T*>(arr.data())), sz(N) {}
+
 
     T* data() const { return ptr; }
     std::size_t size() const { return sz; }
