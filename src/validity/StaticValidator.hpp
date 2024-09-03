@@ -17,7 +17,8 @@ class StaticValidator : public Validator {
 	Validity isValidMesh(
 		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr
+		uint *invalidElemID = nullptr,
+		std::vector<uint> *invalidList = nullptr
 	) const;
 
 	Subdomain split(const Subdomain &src, uint q) const;
@@ -32,6 +33,7 @@ class StaticValidator : public Validator {
 		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
+		std::vector<uint> *invalidList = nullptr,
 		Info *info = nullptr
 	) const;
 
@@ -40,12 +42,14 @@ class StaticValidator : public Validator {
 		const Eigen::MatrixXd& cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
+		std::vector<uint> *invalidList = nullptr,
 		Info *info = nullptr
 	) const {
 		return isValid(
 			convertEigenMatrix(cp),
 			adaptiveHierarchy,
 			invalidElemID,
+			invalidList,
 			info
 		);
 	}
@@ -73,12 +77,13 @@ Validity StaticValidator<n,s,p>::isValid(
 	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
+	std::vector<uint> *invalidList,
 	Info *info
 ) const {
 	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
 	const uint numEl = cp.size() / (numCoordsPerElem);
 	if (numEl == 1) return isValidElement(cp, adaptiveHierarchy, info);
-	else return isValidMesh(cp, adaptiveHierarchy, invalidElemID);
+	else return isValidMesh(cp, adaptiveHierarchy, invalidElemID, invalidList);
 }
 
 //------------------------------------------------------------------------------
@@ -162,7 +167,8 @@ template<uint n, uint s, uint p>
 Validity StaticValidator<n, s, p>::isValidMesh(
 	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
-	uint *invalidElemID
+	uint *invalidElemID,
+	std::vector<uint> *invalidList
 ) const {
 	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
 	const uint numEl = cp.size() / (numCoordsPerElem);
@@ -172,6 +178,8 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 	std::vector<std::vector<uint>> hierarchies(numEl);
 	bool gaveUp = false;
 	bool foundInvalid = false;
+
+	if (invalidList) invalidList->clear();
 
 	#pragma omp parallel for num_threads(nThreads)
 	for (uint e=0; e<numEl; ++e) {
@@ -187,7 +195,11 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 		timer.stop();
 		results.at(e) = v;
 		if (v == Validity::invalid) foundInvalid = true;
-		if (v == Validity::uncertain) gaveUp = true;
+		else if (v == Validity::uncertain) gaveUp = true;
+		if (invalidList &&
+			(v == Validity::invalid || v == Validity::uncertain)) {
+			invalidList->push_back(e);
+		}
 		timings.at(e) = timer.read<std::chrono::microseconds>();
 	}
 	if (foundInvalid) {

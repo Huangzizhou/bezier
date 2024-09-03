@@ -24,8 +24,7 @@ add_library(bezier_interface INTERFACE)
 target_link_libraries(bezier PRIVATE bezier_interface)
 
 # Set the C++ standard
-target_compile_features(bezier_interface INTERFACE cxx_std_17)
-# target_compile_features(bezier_interface INTERFACE cxx_std_20)
+target_compile_features(bezier_interface INTERFACE cxx_std_20)
 
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
