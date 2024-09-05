@@ -29,15 +29,15 @@ target_compile_features(bezier_interface INTERFACE cxx_std_20)
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(UNIT_TESTS "Run unit tests" ON)
-option(LAGVEC_GCC_O0 "Disable optimization for some complicated functions" ON)
+option(LARGE_FILES_O0 "Disable optimization for some complicated functions" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 include(bezier_cpm_cache)
 
-if(LAGVEC_GCC_O0)
-    target_compile_definitions(bezier PRIVATE LAGVEC_GCC_O0)
+if(LARGE_FILES_O0)
+    target_compile_definitions(bezier PRIVATE LARGE_FILES_O0)
 endif()
 
 set_target_properties(bezier PROPERTIES COMPILE_WARNING_AS_ERROR ON)

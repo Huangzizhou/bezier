@@ -627,14 +627,14 @@ if WRITE_LAGVEC:
 				f.write('#define I const Interval \n\n')
 				f.write('namespace element_validity {\n')
 				if optopt:
-				 	f.write('#ifdef LAGVEC_GCC_O0\n')
+				 	f.write('#ifdef LARGE_FILES_O0\n')
 				 	f.write('#pragma GCC push_options\n')
 				 	f.write('#pragma GCC optimize ("0")\n')
 				 	f.write('#endif\n')
 				lag_vec_formatted(f,n,s,p,True)
 				f.write('}\n')
 				if optopt:
-				 	f.write('#ifdef LAGVEC_GCC_O0\n')
+				 	f.write('#ifdef LARGE_FILES_O0\n')
 				 	f.write('#pragma GCC pop_options\n')
 				 	f.write('#endif\n')
 				f.write('#undef R\n')
@@ -646,14 +646,14 @@ if WRITE_LAGVEC:
 				f.write('#define I const Interval \n\n')
 				f.write('namespace element_validity {\n')
 				if optopt:
-				 	f.write('#ifdef LAGVEC_GCC_O0\n')
+				 	f.write('#ifdef LARGE_FILES_O0\n')
 				 	f.write('#pragma GCC push_options\n')
 				 	f.write('#pragma GCC optimize ("-O0")\n')
 				 	f.write('#endif\n')
 				lag_vec_formatted(f,n,s,p,False)
 				f.write('}\n')
 				if optopt:
-				 	f.write('#ifdef LAGVEC_GCC_O0\n')
+				 	f.write('#ifdef LARGE_FILES_O0\n')
 				 	f.write('#pragma GCC pop_options\n')
 				 	f.write('#endif\n')
 				f.write('#undef R\n')

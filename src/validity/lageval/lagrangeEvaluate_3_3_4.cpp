@@ -3,6 +3,11 @@
 #define R(p, q) (Interval(p) / q)
 #define I const Interval 
 
+#ifdef LARGE_FILES_O0
+#pragma GCC push_options
+#pragma GCC optimize ("0")
+#endif
+
 namespace element_validity {
 template<>
 Interval lagrangeEvaluate<3, 3, 4>(
@@ -2363,5 +2368,10 @@ Interval lagrangeEvaluate<3, 3, 4>(
 	acc += lagVec[219] * (-R(194643, 160)*tmp_11 - R(6849, 280)*tmp_19 + (R(265779, 1120))*tmp_29 - R(4782969, 1120)*tmp_34 - R(531441, 80)*tmp_37 + (R(2302911, 320))*tmp_41 + tmp_5 + (R(2337903, 640))*tmp_6 + x[0]);
 	return acc;
 }}
+
+#ifdef LARGE_FILES_O0
+#pragma GCC pop_options
+#endif
+
 #undef R
 #undef I
