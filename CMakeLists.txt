@@ -107,8 +107,8 @@ endif()
 if (HDF5_INTERFACE)
     target_compile_definitions(bezier_interface INTERFACE HDF5_INTERFACE)
     find_package(HDF5 REQUIRED COMPONENTS C CXX)
-    target_include_directories(bezier PUBLIC ${HDF5_INCLUDE_DIRS})
-    target_link_libraries(bezier PRIVATE ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES})
+    target_include_directories(bezier_interface INTERFACE ${HDF5_INCLUDE_DIRS})
+    target_link_libraries(bezier_interface INTERFACE ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES})
 endif()
 
 
