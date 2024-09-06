@@ -201,6 +201,15 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 		tmin = dom.time.lower();
 		if (!(dom.incl > epsilon)) {
 			if constexpr (p == 1) {
+				// Subdomain contains invalidity
+				if (dom.incl <= epsilon) {
+					foundInvalid = true;
+					if (tmax > dom.time.upper()) {
+						tmax = dom.time.upper();				// update tmax
+						if (hierarchy) dom.copySequence(*hierarchy);
+					}
+				}
+				// Subdomain contains invalidity or is uncertain
 				const auto mid = dom.time.middle();
 				if (mid == dom.time.upper() || mid == dom.time.lower()) {
 					if (info) info->status = Info::Status::noSplit;
@@ -211,30 +220,38 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 			}
 			else {
 				#ifdef EXPERIM_NAIVE_SUBDIV
-				// Split on all axes and push to queue
-				for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
-				#else
-				// Subdomain contains invalidity
-				if (dom.incl <= epsilon) {
-					foundInvalid = true;
-					if (tmax > dom.time.upper()) {
-						tmax = dom.time.upper();				// update tmax
-						if (hierarchy) dom.copySequence(*hierarchy);
+					// Subdomain contains invalidity
+					if (dom.incl <= epsilon) {
+						foundInvalid = true;
+						if (tmax > dom.time.upper()) {
+							tmax = dom.time.upper();				// update tmax
+							if (hierarchy) dom.copySequence(*hierarchy);
+						}
 					}
-					// Split on time only and push to queue
-					const auto mid = dom.time.middle();
-					if (mid == dom.time.upper() || mid == dom.time.lower()) {
-						if (info) info->status = Info::Status::noSplit;
-						break;
-					}
-					queue.push(splitTime(dom, false));
-					queue.push(splitTime(dom, true));
-				}
-				// Subdomain is undetermined and needs refinement
-				else {
 					// Split on all axes and push to queue
 					for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
-				}
+				#else
+					// Subdomain contains invalidity
+					if (dom.incl <= epsilon) {
+						foundInvalid = true;
+						if (tmax > dom.time.upper()) {
+							tmax = dom.time.upper();				// update tmax
+							if (hierarchy) dom.copySequence(*hierarchy);
+						}
+						// Split on time only and push to queue
+						const auto mid = dom.time.middle();
+						if (mid == dom.time.upper() || mid == dom.time.lower()) {
+							if (info) info->status = Info::Status::noSplit;
+							break;
+						}
+						queue.push(splitTime(dom, false));
+						queue.push(splitTime(dom, true));
+					}
+					// Subdomain is undetermined and needs refinement
+					else {
+						// Split on all axes and push to queue
+						for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+					}
 				#endif
 			}
 		}
