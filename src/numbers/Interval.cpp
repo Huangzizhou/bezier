@@ -1,11 +1,10 @@
 #include "Interval.hpp"
 
-namespace element_validity {
-
+namespace element_validity::intervals {
 
 #ifdef IPRED_ARITHMETIC
 
-void Interval::init() {
+void RobustInterval::init() {
 	#ifdef IPRED_ARITHMETIC
 	static bool initialized = false;
 	if (initialized) return;
@@ -15,15 +14,27 @@ void Interval::init() {
 	#endif
 };
 
+
+RobustInterval RobustInterval::fromRational(const Rational &rat) {
+	// TODO change this function to not use nextafter
+	const double inf = std::numeric_limits<double>::max();
+	const double d = static_cast<double>(rat);
+
+	if (rat < 0) return RobustInterval(std::nextafter(d, -inf), d);
+	if (rat > 0) return RobustInterval(d, std::nextafter(d, inf));
+	return RobustInterval(0);
+}
+
+
 #else
 
-const fp_t Interval::POSINF = std::numeric_limits<fp_t>::max();
-const fp_t Interval::NEGINF = std::copysign(POSINF, -1);
+const fp_t RobustInterval::POSINF = std::numeric_limits<fp_t>::max();
+const fp_t RobustInterval::NEGINF = std::copysign(POSINF, -1);
 
-Interval Interval::pow(uint e) const {
+RobustInterval RobustInterval::pow(uint e) const {
 	switch (e) {
 	// Base cases
-	case 0: return Interval(1);
+	case 0: return RobustInterval(1);
 	case 1: return *this;
 	case 2: return sqr();
 	default:
@@ -34,13 +45,25 @@ Interval Interval::pow(uint e) const {
 	}
 }
 
-Interval Interval::fromRational(const Rational &rat) {
+RobustInterval RobustInterval::fromRational(const Rational &rat) {
 		const double d = static_cast<double>(rat);
-		if (rat < 0) return Interval(roundDn(d), d);
-		if (rat > 0) return Interval(d, roundUp(d));
-		return Interval(0);
+		if (rat < 0) return RobustInterval(roundDn(d), d);
+		if (rat > 0) return RobustInterval(d, roundUp(d));
+		return RobustInterval(0);
 	}
 #endif
 
+std::ostream& operator<<(std::ostream &ost, const RobustInterval &r) {
+	const auto p = std::setprecision(
+		std::numeric_limits<double>::max_digits10);
+	ost << '[' << p << r.lower() << ',' << p << r.upper() << ']';
+	return ost;
+}
+
+RobustInterval::operator std::string() const {
+	std::stringstream s;
+	s << *this;
+	return s.str();
+}
 
 }

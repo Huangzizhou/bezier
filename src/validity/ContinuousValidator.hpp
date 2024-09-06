@@ -75,8 +75,8 @@ Validator::Subdomain ContinuousValidator<n, s, p>::split(
 	Subdomain res;
 	matQ[q].mult(src.B, res.B);
 	res.time = (q >> n) ?
-		Interval(src.time.middle(), src.time.upper()) :
-		Interval(src.time.lower(), src.time.middle());
+		RealInterval(src.time.middle(), src.time.upper()) :
+		RealInterval(src.time.lower(), src.time.middle());
 	res.incl = minclusion(res.B);
 	src.copySequence(res.qSequence);
 	res.qSequence.push_back(q % (1U << (n-1)));
@@ -90,8 +90,8 @@ Validator::Subdomain ContinuousValidator<n, s, p>::splitTime(
 	Subdomain res;
 	(t ? matT[1] : matT[0]).mult(src.B, res.B);
 	res.time = t ?
-		Interval(src.time.middle(), src.time.upper()) :
-		Interval(src.time.lower(), src.time.middle());
+		RealInterval(src.time.middle(), src.time.upper()) :
+		RealInterval(src.time.lower(), src.time.middle());
 	res.incl = minclusion(res.B);
 	src.copySequence(res.qSequence);
 	return res;
@@ -134,7 +134,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 	// Create initial subdomain
 	Subdomain sd0;
 	matL2B.mult(vL, sd0.B);
-	sd0.time = Interval(0,1);
+	sd0.time = RealInterval(0,1);
 	sd0.incl = minclusion(sd0.B);
 	
 	// Initialize queue
@@ -199,25 +199,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 
 		// Update tmin
 		tmin = dom.time.lower();
-		
-		// Subdomain contains invalidity
-		if (dom.incl <= epsilon) {
-			foundInvalid = true;
-			if (tmax > dom.time.upper()) {
-				tmax = dom.time.upper();				// update tmax
-				if (hierarchy) dom.copySequence(*hierarchy);
-			}
-			// Split on time only and push to queue
-			const auto mid = dom.time.middle();
-			if (mid == dom.time.upper() || mid == dom.time.lower()) {
-				if (info) info->status = Info::Status::noSplit;
-				break;
-			}
-			queue.push(splitTime(dom, false));
-			queue.push(splitTime(dom, true));
-		}
-		// Subdomain is undetermined and needs refinement
-		else if (!(dom.incl > epsilon)) {
+		if (!(dom.incl > epsilon)) {
 			if constexpr (p == 1) {
 				const auto mid = dom.time.middle();
 				if (mid == dom.time.upper() || mid == dom.time.lower()) {
@@ -228,8 +210,32 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 				queue.push(splitTime(dom, true));
 			}
 			else {
+				#ifdef EXPERIM_NAIVE_SUBDIV
 				// Split on all axes and push to queue
 				for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+				#else
+				// Subdomain contains invalidity
+				if (dom.incl <= epsilon) {
+					foundInvalid = true;
+					if (tmax > dom.time.upper()) {
+						tmax = dom.time.upper();				// update tmax
+						if (hierarchy) dom.copySequence(*hierarchy);
+					}
+					// Split on time only and push to queue
+					const auto mid = dom.time.middle();
+					if (mid == dom.time.upper() || mid == dom.time.lower()) {
+						if (info) info->status = Info::Status::noSplit;
+						break;
+					}
+					queue.push(splitTime(dom, false));
+					queue.push(splitTime(dom, true));
+				}
+				// Subdomain is undetermined and needs refinement
+				else {
+					// Split on all axes and push to queue
+					for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+				}
+				#endif
 			}
 		}
 	}

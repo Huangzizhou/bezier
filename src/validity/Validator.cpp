@@ -2,7 +2,7 @@
 
 namespace element_validity {
 
-Interval Validator::minclusion(
+RealInterval Validator::minclusion(
 	const std::vector<Interval>& B
 ) const {
 	Interval lo(std::numeric_limits<fp_t>::max());

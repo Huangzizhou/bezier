@@ -25,7 +25,7 @@ class Validator {
 
 	Validator(uint nThreads = 1) : nThreads(nThreads) {}
 
-	Interval minclusion(const std::vector<Interval> &B) const;
+	RealInterval minclusion(const std::vector<Interval> &B) const;
 
 	public:
 	struct Info;
@@ -38,8 +38,8 @@ struct Validator::Subdomain {
 	public:
 	std::vector<Interval> B;
 	std::vector<uint> qSequence;
-	Interval time;
-	Interval incl;
+	RealInterval time;
+	RealInterval incl;
 
 	// Priority function
 	bool operator<(const Subdomain &o) const;

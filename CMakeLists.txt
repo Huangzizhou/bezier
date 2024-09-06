@@ -33,12 +33,25 @@ option(LARGE_FILES_O0 "Disable optimization for some complicated functions" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
-include(bezier_cpm_cache)
+# Experimental flags and stuff for benchmarks (leave these OFF)
+option(EXPERIM_NAIVE_SUBDIV "Use a naive subdivision scheme" OFF)
+option(EXPERIM_FLOAT_ARITHMETIC "Use non-robust floating point arithmetic" OFF)
 
+# Add definitions
 if(LARGE_FILES_O0)
     target_compile_definitions(bezier PRIVATE LARGE_FILES_O0)
 endif()
+
+if(EXPERIM_NAIVE_SUBDIV)
+    add_compile_definitions(EXPERIM_NAIVE_SUBDIV)
+endif()
+if(EXPERIM_FLOAT_ARITHMETIC)
+    add_compile_definitions(EXPERIM_FLOAT_ARITHMETIC)
+endif()
+
+# Cmake recipes & CPM Cache 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
+include(bezier_cpm_cache)
 
 set_target_properties(bezier PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 target_compile_options(bezier INTERFACE
