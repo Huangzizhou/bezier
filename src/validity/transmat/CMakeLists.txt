@@ -10,6 +10,7 @@ set(SOURCES
 	transMatrices_2_2_2.cpp
 	transMatrices_2_2_3.cpp
 	transMatrices_3_1_1.cpp
+	transMatrices_3_2_1.cpp
 	transMatrices_3_3_1.cpp
 	transMatrices_3_3_2.cpp
 	transMatrices_2_2_4.cpp

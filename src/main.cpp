@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 
     {
         // Read rational data from HDF5 dataset
-        std::cout << "Reading file..." << std::endl;
+        std::cout << "Reading file..." << std::flush;
         H5::H5File file(args.filePath, H5F_ACC_RDONLY);
 
         const auto H5UINT = H5::PredType::NATIVE_INT;
@@ -103,9 +103,10 @@ int main(int argc, char** argv) {
             rat.den() = buffer[2*i+1];
             nodes.push_back(static_cast<fp_t>(rat));
         }
-        std::cout << "Done." << std::endl;
+        std::cout << " Done." << std::endl;
     }
 
+    std::cout << "Processing..." << std::flush;
     std::unique_ptr<std::ostream> out;
     if (args.resultsPath.size() > 0)
         out = std::make_unique<std::ofstream>(args.resultsPath);
@@ -124,12 +125,15 @@ int main(int argc, char** argv) {
     else IFPROC(2, 2, 2)
     else IFPROC(2, 2, 3)
     else IFPROC(2, 2, 4)
+    else IFPROC(3, 1, 1)
+    else IFPROC(3, 2, 1)
     else IFPROC(3, 3, 1)
     else IFPROC(3, 3, 2)
     else IFPROC(3, 3, 3)
     else IFPROC(3, 3, 4)
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
+    std::cout << " Done." << std::endl;
 
     return 0;
 }

@@ -10,6 +10,7 @@ set(SOURCES
 	lagrangeVectorT_2_2_2.cpp
 	lagrangeVectorT_2_2_3.cpp
 	lagrangeVectorT_3_1_1.cpp
+	lagrangeVectorT_3_2_1.cpp
 	lagrangeVectorT_3_3_1.cpp
 	lagrangeVectorT_3_3_2.cpp
 	lagrangeVectorT_2_2_4.cpp

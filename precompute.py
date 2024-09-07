@@ -7,6 +7,7 @@ COMBINATIONS = [
 	(2,1,1), (2,1,2),
 	(2,2,1), (2,2,2), (2,2,3),
 	(3,1,1),
+	(3,2,1),
 	(3,3,1), (3,3,2),
 	(2,2,4),
 	(3,3,3),
@@ -16,14 +17,14 @@ COMBINATIONS = [
 # OPTIONAL_OPTIMIZE = [(3,1,2),(3,3,4)]
 OPTIONAL_OPTIMIZE = []
 
-DRY_RUN = False
+DRY_RUN = True
 POLYFEM_ORDER = True
 DYNAMIC = True
 STATIC = True
 
-WRITE_CMAKE = True						
-WRITE_MATRICES = False
-WRITE_LAGVEC = False
+WRITE_CMAKE = False						
+WRITE_MATRICES = True
+WRITE_LAGVEC = True
 WRITE_CORNERS = False
 WRITE_LAGPOLY = True
 
@@ -597,14 +598,14 @@ if WRITE_MATRICES:
 	for n,s,p in COMBINATIONS:
 		if DYNAMIC:
 			with open(path(n,s,p,True), 'w') as f:
-				f.write('#include "transMatrices.hpp"\n\n')
+				f.write('#include "../transMatrices.hpp"\n\n')
 				f.write('namespace element_validity {\n')
 				if (__debug__): print(f'({n} {s} {p})')
 				f.write(matrices_formatted(n, s, p, True))
 				f.write('\n}\n')
 		if STATIC:
 			with open(path(n,s,p,False), 'w') as f:
-				f.write('#include "transMatrices.hpp"\n\n')
+				f.write('#include "../transMatrices.hpp"\n\n')
 				f.write('namespace element_validity {\n')
 				if (__debug__): print(f'({n} {s} {p})')
 				f.write(matrices_formatted(n, s, p, False))
@@ -622,7 +623,7 @@ if WRITE_LAGVEC:
 		optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 		if DYNAMIC:
 			with open(path(n,s,p,True), 'w') as f:
-				f.write('#include "lagrangeVector.hpp"\n\n')
+				f.write('#include "../lagrangeVector.hpp"\n\n')
 				f.write('#define R(p, q) (Interval(p) / q)\n')
 				f.write('#define I const Interval \n\n')
 				f.write('namespace element_validity {\n')
@@ -641,7 +642,7 @@ if WRITE_LAGVEC:
 				f.write('#undef I')
 		if STATIC:
 			with open(path(n,s,p,False), 'w') as f:
-				f.write('#include "lagrangeVector.hpp"\n\n')
+				f.write('#include "../lagrangeVector.hpp"\n\n')
 				f.write('#define R(p, q) (Interval(p) / q)\n')
 				f.write('#define I const Interval \n\n')
 				f.write('namespace element_validity {\n')
