@@ -159,7 +159,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 			break;
 		}
 		// Check whether we reached precision
-		if (tmax - tmin < precision && tmin > 0.) {
+		if (foundInvalid && tmin > 0. && tmax - tmin < precision) {
 			if (info) info->status = Info::Status::reachedTarget;
 			break;
 		}
