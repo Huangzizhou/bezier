@@ -96,17 +96,16 @@ if (OpenMP_CXX_FOUND)
 else()
 endif()
 
+##### GMP ######################################################################
+find_package(GMP REQUIRED)
+target_link_libraries(bezier PRIVATE gmp::gmp)
+
 ##### Eigen ####################################################################
 if (EIGEN_INTERFACE)
     target_compile_definitions(bezier_interface INTERFACE EIGEN_INTERFACE)
     include(eigen)
     target_link_libraries(bezier_interface INTERFACE Eigen3::Eigen)
 endif()
-
-##### GMP ######################################################################
-find_package(GMP REQUIRED)
-target_link_libraries(bezier PRIVATE gmp::gmp)
-
 
 ##### INDIRECT_PREDICATES ######################################################
 if (IPRED_ARITHMETIC)
@@ -117,7 +116,7 @@ endif()
 
 
 ##### HDF5 #####################################################################
-if (HDF5_INTERFACE)
+if (HDF5_INTERFACE AND BEZIER_TOPLEVEL_PROJECT)
     target_compile_definitions(bezier_interface INTERFACE HDF5_INTERFACE)
     find_package(HDF5 REQUIRED COMPONENTS C CXX)
     target_include_directories(bezier_interface INTERFACE ${HDF5_INCLUDE_DIRS})
