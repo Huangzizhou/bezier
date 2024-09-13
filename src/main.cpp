@@ -28,9 +28,7 @@ void processData(
     checker.setPrecisionTarget(args.precision);
     checker.setMaxSubdiv(args.maxIterations);
     const uint nCoordPerElem = nNodesPerElem*n*2;
-    std::vector<fp_t> results;
     const uint ne = args.numElem == 0 ? nElements : args.numElem;
-    results.reserve(ne);
 
     if (out)
         *out << "ID" << SEP
@@ -52,7 +50,6 @@ void processData(
         timer.start();
         const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
         timer.stop();
-        results.push_back(t);
         if (out) {
             *out << e + args.firstElem << SEP;
             *out << fp_fmt << t << SEP;
