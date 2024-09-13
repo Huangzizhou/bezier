@@ -328,16 +328,19 @@ class RobustInterval {
 #endif
 
 #ifdef EXPERIM_FLOAT_ARITHMETIC
-class FPWrapper {
+struct FPWrapper {
 	fp_t fp;
-
-	public:
+	
 	static void init() {};
 	// Constructors
-	FPWrapper(const fp_t &value) : fp(value) {}
-	FPWrapper() : fp(0.) {}
-	FPWrapper(const FPWrapper &o) : fp(o.fp) {}
-	inline FPWrapper(const Rational &rat) : FPWrapper(fromRational(rat)) {}
+	FPWrapper() = default;
+    FPWrapper(const fp_t &value) : fp(value) {}
+    FPWrapper(const FPWrapper &o) = default;
+    FPWrapper(FPWrapper&&) = default;
+    FPWrapper& operator=(const FPWrapper&) = default;
+    FPWrapper& operator=(FPWrapper&&) = default;
+    ~FPWrapper() = default;
+	FPWrapper(const Rational &rat) : FPWrapper(fromRational(rat)) {}
 
 	inline FPWrapper fromRational(const Rational &rat)
 		{ return static_cast<fp_t>(rat); };
