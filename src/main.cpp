@@ -25,10 +25,13 @@ void processData(
     using namespace element_validity;
     Timer timer;
     ContinuousValidator<n, s, p> checker(args.numThreads);
+    StaticValidator<n, s, p> sChecker(args.numThreads);
     checker.setPrecisionTarget(args.precision);
     checker.setMaxSubdiv(args.maxIterations);
+    sChecker.setMaxSubdiv(10);
     const uint nCoordPerElem = nNodesPerElem*n*2;
-    const uint ne = args.numElem == 0 ? nElements : args.numElem;
+    const uint lastElem =
+        args.numElem == 0 ? nElements : args.firstElem + args.numElem;
 
     if (out)
         *out << "ID" << SEP
@@ -39,24 +42,35 @@ void processData(
             << "microseconds" << SEP
             << "hierarchy" << SEP
             << "description" << std::endl;
-    std::vector<fp_t> element(nCoordPerElem);
-    for (uint e=0; e<ne; ++e) {
-        for(uint i=0; i<nCoordPerElem; ++i) {
-            element.at(i) = nodes.at((e + args.firstElem)*nCoordPerElem + i);
-        }
+
+    // Continuous check
+    for (uint e=args.firstElem; e<lastElem; ++e) {
+        const uint elemOffset = e*nCoordPerElem;
+        span<fp_t> element(nodes.data() + elemOffset, nCoordPerElem);
         std::vector<uint> h;
         Validator::Info info;
         fp_t tInv;
+        const Validity v0 = sChecker.isValidStart(element);
+        if (v0 != Validity::valid) {
+            if (v0 == Validity::uncertain)
+                std::cerr <<
+                    "Warning: static check could not \
+                    determine whether element " <<
+                    e << " has a valid initial configuration" << std::endl;
+            continue;
+        }
         timer.start();
         const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
         timer.stop();
+        const double microseconds =
+            static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000;
         if (out) {
-            *out << e + args.firstElem << SEP;
+            *out << e << SEP;
             *out << fp_fmt << t << SEP;
             *out << fp_fmt << tInv << SEP;
             *out << info.spaceDepth << SEP;
             *out << info.timeDepth << SEP;
-            *out << static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000 << SEP;
+            *out << microseconds << SEP;
             for (uint u : h) *out << u << ' ';
             *out << SEP;
             *out << info.description() << std::endl;

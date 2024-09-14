@@ -37,6 +37,14 @@ class StaticValidator : public Validator {
 		Info *info = nullptr
 	) const;
 
+	Validity isValidStart(
+		span<const fp_t> cp,
+		std::vector<uint> *adaptiveHierarchy = nullptr,
+		uint *invalidElemID = nullptr,
+		std::vector<uint> *invalidList = nullptr,
+		Info *info = nullptr
+	) const;
+
 	#ifdef EIGEN_INTERFACE
 	Validity isValid(
 		const Eigen::MatrixXd& cp,
@@ -80,10 +88,24 @@ Validity StaticValidator<n,s,p>::isValid(
 	std::vector<uint> *invalidList,
 	Info *info
 ) const {
-	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
-	const uint numEl = cp.size() / (numCoordsPerElem);
+	constexpr uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
+	const uint numEl = cp.size() / numCoordsPerElem;
 	if (numEl == 1) return isValidElement(cp, adaptiveHierarchy, info);
 	else return isValidMesh(cp, adaptiveHierarchy, invalidElemID, invalidList);
+}
+
+template<uint n, uint s, uint p>
+Validity StaticValidator<n,s,p>::isValidStart(
+	span<const fp_t> cp,
+	std::vector<uint> *adaptiveHierarchy,
+	uint *invalidElemID,
+	std::vector<uint> *invalidList,
+	Info *info
+) const {
+	std::vector<fp_t> f0;
+	f0.reserve(cp.size() / 2);
+	for (uint i = 0; i < cp.size(); i+=2) f0.push_back(cp[i]);
+	return isValid(f0, adaptiveHierarchy, invalidElemID, invalidList, info);
 }
 
 //------------------------------------------------------------------------------
