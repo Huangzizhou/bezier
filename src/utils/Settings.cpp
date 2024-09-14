@@ -18,6 +18,7 @@ Settings::Settings(int argc, char** argv) {
 			case 'p':
 				break;
 			case 'g': globalQuery = true; break;
+			case 's': preCheck = true; break;
 			case '?':
 				abort = true;
 				std::cout << helpString << std::endl;
@@ -37,6 +38,7 @@ Settings::Settings(int argc, char** argv) {
 			case 'n': numElem = std::stoi(s); break;
 			case 'o': resultsPath = s; break;
 			case 'p': precision = std::stod(s); break;
+			case 's': preCheckMaxIter = std::stoi(s); break;
 			default:
 				infoHelp = true;
 				std::cout << "Ignoring argument \"" << s << "\" because "

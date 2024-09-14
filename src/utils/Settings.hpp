@@ -13,6 +13,8 @@ class Settings {
 	std::string resultsPath = "";
 	bool globalQuery = false;
 	uint maxIterations = 0;
+	bool preCheck = false;
+	uint preCheckMaxIter = 0;
 	uint numElem = 0;
 	uint firstElem = 0;
 	uint numThreads = 1;

@@ -25,10 +25,10 @@ void processData(
     using namespace element_validity;
     Timer timer;
     ContinuousValidator<n, s, p> checker(args.numThreads);
-    StaticValidator<n, s, p> sChecker(args.numThreads);
     checker.setPrecisionTarget(args.precision);
     checker.setMaxSubdiv(args.maxIterations);
-    sChecker.setMaxSubdiv(10);
+    StaticValidator<n, s, p> sChecker(args.numThreads);
+    sChecker.setMaxSubdiv(args.preCheckMaxIter);
     const uint nCoordPerElem = nNodesPerElem*n*2;
     const uint lastElem =
         args.numElem == 0 ? nElements : args.firstElem + args.numElem;
@@ -50,14 +50,15 @@ void processData(
         std::vector<uint> h;
         Validator::Info info;
         fp_t tInv;
-        const Validity v0 = sChecker.isValidStart(element);
-        if (v0 != Validity::valid) {
-            if (v0 == Validity::uncertain)
-                std::cerr <<
-                    "Warning: static check could not \
-                    determine whether element " <<
-                    e << " has a valid initial configuration" << std::endl;
-            continue;
+        if (args.preCheck) {
+            const Validity v0 = sChecker.isValidStart(element);
+            if (v0 != Validity::valid) {
+                if (v0 == Validity::uncertain)
+                    std::cerr <<
+                        "Warning: static check could not determine whether \
+                        element " << e << " is valid at t=0" << std::endl;
+                continue;
+            }
         }
         timer.start();
         const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);

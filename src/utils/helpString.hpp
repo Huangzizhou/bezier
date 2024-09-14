@@ -12,8 +12,9 @@ List of available flags:
 -l Set the maximum level of space subdivisions (defaults to 0=unlimited)
 -m Number of threads used for multithreading (defaults to 1=no multithreading)
 -n Set the number of elements to be processed (defaults to 0=all elements)
--o Set output path for results in csv format
+-o Set output path for detailed results in csv format
 -p Set the target error % for max valid time step search (defaults to 0.01=1%)
+-s If specified, run a static precheck to filter elements invalid at t=0, and the argument is the number of maximum iterations (defaults to 0=unlimited)
 -? Show this help
 )HELP";
 }
