@@ -15,7 +15,7 @@ template<
     element_validity::uint s, 
     element_validity::uint p
 >
-void processData(
+element_validity::fp_t processData(
     element_validity::Settings args,
     element_validity::uint nNodesPerElem,
     element_validity::uint nElements,
@@ -44,6 +44,7 @@ void processData(
             << "description" << std::endl;
 
     // Continuous check
+    fp_t minT = 1;
     for (uint e=args.firstElem; e<lastElem; ++e) {
         const uint elemOffset = e*nCoordPerElem;
         span<fp_t> element(nodes.data() + elemOffset, nCoordPerElem);
@@ -63,6 +64,7 @@ void processData(
         timer.start();
         const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
         timer.stop();
+        minT = std::min(minT, t);
         const double microseconds =
             static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000;
         if (out) {
@@ -78,6 +80,7 @@ void processData(
         }
         timer.reset();
     }
+    return minT;
 }
 
 int main(int argc, char** argv) {
@@ -123,9 +126,11 @@ int main(int argc, char** argv) {
     if (args.resultsPath.size() > 0)
         out = std::make_unique<std::ofstream>(args.resultsPath);
     std::ostream *const outptr = out ? out.get() : &std::cout;
+    fp_t mtt = 0;
     #define IFPROC(n, s, p) \
         if (dimension == n && nNodesPerElem == nControlGeoMap(n,s,p)) \
-        processData<n, s, p>(args, nNodesPerElem, nElements, nodes, outptr);
+        mtt = processData<n, s, p>(\
+            args, nNodesPerElem, nElements, nodes, outptr);
     IFPROC(1, 1, 1)
     else IFPROC(1, 1, 2)
     else IFPROC(1, 1, 3)
@@ -146,6 +151,7 @@ int main(int argc, char** argv) {
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
     std::cout << " Done." << std::endl;
+    std::cout << "Max time step: " << mtt << std::endl;
 
     return 0;
 }
