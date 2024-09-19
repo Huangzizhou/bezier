@@ -259,7 +259,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 
 	if (info) info->spaceDepth = reachedDepthS;
 	if (info) info->timeDepth = reachedDepthT;
-	if (timeOfInversion) *timeOfInversion = foundInvalid ? tmax : -1.;
+	if (timeOfInversion) *timeOfInversion = foundInvalid ? tmax : 2.;
 	return tmin;
 }
 
@@ -286,17 +286,21 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 		span<const fp_t> element(
 			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
 		Timer timer;
-		fp_t invT;
 		timer.start();
-		fp_t t = maxTimeStepElement(element, &hierarchies.at(e), &invT, minT);
+		fp_t t = maxTimeStepElement(
+			element,
+			&hierarchies.at(e),
+			&timeOfInversion.at(e),
+			minT
+		);
 		timer.stop();
-		timeOfInversion.at(e) = invT;
-		if (invT >= 0) foundInvalid = true;
+		if (timeOfInversion.at(e) <= 1.) foundInvalid = true;
 		timings.at(e) = timer.read<std::chrono::microseconds>();
 		minT = std::min(minT, t);
 	}
 	if (foundInvalid) {
-		const auto m = std::min_element(timeOfInversion.cbegin(), timeOfInversion.cend()); 
+		const auto m =
+			std::min_element(timeOfInversion.cbegin(), timeOfInversion.cend()); 
 		const uint i = std::distance(timeOfInversion.cbegin(), m);
 		if (toi) *toi = *m;
 		if (invalidElemID) *invalidElemID = i;
@@ -306,12 +310,9 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 		std::vector<fp_t> depthOfSequence(numEl);
 		for (uint j = 0; j < numEl; ++j)
 			depthOfSequence.at(j) = hierarchies.at(j).size();
-		const uint i = std::distance(depthOfSequence.cbegin(),
-			std::max_element(
-				depthOfSequence.cbegin(),
-				depthOfSequence.cend()
-			)
-		);
+		const auto m =
+			std::max_element(depthOfSequence.cbegin(), depthOfSequence.cend());
+		const uint i = std::distance(depthOfSequence.cbegin(), m);
 		if (invalidElemID) *invalidElemID = i;
 		*adaptiveHierarchy = std::move(hierarchies.at(i));
 	}

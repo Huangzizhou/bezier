@@ -18,7 +18,7 @@ template<
 element_validity::fp_t processData(
     element_validity::Settings args,
     element_validity::uint nNodesPerElem,
-    element_validity::uint nElements,
+    element_validity::uint numberOfElements,
     std::vector<element_validity::fp_t> nodes,
     std::ostream *out = nullptr
 ) {
@@ -29,56 +29,80 @@ element_validity::fp_t processData(
     checker.setMaxSubdiv(args.maxIterations);
     StaticValidator<n, s, p> sChecker(args.numThreads);
     sChecker.setMaxSubdiv(args.preCheckMaxIter);
+
     const uint nCoordPerElem = nNodesPerElem*n*2;
-    const uint lastElem =
-        args.numElem == 0 ? nElements : args.firstElem + args.numElem;
-
-    if (out)
-        *out << "ID" << SEP
-            << "max_time_step" << SEP
-            << "time_of_inversion" << SEP
-            << "space_depth" << SEP
-            << "time_depth" << SEP
-            << "microseconds" << SEP
-            << "hierarchy" << SEP
-            << "description" << std::endl;
-
-    // Continuous check
+    const uint nElements =
+        args.numElem == 0 ? numberOfElements : args.numElem;
+    const uint lastElem = args.firstElem + nElements;
+    
     fp_t minT = 1;
-    for (uint e=args.firstElem; e<lastElem; ++e) {
-        const uint elemOffset = e*nCoordPerElem;
-        span<fp_t> element(nodes.data() + elemOffset, nCoordPerElem);
-        std::vector<uint> h;
-        Validator::Info info;
-        fp_t tInv;
-        if (args.preCheck) {
-            const Validity v0 = sChecker.isValidStart(element);
-            if (v0 != Validity::valid) {
-                if (v0 == Validity::uncertain)
-                    std::cerr <<
-                        "Warning: static check could not determine whether \
-                        element " << e << " is valid at t=0" << std::endl;
-                continue;
+    if (!args.globalQuery) {
+        if (out)
+            *out << "ID" << SEP
+                << "max_time_step" << SEP
+                << "time_of_inversion" << SEP
+                << "space_depth" << SEP
+                << "time_depth" << SEP
+                << "microseconds" << SEP
+                << "hierarchy" << SEP
+                << "description" << std::endl;
+
+        // Continuous check
+        for (uint e=args.firstElem; e<lastElem; ++e) {
+            const uint elemOffset = e*nCoordPerElem;
+            span<fp_t> element(nodes.data() + elemOffset, nCoordPerElem);
+            std::vector<uint> h;
+            Validator::Info info;
+            fp_t tInv;
+            if (args.preCheck) {
+                const Validity v0 = sChecker.isValidStart(element);
+                if (v0 != Validity::valid) {
+                    if (v0 == Validity::uncertain)
+                        std::cerr <<
+                            "Warning: static check could not determine whether \
+                            element " << e << " is valid at t=0" << std::endl;
+                    continue;
+                }
             }
+            timer.start();
+            const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
+            timer.stop();
+            minT = std::min(minT, t);
+            const double microseconds =
+                static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000;
+            if (out) {
+                *out << e << SEP;
+                *out << fp_fmt << t << SEP;
+                *out << fp_fmt << tInv << SEP;
+                *out << info.spaceDepth << SEP;
+                *out << info.timeDepth << SEP;
+                *out << microseconds << SEP;
+                for (uint u : h) *out << u << ' ';
+                *out << SEP;
+                *out << info.description() << std::endl;
+            }
+            timer.reset();
         }
-        timer.start();
-        const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
-        timer.stop();
-        minT = std::min(minT, t);
-        const double microseconds =
-            static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000;
+    }
+    else {
+        std::vector<uint> globalH;
+        uint invalidElemID;
+        fp_t tInv;
+        span<fp_t> elements(
+            nodes.data() + args.firstElem*nCoordPerElem,
+            nCoordPerElem*nElements
+        );
+        const fp_t minT =
+            checker.maxTimeStep(elements, &globalH, &invalidElemID, &tInv);
         if (out) {
-            *out << e << SEP;
-            *out << fp_fmt << t << SEP;
-            *out << fp_fmt << tInv << SEP;
-            *out << info.spaceDepth << SEP;
-            *out << info.timeDepth << SEP;
-            *out << microseconds << SEP;
-            for (uint u : h) *out << u << ' ';
-            *out << SEP;
-            *out << info.description() << std::endl;
+            *out << "global info " << std::endl;
+            *out << "max valid step: " << minT << std::endl;
+            *out << "invId: " << invalidElemID << std::endl;
+            *out << "time of inversion: " << tInv << std::endl;
+            *out << "hierarchy: ";
+            for (uint u : globalH) *out << u << ' ';
+            *out << std::endl;
         }
-        timer.reset();
     }
     return minT;
 }
