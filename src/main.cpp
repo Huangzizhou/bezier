@@ -92,14 +92,12 @@ element_validity::fp_t processData(
             nodes.data() + args.firstElem*nCoordPerElem,
             nCoordPerElem*nElements
         );
-        const fp_t minT =
-            checker.maxTimeStep(elements, &globalH, &invalidElemID, &tInv);
+        minT = checker.maxTimeStep(elements, &globalH, &invalidElemID, &tInv);
         if (out) {
-            *out << "global info " << std::endl;
-            *out << "max valid step: " << minT << std::endl;
-            *out << "invId: " << invalidElemID << std::endl;
-            *out << "time of inversion: " << tInv << std::endl;
-            *out << "hierarchy: ";
+            *out << "Global info " << std::endl;
+            *out << "Invalid element ID: " << invalidElemID << std::endl;
+            *out << "Space subdivision hierarchy: ";
+            *out << "Certified time of inversion: " << tInv << std::endl;
             for (uint u : globalH) *out << u << ' ';
             *out << std::endl;
         }
@@ -175,7 +173,7 @@ int main(int argc, char** argv) {
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
     std::cout << " Done." << std::endl;
-    std::cout << "Max time step: " << mtt << std::endl;
+    std::cout << "Maximum valid time step: " << mtt << std::endl;
 
     return 0;
 }
