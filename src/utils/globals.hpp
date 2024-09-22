@@ -25,9 +25,6 @@ namespace element_validity {
 	const auto fp_fmt =
 		std::setprecision(std::numeric_limits<fp_t>::max_digits10);
 
-	// type for timers
-	using chrono_t = double;
-
 	// validity values
 	enum class Validity {valid, invalid, uncertain};
 
