@@ -53,6 +53,7 @@ void lagrangeVectorT<3, 3, 1>(const span<const fp_t> cpFP, const span<Interval> 
 	out[1] = (-tmp_10*tmp_14 + tmp_15*tmp_16)*((R(2, 3))*cp[18] + (R(1, 3))*cp[19] - tmp_8) + (tmp_10*tmp_17 - tmp_16*tmp_18)*((R(2, 3))*cp[12] + (R(1, 3))*cp[13] - tmp_8) + (tmp_14*tmp_18 - tmp_15*tmp_17)*((R(2, 3))*cp[6] + (R(1, 3))*cp[7] - tmp_8);
 	out[2] = (-tmp_21*tmp_25 + tmp_26*tmp_27)*((R(1, 3))*cp[18] + (R(2, 3))*cp[19] - tmp_19) + (tmp_21*tmp_28 - tmp_27*tmp_29)*((R(1, 3))*cp[12] + (R(2, 3))*cp[13] - tmp_19) + (tmp_25*tmp_29 - tmp_26*tmp_28)*((R(1, 3))*cp[6] + (R(2, 3))*cp[7] - tmp_19);
 	out[3] = (cp[13] + tmp_30)*(tmp_32*tmp_34 - tmp_35*tmp_36) + (cp[19] + tmp_30)*(-tmp_32*tmp_37 + tmp_36*tmp_38) + (-cp[1] + cp[7])*(-tmp_34*tmp_38 + tmp_35*tmp_37);
-}}
+}
+}
 #undef R
 #undef I

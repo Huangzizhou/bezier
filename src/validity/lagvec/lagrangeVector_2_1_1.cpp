@@ -24,6 +24,7 @@ void lagrangeVector<2, 1, 1>(const span<const fp_t> cpFP, const span<Interval> o
 	out[1] = tmp_2*tmp_7 - tmp_4*tmp_6;
 	out[2] = tmp_0*tmp_8 - tmp_5*tmp_9;
 	out[3] = -tmp_6*tmp_9 + tmp_7*tmp_8;
-}}
+}
+}
 #undef R
 #undef I

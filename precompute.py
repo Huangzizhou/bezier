@@ -14,17 +14,16 @@ COMBINATIONS = [
 	(3,3,4),
 ]
 
-# OPTIONAL_OPTIMIZE = [(3,1,2),(3,3,4)]
-OPTIONAL_OPTIMIZE = []
+EXPRESSION_CHUNK_SIZE = {(3,3,4) : 50}
 
 DRY_RUN = True
 POLYFEM_ORDER = True
-DYNAMIC = True
-STATIC = True
+DYNAMIC = False
+STATIC = False
 
 WRITE_CMAKE = False						
-WRITE_MATRICES = True
-WRITE_LAGVEC = True
+WRITE_MATRICES = False
+WRITE_LAGVEC = False
 WRITE_CORNERS = False
 WRITE_LAGPOLY = True
 
@@ -477,49 +476,119 @@ def unique_rational_coefficients(polynomials):
 	
 	return list(unique_coeffs)
 
+## Subdivide a list in chunks
+def chunkize(data, target_size):
+	assert(target_size > 0)
+	L = len(data)
+	num_chunks = (L-1) // target_size + 1
+	chunk_size = L // num_chunks
+	leftovers = L - (num_chunks * chunk_size)
+	assert leftovers < num_chunks
+	chunks = []
+	for i in range(leftovers):
+		chunks.append(data[i*(chunk_size+1) : (i+1)*(chunk_size+1)])
+	offset = leftovers * (chunk_size+1)
+	for i in range(num_chunks-leftovers):
+		chunks.append(data[offset + i*chunk_size : offset + (i+1)*chunk_size])
+	return chunks
+
 ## Format lag vector ##
 def lag_vec_formatted(file, n, s, p, dynamic):
-	optopt = (n,s,p) in OPTIONAL_OPTIMIZE
+	my_ccode = MyCodePrinter().doprint
 	func_name = 'lagrangeVector' + ('T' if dynamic else '')
-	expr = lagrange_vector(n, s, p, 'cp', dynamic)
-	if (__debug__): print('CSE start')
-	temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
-	if (__debug__): print('CSE end')
 
-	# if (__debug__): print('Unique coefficients listing start')
-	# temp_coef = unique_rational_coefficients(expr)
-	# if (__debug__): print('Unique coefficients listing end')
+	NCP = len(index_set(n,s,p)) * n
+	if dynamic: NCP *= 2
+
+	expr = lagrange_vector(n, s, p, 'cp', dynamic)
+	chunk_size = len(expr)
+	if (n,s,p) in EXPRESSION_CHUNK_SIZE:
+		chunk_size = EXPRESSION_CHUNK_SIZE[(n,s,p)]
+	chunks = chunkize(expr, chunk_size)
+
+	if (len(chunks) > 1):
+		if (__debug__): print(f'Splitting vector in {len(chunks)} chunks')
+		if (__debug__): print(f'Writing chunk function declarations')
+		for c in range(len(chunks)):
+			file.write(
+				f'void chunk_{n}_{s}_{p}_{c}' +
+				f'(const std::array<Interval, {NCP}> &cp, ' + 
+				'const span<Interval> &out);\n'
+			)
+		file.write('\n')
+
 
 	file.write(
 		'template<>\n' +
 		f'void {func_name}<{n}, {s}, {p}>' +
 		'(const span<const fp_t> cpFP, const span<Interval> out) {'
 	)
-	NCP = len(index_set(n,s,p)) * n
-	if dynamic: NCP *= 2
 	file.write(f'\n\tassert(cpFP.size() == {NCP});')
 	file.write(f'\n\tassert(out.size() == {len(expr)});')
-	assert len(expr) == len(temp_expr[1])
 	file.write(f'\n\tstd::array<Interval, {NCP}> cp;')
 	file.write(f'\n\tfor (uint i = 0; i < {NCP}; ++i) cp[i] = cpFP[i];')
 	if TO_ORIGIN:
 		file.write(f'\n\tfor (int i = S-1; i >= 0; --i) cp[i] -= cp[i%{n}];')
-	my_ccode = MyCodePrinter().doprint
-	if (__debug__): print('Writing temporaries')
-	# for qq in temp_coef:
-	# 	num, den = qq.as_numer_denom()
-	# 	file.write(f'\n\tI R_{num}_{den} = R({num},{den});')
-	for helper in temp_expr[0]:
-		file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
-	if (__debug__): print('Writing expressions')
-	for i,result in enumerate(temp_expr[1]):
-		file.write('\n\t' + my_ccode(result, f'out[{i}]'))
-	if (__debug__): print('Finished writing')
-	file.write('\n}')
+
+	if (len(chunks) == 1):
+		if (__debug__): print('CSE start')
+		temp_expr = cse(expr, numbered_symbols('tmp_'), order='canonical')
+		if (__debug__): print('CSE end')
+		assert len(expr) == len(temp_expr[1])
+
+		# if (__debug__): print('Unique coefficients listing start')
+		# temp_coef = unique_rational_coefficients(expr)
+		# if (__debug__): print('Unique coefficients listing end')
+
+		if (__debug__): print('Writing temporaries')
+		# for qq in temp_coef:
+		# 	num, den = qq.as_numer_denom()
+		# 	file.write(f'\n\tI R_{num}_{den} = R({num},{den});')
+		for helper in temp_expr[0]:
+			file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
+		if (__debug__): print('Writing expressions')
+		for c,result in enumerate(temp_expr[1]):
+			file.write('\n\t' + my_ccode(result, f'out[{c}]'))
+		if (__debug__): print('Finished writing')
+		file.write('\n}\n')
+	else:
+		for c in range(len(chunks)):
+			file.write(f'\n\tchunk_{n}_{s}_{p}_{c}(cp, out);')
+		file.write('\n}\n')
+		offset = 0
+		for c,chunk in enumerate(chunks):
+			if (__debug__): print(f'Processing chunk {c}')
+			file.write(
+				f'\nvoid chunk_{n}_{s}_{p}_{c}' +
+				f'(const std::array<Interval, {NCP}> &cp, ' + 
+				'const span<Interval> &out) {'
+			)
+
+			if (__debug__): print('CSE start')
+			temp_expr = cse(chunk, numbered_symbols('tmp_'), order='canonical')
+			if (__debug__): print('CSE end')
+			len(chunk) == len(temp_expr[1])
+
+			# if (__debug__): print('Unique coefficients listing start')
+			# temp_coef = unique_rational_coefficients(expr)
+			# if (__debug__): print('Unique coefficients listing end')
+
+			if (__debug__): print('Writing temporaries')
+			# for qq in temp_coef:
+			# 	num, den = qq.as_numer_denom()
+			# 	file.write(f'\n\tI R_{num}_{den} = R({num},{den});')
+			for helper in temp_expr[0]:
+				file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
+			if (__debug__): print('Writing expressions')
+			for i,result in enumerate(temp_expr[1]):
+				file.write('\n\t' + my_ccode(result, f'out[{offset+i}]'))
+			if (__debug__): print(f'Finished writing chunk {c}')
+			file.write('\n}\n')
+			offset += len(chunk)
+
 
 ## Format lag basis ##
 def lag_eval_formatted(file, n, s, p, dynamic):
-	optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 	func_name = 'lagrangeEvaluate' + ('T' if dynamic else '')
 	indices = index_set_J(n, s, p, dynamic)
 	lag = [lagrange_J(n, s, p, k, 'x') for k in indices]
@@ -620,24 +689,14 @@ if WRITE_LAGVEC:
 	path = lambda n,s,p,d: f'src/validity/lagvec{"T" if d else ""}/lagrangeVector{"T" if d else ""}_{n}_{s}_{p}.cpp'
 	if DRY_RUN: path = lambda n,s,p,d: '/dev/null'
 	for n,s,p in COMBINATIONS:
-		optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 		if DYNAMIC:
 			with open(path(n,s,p,True), 'w') as f:
 				f.write('#include "../lagrangeVector.hpp"\n\n')
 				f.write('#define R(p, q) (Interval(p) / q)\n')
 				f.write('#define I const Interval \n\n')
 				f.write('namespace element_validity {\n')
-				if optopt:
-				 	f.write('#ifdef LARGE_FILES_O0\n')
-				 	f.write('#pragma GCC push_options\n')
-				 	f.write('#pragma GCC optimize ("0")\n')
-				 	f.write('#endif\n')
 				lag_vec_formatted(f,n,s,p,True)
 				f.write('}\n')
-				if optopt:
-				 	f.write('#ifdef LARGE_FILES_O0\n')
-				 	f.write('#pragma GCC pop_options\n')
-				 	f.write('#endif\n')
 				f.write('#undef R\n')
 				f.write('#undef I')
 		if STATIC:
@@ -646,17 +705,8 @@ if WRITE_LAGVEC:
 				f.write('#define R(p, q) (Interval(p) / q)\n')
 				f.write('#define I const Interval \n\n')
 				f.write('namespace element_validity {\n')
-				if optopt:
-				 	f.write('#ifdef LARGE_FILES_O0\n')
-				 	f.write('#pragma GCC push_options\n')
-				 	f.write('#pragma GCC optimize ("-O0")\n')
-				 	f.write('#endif\n')
 				lag_vec_formatted(f,n,s,p,False)
 				f.write('}\n')
-				if optopt:
-				 	f.write('#ifdef LARGE_FILES_O0\n')
-				 	f.write('#pragma GCC pop_options\n')
-				 	f.write('#endif\n')
 				f.write('#undef R\n')
 				f.write('#undef I')
 	print('Done writing Lagrange vectors.')
@@ -668,7 +718,6 @@ if WRITE_LAGPOLY:
 	path = lambda n,s,p,d: f'src/validity/lageval{"T" if d else ""}/lagrangeEvaluate{"T" if d else ""}_{n}_{s}_{p}.cpp'
 	if DRY_RUN: path = lambda n,s,p,d: '/dev/null'
 	for n,s,p in COMBINATIONS:
-		optopt = (n,s,p) in OPTIONAL_OPTIMIZE
 		# if DYNAMIC:
 		# 	with open(path(n,s,p,True), 'w') as f:
 		# 		f.write('#include "../lagrangeEvaluate.hpp"\n\n')

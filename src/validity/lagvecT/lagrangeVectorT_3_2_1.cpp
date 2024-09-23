@@ -270,6 +270,7 @@ void lagrangeVectorT<3, 2, 1>(const span<const fp_t> cpFP, const span<Interval> 
 	out[33] = tmp_172*tmp_217 + tmp_175*(-tmp_165*tmp_215 + tmp_171*tmp_216) + tmp_176*(-tmp_167*tmp_216 + tmp_169*tmp_215);
 	out[34] = tmp_184*tmp_220 + tmp_187*(-tmp_177*tmp_218 + tmp_183*tmp_219) + tmp_188*(-tmp_179*tmp_219 + tmp_181*tmp_218);
 	out[35] = tmp_189*(tmp_191*tmp_221 - tmp_193*tmp_222) + tmp_195*(-tmp_196*tmp_221 + tmp_198*tmp_222) + tmp_199*tmp_223;
-}}
+}
+}
 #undef R
 #undef I

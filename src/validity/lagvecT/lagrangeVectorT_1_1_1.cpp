@@ -12,6 +12,7 @@ void lagrangeVectorT<1, 1, 1>(const span<const fp_t> cpFP, const span<Interval> 
 	for (uint i = 0; i < 4; ++i) cp[i] = cpFP[i];
 	out[0] = -cp[0] + cp[2];
 	out[1] = -cp[1] + cp[3];
-}}
+}
+}
 #undef R
 #undef I

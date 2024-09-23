@@ -29,7 +29,6 @@ target_link_libraries(bezier PRIVATE bezier_interface)
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(UNIT_TESTS "Run unit tests" ON)
-option(LARGE_FILES_O0 "Disable optimization for some complicated functions" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
 
@@ -38,10 +37,6 @@ option(EXPERIM_NAIVE_SUBDIV "Use a naive subdivision scheme" OFF)
 option(EXPERIM_FLOAT_ARITHMETIC "Use non-robust floating point arithmetic" OFF)
 
 # Add definitions
-if(LARGE_FILES_O0)
-    target_compile_definitions(bezier PRIVATE LARGE_FILES_O0)
-endif()
-
 if(EXPERIM_NAIVE_SUBDIV)
     add_compile_definitions(EXPERIM_NAIVE_SUBDIV)
 endif()

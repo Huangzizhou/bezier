@@ -59,6 +59,7 @@ void lagrangeVector<3, 2, 1>(const span<const fp_t> cpFP, const span<Interval> o
 	out[6] = tmp_1*(-tmp_37*tmp_4 + tmp_38*tmp_7) + tmp_16*tmp_39 + tmp_9*(tmp_11*tmp_37 - tmp_13*tmp_38);
 	out[7] = tmp_18*(tmp_20*tmp_37 - tmp_22*tmp_38) + tmp_23*(-tmp_24*tmp_37 + tmp_25*tmp_38) + tmp_26*tmp_39;
 	out[8] = tmp_31*tmp_39 + tmp_32*(-tmp_28*tmp_37 + tmp_29*tmp_38) + tmp_33*(-tmp_27*tmp_38 + tmp_30*tmp_37);
-}}
+}
+}
 #undef R
 #undef I

@@ -1385,6 +1385,7 @@ void lagrangeVectorT<2, 2, 4>(const span<const fp_t> cpFP, const span<Interval> 
 	out[81] = ((R(25, 3))*cp[4] + tmp_1281)*(-cp[10] + 16*cp[26] + (R(16, 3))*cp[34] - tmp_1282 - tmp_1283 - tmp_462 + tmp_5 - tmp_929) - (16*cp[24] + (R(16, 3))*cp[32] - cp[8] + tmp_1281 + tmp_464)*(cp[2] + (R(25, 3))*cp[6] - tmp_1282 - tmp_1283 + tmp_5);
 	out[82] = ((R(25, 6))*cp[4] + (R(25, 6))*cp[5] + tmp_1284)*(8*cp[26] + 8*cp[27] - tmp_1146 - tmp_1147 - tmp_1169 - tmp_1170 - tmp_1285 - tmp_1286 - tmp_21 + tmp_32 + tmp_33 - tmp_469 - tmp_470 - tmp_940) - (8*cp[24] + 8*cp[25] + tmp_1200 + tmp_1207 + tmp_1284 - tmp_27 - tmp_28 + tmp_479)*((R(25, 6))*cp[6] + (R(25, 6))*cp[7] + tmp_1198 + tmp_1203 - tmp_1285 - tmp_1286 + tmp_34 + tmp_473);
 	out[83] = (cp[1] + (R(25, 3))*cp[5] - tmp_1287 - tmp_1288 + tmp_40)*(-cp[11] + 16*cp[27] + (R(16, 3))*cp[35] - tmp_1289 - tmp_1290 + tmp_42 - tmp_483 - tmp_950) - (cp[3] + (R(25, 3))*cp[7] - tmp_1289 - tmp_1290 + tmp_42)*(16*cp[25] + (R(16, 3))*cp[33] - cp[9] - tmp_1287 - tmp_1288 + tmp_40 - tmp_481 - tmp_945);
-}}
+}
+}
 #undef R
 #undef I

@@ -11,6 +11,7 @@ void lagrangeVector<2, 2, 1>(const span<const fp_t> cpFP, const span<Interval> o
 	std::array<Interval, 6> cp;
 	for (uint i = 0; i < 6; ++i) cp[i] = cpFP[i];
 	out[0] = (-cp[0] + cp[2])*(-cp[1] + cp[5]) - (-cp[0] + cp[4])*(-cp[1] + cp[3]);
-}}
+}
+}
 #undef R
 #undef I

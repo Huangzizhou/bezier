@@ -1716,6 +1716,7 @@ void lagrangeVectorT<3, 3, 2>(const span<const fp_t> cpFP, const span<Interval> 
 	out[77] = (-tmp_1601*tmp_1602 + tmp_1603*tmp_1605)*(tmp_1142 + tmp_1600 + tmp_613) + (tmp_1601*tmp_1606 - tmp_1603*tmp_1607)*(tmp_1150 + tmp_1600 + tmp_587) + (tmp_1602*tmp_1607 - tmp_1605*tmp_1606)*(2*cp[6] + tmp_1599 + tmp_558);
 	out[78] = (-tmp_1610*tmp_1611 + tmp_1612*tmp_1614)*(tmp_1156 + tmp_1609 + tmp_648 + tmp_649) + (tmp_1610*tmp_1615 - tmp_1612*tmp_1616)*(tmp_1113 + tmp_1609 + tmp_629 + tmp_877) + (tmp_1611*tmp_1616 - tmp_1614*tmp_1615)*(2*cp[7] + tmp_1608 + tmp_435);
 	out[79] = (-tmp_1618*tmp_1620 + tmp_1621*tmp_1623)*(-cp[19] + 4*cp[49] - tmp_1617) + (tmp_1618*tmp_1624 - tmp_1621*tmp_1625)*(-cp[13] + 4*cp[31] - tmp_1617) + (tmp_1620*tmp_1625 - tmp_1623*tmp_1624)*(cp[1] + 3*cp[7] + tmp_203);
-}}
+}
+}
 #undef R
 #undef I
