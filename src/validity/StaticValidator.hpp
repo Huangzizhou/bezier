@@ -37,8 +37,9 @@ class StaticValidator : public Validator {
 		Info *info = nullptr
 	) const;
 
-	Validity isValidStart(
+	Validity isValidAtTime(
 		span<const fp_t> cp,
+		fp_t time,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		std::vector<uint> *invalidList = nullptr,
@@ -95,8 +96,9 @@ Validity StaticValidator<n,s,p>::isValid(
 }
 
 template<uint n, uint s, uint p>
-Validity StaticValidator<n,s,p>::isValidStart(
+Validity StaticValidator<n,s,p>::isValidAtTime(
 	span<const fp_t> cp,
+	fp_t time,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
 	std::vector<uint> *invalidList,
@@ -104,7 +106,9 @@ Validity StaticValidator<n,s,p>::isValidStart(
 ) const {
 	std::vector<fp_t> f0;
 	f0.reserve(cp.size() / 2);
-	for (uint i = 0; i < cp.size(); i+=2) f0.push_back(cp[i]);
+	const fp_t time1m = 1.-time;
+	for (uint i = 0; i < cp.size(); i+=2)
+		f0.push_back(time1m*cp[i] + time*cp[i+1]);
 	return isValid(f0, adaptiveHierarchy, invalidElemID, invalidList, info);
 }
 

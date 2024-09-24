@@ -55,7 +55,7 @@ element_validity::fp_t processData(
             Validator::Info info;
             fp_t tInv;
             if (args.preCheck) {
-                const Validity v0 = sChecker.isValidStart(element);
+                const Validity v0 = sChecker.isValidAtTime(element, 0);
                 if (v0 != Validity::valid) {
                     if (v0 == Validity::uncertain)
                         std::cerr <<
