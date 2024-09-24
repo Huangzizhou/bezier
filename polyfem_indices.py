@@ -232,9 +232,9 @@ def index_set_polyfem(n, s, p):
 			(2,1,1),
 			(1,1,2),
 			(1,2,1),
-			(0,1,1),
-			(0,1,2),
 			(0,2,1),
+			(0,1,2),
+			(0,1,1),
 			(1,1,1),
 		]
 	else: raise Exception(f'Unknown signature ({n}, {s}, {p})')
