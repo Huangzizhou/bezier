@@ -2363,6 +2363,5 @@ Interval lagrangeEvaluate<3, 3, 4>(
 	acc += lagVec[219] * (-R(194643, 160)*tmp_11 - R(6849, 280)*tmp_19 + (R(265779, 1120))*tmp_29 - R(4782969, 1120)*tmp_34 - R(531441, 80)*tmp_37 + (R(2302911, 320))*tmp_41 + tmp_5 + (R(2337903, 640))*tmp_6 + x[0]);
 	return acc;
 }}
-
 #undef R
 #undef I
