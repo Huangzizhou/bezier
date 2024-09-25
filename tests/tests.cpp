@@ -197,3 +197,84 @@ TEST_CASE("Exact zero at corner quadratic tet MTS") {
 	CHECK(mts < 1);
 	CHECK(mts > 1-prec);
 }
+
+TEST_CASE("Standard cubic tetrahedron") {
+	StaticValidator<3, 3, 3> checker;
+	const std::vector<double> cp = {
+		0.0, 0.0, 0.0,
+		3.0, 0.0, 0.0,
+		0.0, 3.0, 0.0,
+		0.0, 0.0, 3.0,
+		1.0, 0.0, 0.0,
+		2.0, 0.0, 0.0,
+		2.0, 1.0, 0.0,
+		1.0, 2.0, 0.0,
+		0.0, 2.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 2.0,
+		2.0, 0.0, 1.0,
+		1.0, 0.0, 2.0,
+		0.0, 2.0, 1.0,
+		0.0, 1.0, 2.0,
+		1.0, 1.0, 0.0,
+		1.0, 0.0, 1.0,
+		1.0, 1.0, 1.0,
+		0.0, 1.0, 1.0,
+	};
+	std::vector<unsigned> ah;
+	const Validity val = checker.isValid(cp, &ah);
+	CHECK(val == Validity::valid);
+	JacobianEvaluator<3, 3, 3> evaluator(cp);
+	CHECK(almostEq(evaluator.eval({0,0,0}), 27.));
+	CHECK(almostEq(evaluator.eval({1,0,0}), 27.));
+	CHECK(almostEq(evaluator.eval({.1,.1,.1}), 27.));
+}
+
+TEST_CASE("Standard quartic tetrahedron") {
+	StaticValidator<3, 3, 4> checker;
+	const std::vector<double> cp = {
+		0.0, 0.0, 0.0, 
+		4.0, 0.0, 0.0, 
+		0.0, 4.0, 0.0, 
+		0.0, 0.0, 4.0, 
+		1.0, 0.0, 0.0, 
+		2.0, 0.0, 0.0, 
+		3.0, 0.0, 0.0, 
+		3.0, 1.0, 0.0, 
+		2.0, 2.0, 0.0, 
+		1.0, 3.0, 0.0, 
+		0.0, 3.0, 0.0, 
+		0.0, 2.0, 0.0, 
+		0.0, 1.0, 0.0, 
+		0.0, 0.0, 1.0, 
+		0.0, 0.0, 2.0, 
+		0.0, 0.0, 3.0, 
+		3.0, 0.0, 1.0, 
+		2.0, 0.0, 2.0, 
+		1.0, 0.0, 3.0, 
+		0.0, 3.0, 1.0, 
+		0.0, 2.0, 2.0, 
+		0.0, 1.0, 3.0, 
+		1.0, 1.0, 0.0, 
+		1.0, 2.0, 0.0, 
+		2.0, 1.0, 0.0, 
+		1.0, 0.0, 1.0, 
+		1.0, 0.0, 2.0, 
+		2.0, 0.0, 1.0, 
+		2.0, 1.0, 1.0, 
+		1.0, 1.0, 2.0, 
+		1.0, 2.0, 1.0, 
+		0.0, 2.0, 1.0, 
+		0.0, 1.0, 2.0, 
+		0.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0, 
+	};
+	std::vector<unsigned> ah;
+	const Validity val = checker.isValid(cp, &ah);
+	CHECK(val == Validity::valid);
+	JacobianEvaluator<3, 3, 4> evaluator(cp);
+	CHECK(almostEq(evaluator.eval({0,0,0}), 64.));
+	CHECK(almostEq(evaluator.eval({1,0,0}), 64.));
+	CHECK(almostEq(evaluator.eval({.1,.1,.1}), 64.));
+}

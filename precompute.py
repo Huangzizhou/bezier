@@ -14,6 +14,9 @@ COMBINATIONS = [
 	(3,3,3),
 	(3,3,4),
 ]
+COMBINATIONS = [
+	(3,3,4),
+]
 
 EXPRESSION_CHUNK_SIZE = {(3,3,4) : 50}
 
@@ -23,7 +26,7 @@ DYNAMIC = True
 STATIC = True
 
 WRITE_MATRICES = False
-WRITE_LAGVEC = True
+WRITE_LAGVEC = False
 WRITE_CORNERS = False
 WRITE_LAGPOLY = True
 
