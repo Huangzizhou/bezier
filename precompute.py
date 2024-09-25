@@ -1,5 +1,6 @@
 ### Bezier subdivision pre-computations ###
 from polyfem_indices import index_set_polyfem
+import os
 
 ## Setup ##
 COMBINATIONS = [
@@ -16,14 +17,13 @@ COMBINATIONS = [
 
 EXPRESSION_CHUNK_SIZE = {(3,3,4) : 50}
 
-DRY_RUN = True
+DRY_RUN = False
 POLYFEM_ORDER = True
-DYNAMIC = False
-STATIC = False
+DYNAMIC = True
+STATIC = True
 
-WRITE_CMAKE = False						
 WRITE_MATRICES = False
-WRITE_LAGVEC = False
+WRITE_LAGVEC = True
 WRITE_CORNERS = False
 WRITE_LAGPOLY = True
 
@@ -496,6 +496,7 @@ def chunkize(data, target_size):
 def lag_vec_formatted(file, n, s, p, dynamic):
 	my_ccode = MyCodePrinter().doprint
 	func_name = 'lagrangeVector' + ('T' if dynamic else '')
+	cfunc_name = 'chunk' + ('T' if dynamic else '')
 
 	NCP = len(index_set(n,s,p)) * n
 	if dynamic: NCP *= 2
@@ -506,16 +507,17 @@ def lag_vec_formatted(file, n, s, p, dynamic):
 		chunk_size = EXPRESSION_CHUNK_SIZE[(n,s,p)]
 	chunks = chunkize(expr, chunk_size)
 
+	f.write('#include "../lagrangeVector.hpp"\n\n')
+	f.write('#define R(p, q) (Interval(p) / q)\n')
+	f.write('#define I const Interval \n\n')
+
 	if (len(chunks) > 1):
 		if (__debug__): print(f'Splitting vector in {len(chunks)} chunks')
-		if (__debug__): print(f'Writing chunk function declarations')
-		for c in range(len(chunks)):
-			file.write(
-				f'void chunk_{n}_{s}_{p}_{c}' +
-				f'(const std::array<Interval, {NCP}> &cp, ' + 
-				'const span<Interval> &out);\n'
-			)
+		if (__debug__): print(f'Writing chunk function imports')
+		file.write(f'#include "{func_name}_{n}_{s}_{p}_chunks.hpp"\n')
 		file.write('\n')
+
+	f.write('namespace element_validity {\n')
 
 
 	file.write(
@@ -550,41 +552,75 @@ def lag_vec_formatted(file, n, s, p, dynamic):
 		for c,result in enumerate(temp_expr[1]):
 			file.write('\n\t' + my_ccode(result, f'out[{c}]'))
 		if (__debug__): print('Finished writing')
-		file.write('\n}\n')
 	else:
 		for c in range(len(chunks)):
-			file.write(f'\n\tchunk_{n}_{s}_{p}_{c}(cp, out);')
-		file.write('\n}\n')
+			file.write(f'\n\t{cfunc_name}_{n}_{s}_{p}_{c}(cp, out);')
+
+		# Create new files to write chunks
+		chunk_file_directory = os.path.dirname(f.name)
+		chunk_file_base_name, chunk_file_extension = \
+			os.path.splitext(os.path.basename(f.name))
+		
+		chunks_head_name = os.path.join(chunk_file_directory,
+			f"{chunk_file_base_name}_chunks.hpp")
+
+		with open(chunks_head_name, 'w') as cfile:
+			cfile.write(
+				'#pragma once\n' +
+				'#include "numbers/Interval.hpp"\n' +
+				'#include <array>\n' +
+				'namespace element_validity {\n'
+			)
+			for c,chunk in enumerate(chunks):
+				cfile.write(f'void {cfunc_name}_{n}_{s}_{p}_{c}' +
+					f'(const std::array<Interval, {NCP}> &cp, ' + 
+					'const span<Interval> &out);\n')
+			cfile.write('}\n')
+			
+
 		offset = 0
 		for c,chunk in enumerate(chunks):
 			if (__debug__): print(f'Processing chunk {c}')
-			file.write(
-				f'\nvoid chunk_{n}_{s}_{p}_{c}' +
-				f'(const std::array<Interval, {NCP}> &cp, ' + 
-				'const span<Interval> &out) {'
-			)
+			chunk_file_name = os.path.join(chunk_file_directory,
+				f"{chunk_file_base_name}_chunk{c}{chunk_file_extension}")
+			with open(chunk_file_name, 'w') as cfile:
+				cfile.write(
+					f'#include "{chunk_file_base_name}_chunks.hpp"\n' +
+					'#define R(p, q) (Interval(p) / q)\n' +
+					'#define I const Interval \n\n' +
+					'namespace element_validity {\n' +
+					f'void {cfunc_name}_{n}_{s}_{p}_{c}' +
+					f'(const std::array<Interval, {NCP}> &cp, ' + 
+					'const span<Interval> &out) {'
+				)
 
-			if (__debug__): print('CSE start')
-			temp_expr = cse(chunk, numbered_symbols('tmp_'), order='canonical')
-			if (__debug__): print('CSE end')
-			len(chunk) == len(temp_expr[1])
+				if (__debug__): print('CSE start')
+				temp_expr = cse(chunk, numbered_symbols('tmp_'), order='canonical')
+				if (__debug__): print('CSE end')
+				len(chunk) == len(temp_expr[1])
 
-			# if (__debug__): print('Unique coefficients listing start')
-			# temp_coef = unique_rational_coefficients(expr)
-			# if (__debug__): print('Unique coefficients listing end')
+				# if (__debug__): print('Unique coefficients listing start')
+				# temp_coef = unique_rational_coefficients(expr)
+				# if (__debug__): print('Unique coefficients listing end')
 
-			if (__debug__): print('Writing temporaries')
-			# for qq in temp_coef:
-			# 	num, den = qq.as_numer_denom()
-			# 	file.write(f'\n\tI R_{num}_{den} = R({num},{den});')
-			for helper in temp_expr[0]:
-				file.write('\n\tI ' + my_ccode(helper[1], helper[0]))
-			if (__debug__): print('Writing expressions')
-			for i,result in enumerate(temp_expr[1]):
-				file.write('\n\t' + my_ccode(result, f'out[{offset+i}]'))
-			if (__debug__): print(f'Finished writing chunk {c}')
-			file.write('\n}\n')
+				if (__debug__): print('Writing temporaries')
+				# for qq in temp_coef:
+				# 	num, den = qq.as_numer_denom()
+				# 	cfile.write(f'\n\tI R_{num}_{den} = R({num},{den});')
+				for helper in temp_expr[0]:
+					cfile.write('\n\tI ' + my_ccode(helper[1], helper[0]))
+				if (__debug__): print('Writing expressions')
+				for i,result in enumerate(temp_expr[1]):
+					cfile.write('\n\t' + my_ccode(result, f'out[{offset+i}]'))
+				cfile.write('\n}\n}\n')
+				cfile.write('#undef R\n')
+				cfile.write('#undef I')
+			if (__debug__): print(f'Finished writing chunk {c} to {chunk_file_name}')
 			offset += len(chunk)
+	f.write('\n}\n}\n')
+	f.write('#undef R\n')
+	f.write('#undef I')
+			
 
 
 ## Format lag basis ##
@@ -641,24 +677,24 @@ def corners_formatted(n, s, p, dynamic):
 		'{ v = {' + ','.join(ind) + '}; }'
 
 ## Write ##
-if WRITE_CMAKE and not DRY_RUN:
-	comb = [
-		('lagvec', 'lagrangeVector'),
-		('transmat', 'transMatrices'),
-		('lagvecT', 'lagrangeVectorT'),
-		('transmatT', 'transMatricesT'),
-		('lageval', 'lagrangeEvaluate'),
-		# ('lagevalT', 'lagrangeEvaluateT'),
-	]
-	for cc in comb:
-		with open(f'src/validity/{cc[0]}/CMakeLists.txt', 'w') as f:
-			f.write('set(SOURCES\n')
-			for n,s,p in COMBINATIONS:
-				f.write(f'\t{cc[1]}_{n}_{s}_{p}.cpp\n')
-			f.write(')\n\n')
+# if WRITE_CMAKE and not DRY_RUN:
+# 	comb = [
+# 		('lagvec', 'lagrangeVector'),
+# 		('transmat', 'transMatrices'),
+# 		('lagvecT', 'lagrangeVectorT'),
+# 		('transmatT', 'transMatricesT'),
+# 		('lageval', 'lagrangeEvaluate'),
+# 		# ('lagevalT', 'lagrangeEvaluateT'),
+# 	]
+# 	for cc in comb:
+# 		with open(f'src/validity/{cc[0]}/CMakeLists.txt', 'w') as f:
+# 			f.write('set(SOURCES\n')
+# 			for n,s,p in COMBINATIONS:
+# 				f.write(f'\t{cc[1]}_{n}_{s}_{p}.cpp\n')
+# 			f.write(')\n\n')
 
-			f.write('source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})\n')
-			f.write('target_sources(bezier PRIVATE ${SOURCES})')
+# 			f.write('source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})\n')
+# 			f.write('target_sources(bezier PRIVATE ${SOURCES})')
 
 if WRITE_MATRICES:
 	print('Writing matrices...')
@@ -691,24 +727,10 @@ if WRITE_LAGVEC:
 	for n,s,p in COMBINATIONS:
 		if DYNAMIC:
 			with open(path(n,s,p,True), 'w') as f:
-				f.write('#include "../lagrangeVector.hpp"\n\n')
-				f.write('#define R(p, q) (Interval(p) / q)\n')
-				f.write('#define I const Interval \n\n')
-				f.write('namespace element_validity {\n')
 				lag_vec_formatted(f,n,s,p,True)
-				f.write('}\n')
-				f.write('#undef R\n')
-				f.write('#undef I')
 		if STATIC:
 			with open(path(n,s,p,False), 'w') as f:
-				f.write('#include "../lagrangeVector.hpp"\n\n')
-				f.write('#define R(p, q) (Interval(p) / q)\n')
-				f.write('#define I const Interval \n\n')
-				f.write('namespace element_validity {\n')
 				lag_vec_formatted(f,n,s,p,False)
-				f.write('}\n')
-				f.write('#undef R\n')
-				f.write('#undef I')
 	print('Done writing Lagrange vectors.')
 else:
 	print('Not writing Lagrange vectors.')
