@@ -35,13 +35,15 @@ public:
     T* data() const { return ptr; }
     std::size_t size() const { return sz; }
 
-    T& operator[](std::size_t index) const {
-        if (index >= sz) {
+    T& operator[](std::size_t i) const { return ptr[i]; }
+    
+    T& at(std::size_t i) const {
+        if (i >= sz) {
             throw std::out_of_range("Index out of range");
         }
-        return ptr[index];
+        return ptr[i];
     }
-    
+
     T* begin() { return ptr; }
     T* end() { return ptr + sz; }
     const T* begin() const { return ptr; }
