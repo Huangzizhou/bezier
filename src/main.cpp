@@ -92,13 +92,18 @@ element_validity::fp_t processData(
             nodes.data() + args.firstElem*nCoordPerElem,
             nCoordPerElem*nElements
         );
+        timer.start();
         minT = checker.maxTimeStep(elements, &globalH, &invalidElemID, &tInv);
+        timer.stop();
+        const double seconds =
+            static_cast<double>(timer.read<std::chrono::milliseconds>()) / 1000;
         if (out) {
             *out << "Global info " << std::endl;
+            *out << "Time in seconds: " << seconds << std::endl;
             *out << "Invalid element ID: " << invalidElemID << std::endl;
             *out << "Space subdivision hierarchy: ";
-            *out << "Certified time of inversion: " << tInv << std::endl;
             for (uint u : globalH) *out << u << ' ';
+            *out << "Certified time of inversion: " << tInv << std::endl;
             *out << std::endl;
         }
     }
