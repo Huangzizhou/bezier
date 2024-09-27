@@ -7,7 +7,6 @@ class StaticValidator : public Validator {
 	private:
 	static constexpr uint subdomains = 1 << n;
 	std::array<Matrix<Interval>, subdomains> matQ;
-	std::vector<uint> interpIndices;
 
 	Validity isValidElement(
 		span<const fp_t> cp,
@@ -104,12 +103,13 @@ Validity StaticValidator<n,s,p>::isValidAtTime(
 	std::vector<uint> *invalidList,
 	Info *info
 ) const {
-	std::vector<fp_t> f0;
-	f0.reserve(cp.size() / 2);
+	std::vector<fp_t> frame;
+	assert(cp.size() % 2 == 0);
+	frame.reserve(cp.size() / 2);
 	const fp_t time1m = 1.-time;
 	for (uint i = 0; i < cp.size(); i+=2)
-		f0.push_back(time1m*cp[i] + time*cp[i+1]);
-	return isValid(f0, adaptiveHierarchy, invalidElemID, invalidList, info);
+		frame.push_back(time1m*cp[i] + time*cp[i+1]);
+	return isValid(frame, adaptiveHierarchy, invalidElemID, invalidList, info);
 }
 
 //------------------------------------------------------------------------------

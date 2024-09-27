@@ -19,6 +19,7 @@ Settings::Settings(int argc, char** argv) {
 				break;
 			case 'g': globalQuery = true; break;
 			case 's': preCheck = true; break;
+			case 't': staticCheck = true; break;
 			case '?':
 				abort = true;
 				std::cout << helpString << std::endl;
@@ -38,7 +39,8 @@ Settings::Settings(int argc, char** argv) {
 			case 'n': numElem = std::stoi(s); break;
 			case 'o': resultsPath = s; break;
 			case 'p': precision = std::stod(s); break;
-			case 's': preCheckMaxIter = std::stoi(s); break;
+			case 's': staticCheckMaxIter = std::stoi(s); break;
+			case 't': staticCheckTime = std::stod(s); break;
 			default:
 				infoHelp = true;
 				std::cout << "Ignoring argument \"" << s << "\" because "
@@ -50,7 +52,7 @@ Settings::Settings(int argc, char** argv) {
 	}
 	if (filePath.size() == 0) infoHelp = true;
 	if (infoHelp && !abort) {
-		std::cout << "No input file. Use -? for help." << std::endl;
+		std::cout << "No input file provided. Use -? for help." << std::endl;
 		abort = true;
 	}
 }

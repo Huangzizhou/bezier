@@ -24,18 +24,19 @@ element_validity::fp_t processData(
 ) {
     using namespace element_validity;
     Timer timer;
-    ContinuousValidator<n, s, p> checker(args.numThreads);
-    checker.setPrecisionTarget(args.precision);
-    checker.setMaxSubdiv(args.maxIterations);
-    StaticValidator<n, s, p> sChecker(args.numThreads);
-    sChecker.setMaxSubdiv(args.preCheckMaxIter);
 
     const uint nCoordPerElem = nNodesPerElem*n*2;
     const uint nElements =
         args.numElem == 0 ? numberOfElements : args.numElem;
     const uint lastElem = args.firstElem + nElements;
-    
     fp_t minT = 1;
+
+    ContinuousValidator<n, s, p> checker(args.numThreads);
+    checker.setPrecisionTarget(args.precision);
+    checker.setMaxSubdiv(args.maxIterations);
+    StaticValidator<n, s, p> sChecker(args.numThreads);
+    sChecker.setMaxSubdiv(args.staticCheckMaxIter);
+    
     if (!args.globalQuery) {
         if (out)
             *out << "ID" << SEP
@@ -53,7 +54,6 @@ element_validity::fp_t processData(
             span<fp_t> element(nodes.data() + elemOffset, nCoordPerElem);
             std::vector<uint> h;
             Validator::Info info;
-            fp_t tInv;
             if (args.preCheck) {
                 const Validity v0 = sChecker.isValidAtTime(element, 0);
                 if (v0 != Validity::valid) {
@@ -64,15 +64,30 @@ element_validity::fp_t processData(
                     continue;
                 }
             }
-            timer.start();
-            const fp_t t = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
-            timer.stop();
-            minT = std::min(minT, t);
+            fp_t tInv = 2., mts = -1.;
+            if (args.staticCheck) {
+                timer.start();
+                const Validity val = sChecker.isValidAtTime(
+                    element, args.staticCheckTime, nullptr, nullptr, nullptr, &info);
+                timer.stop();
+                switch (val) {
+                    case Validity::valid: mts = 1.; break;
+                    case Validity::invalid: tInv = args.staticCheckTime; // don't break
+                    case Validity::uncertain: mts = 0.; break;
+                    default: throw std::runtime_error("Unknown validity value");
+                }
+            }
+            else {
+                timer.start();
+                mts = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
+                timer.stop();
+            }
+            minT = std::min(minT, mts);
             const double microseconds =
                 static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000;
             if (out) {
                 *out << e << SEP;
-                *out << fp_fmt << t << SEP;
+                *out << fp_fmt << mts << SEP;
                 *out << fp_fmt << tInv << SEP;
                 *out << info.spaceDepth << SEP;
                 *out << info.timeDepth << SEP;
@@ -153,10 +168,10 @@ int main(int argc, char** argv) {
     if (args.resultsPath.size() > 0)
         out = std::make_unique<std::ofstream>(args.resultsPath);
     std::ostream *const outptr = out ? out.get() : &std::cout;
-    fp_t mtt = 0;
+    fp_t mts = 0;
     #define IFPROC(n, s, p) \
         if (dimension == n && nNodesPerElem == nControlGeoMap(n,s,p)) \
-        mtt = processData<n, s, p>(\
+        mts = processData<n, s, p>(\
             args, nNodesPerElem, nElements, nodes, outptr);
     IFPROC(1, 1, 1)
     else IFPROC(1, 1, 2)
@@ -178,7 +193,7 @@ int main(int argc, char** argv) {
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
     std::cout << " Done." << std::endl;
-    std::cout << "Maximum valid time step: " << mtt << std::endl;
+    std::cout << "Maximum valid time step: " << mts << std::endl;
 
     return 0;
 }
