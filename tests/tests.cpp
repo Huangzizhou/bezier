@@ -278,3 +278,41 @@ TEST_CASE("Standard quartic tetrahedron") {
 	CHECK(almostEq(evaluator.eval({1,0,0}), 64.));
 	CHECK(almostEq(evaluator.eval({.1,.1,.1}), 64.));
 }
+
+TEST_CASE("Standard linear hex") {
+	StaticValidator<3, 1, 1> checker;
+	const std::vector<double> cp = {
+		0., 0., 0.,
+		1., 0., 0.,
+		1., 1., 0.,
+		0., 1., 0.,
+		0., 0., 1.,
+		1., 0., 1.,
+		1., 1., 1.,
+		0., 1., 1.,
+	};
+	std::vector<unsigned> ah;
+	const Validity val = checker.isValid(cp, &ah);
+	CHECK(val == Validity::valid);
+	JacobianEvaluator<3, 1, 1> evaluator(cp);
+	CHECK(almostEq(evaluator.eval({0,0,0}), 1.));
+	CHECK(almostEq(evaluator.eval({1,0,0}), 1.));
+	CHECK(almostEq(evaluator.eval({.1,.1,.1}), 1.));
+}
+
+TEST_CASE("Dynamic standard linear hex") {
+	ContinuousValidator<3, 1, 1> checker;
+	const std::vector<double> cp = {
+		0.,0., 0.,0., 0.,0.,
+		1.,1., 0.,0., 0.,0.,
+		1.,1., 1.,1., 0.,0.,
+		0.,0., 1.,1., 0.,0.,
+		0.,0., 0.,0., 1.,1.,
+		1.,1., 0.,0., 1.,1.,
+		1.,1., 1.,1., 1.,1.,
+		0.,0., 1.,1., 1.,1.,
+	};
+	std::vector<unsigned> ah;
+	const double mts = checker.maxTimeStep(cp, &ah);
+	CHECK(mts == 1.);
+}

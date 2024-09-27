@@ -14,8 +14,8 @@ List of available flags:
 -n Set the number of elements to be processed (defaults to 0=all elements)
 -o Set output path for detailed results in csv format (defaults to cout)
 -p Set the target error % for max valid time step search (defaults to 0.01=1%)
--s If specified, run a static pre-check to filter out elements that are not valid at t=0; the argument is the number of maximum subdivisions (defaults to 0=unlimited). If -t is specified, -s only specifies max subdivisions for that static check.
--t If specified, run a static check instead of the dynamic check; max subdivisions are the same as for -s; the argument is the time in [0,1] to check (defaults to 1=end frame)
+-s If specified, run a static pre-check to filter out elements that are not valid at t=0; the argument is the number of maximum subdivisions (defaults to 0=unlimited).
+-t If specified, run a static check instead of the dynamic check; the argument is the time in [0,1] to check (defaults to 1=end frame)
 -? Show this help
 )HELP";
 }

@@ -16,7 +16,7 @@ class Settings {
 	fp_t staticCheckTime = 1.;
 	uint maxIterations = 0;
 	bool preCheck = false;
-	uint staticCheckMaxIter = 0;
+	uint preCheckMaxIter = 0;
 	uint numElem = 0;
 	uint firstElem = 0;
 	uint numThreads = 1;

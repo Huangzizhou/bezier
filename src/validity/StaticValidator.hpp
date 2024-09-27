@@ -5,7 +5,7 @@ namespace element_validity {
 template<uint n, uint s, uint p>
 class StaticValidator : public Validator {
 	private:
-	static constexpr uint subdomains = 1 << n;
+	static constexpr uint subdomains = 1U << n;
 	std::array<Matrix<Interval>, subdomains> matQ;
 
 	Validity isValidElement(

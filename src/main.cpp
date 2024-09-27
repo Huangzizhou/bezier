@@ -31,11 +31,13 @@ element_validity::fp_t processData(
     const uint lastElem = args.firstElem + nElements;
     fp_t minT = 1;
 
-    ContinuousValidator<n, s, p> checker(args.numThreads);
-    checker.setPrecisionTarget(args.precision);
-    checker.setMaxSubdiv(args.maxIterations);
+    ContinuousValidator<n, s, p> cChecker(args.numThreads);
+    cChecker.setPrecisionTarget(args.precision);
+    cChecker.setMaxSubdiv(args.maxIterations);
+    StaticValidator<n, s, p> preChecker(args.numThreads);
+    preChecker.setMaxSubdiv(args.preCheckMaxIter);
     StaticValidator<n, s, p> sChecker(args.numThreads);
-    sChecker.setMaxSubdiv(args.staticCheckMaxIter);
+    sChecker.setMaxSubdiv(args.maxIterations);
     
     if (!args.globalQuery) {
         if (out)
@@ -55,7 +57,7 @@ element_validity::fp_t processData(
             std::vector<uint> h;
             Validator::Info info;
             if (args.preCheck) {
-                const Validity v0 = sChecker.isValidAtTime(element, 0);
+                const Validity v0 = preChecker.isValidAtTime(element, 0);
                 if (v0 != Validity::valid) {
                     if (v0 == Validity::uncertain)
                         std::cerr <<
@@ -79,7 +81,7 @@ element_validity::fp_t processData(
             }
             else {
                 timer.start();
-                mts = checker.maxTimeStep(element, &h, nullptr, &tInv, &info);
+                mts = cChecker.maxTimeStep(element, &h, nullptr, &tInv, &info);
                 timer.stop();
             }
             minT = std::min(minT, mts);
@@ -108,7 +110,7 @@ element_validity::fp_t processData(
             nCoordPerElem*nElements
         );
         timer.start();
-        minT = checker.maxTimeStep(elements, &globalH, &invalidElemID, &tInv);
+        minT = cChecker.maxTimeStep(elements, &globalH, &invalidElemID, &tInv);
         timer.stop();
         const double seconds =
             static_cast<double>(timer.read<std::chrono::milliseconds>()) / 1000;

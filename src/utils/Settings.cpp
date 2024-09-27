@@ -39,7 +39,7 @@ Settings::Settings(int argc, char** argv) {
 			case 'n': numElem = std::stoi(s); break;
 			case 'o': resultsPath = s; break;
 			case 'p': precision = std::stod(s); break;
-			case 's': staticCheckMaxIter = std::stoi(s); break;
+			case 's': preCheckMaxIter = std::stoi(s); break;
 			case 't': staticCheckTime = std::stod(s); break;
 			default:
 				infoHelp = true;

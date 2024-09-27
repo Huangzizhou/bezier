@@ -35,7 +35,6 @@ class Validator {
 };
 
 struct Validator::Subdomain {
-	public:
 	std::vector<Interval> B;
 	std::vector<uint> qSequence;
 	RealInterval time;
@@ -46,6 +45,17 @@ struct Validator::Subdomain {
 	// Debug print
 	friend std::ostream& operator<<(std::ostream& ost, const Subdomain &s);
 	inline uint depth() const { return qSequence.size(); }
+	uint timeDepth() const {
+		uint timeDepth = 0;
+		const fp_t w = time.width(); 
+		if (w == 0) throw std::runtime_error("Zero-width interval");
+		fp_t l = 1.;
+		while (l > w) {
+			l /= 2;
+			++timeDepth;
+		}
+		return timeDepth - depth();
+	}
 	// Copy the path I took to get here
 	void copySequence(std::vector<uint> &dst) const;
 };
