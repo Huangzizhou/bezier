@@ -8,4 +8,8 @@ cd build
 cmake ..
 make -j
 ```
-Then run with `./bin -?` to see a list of commands.
+
+Run `./tests/unit_tests` to check if the library works.
+Run `./tests/eigen_tests` to check if the Eigen interface works.
+Basic usage is `./bin yourdata.hdf5 -o youroutput.csv`.
+Run the binary with `-?` to see instructions on all available flags.
