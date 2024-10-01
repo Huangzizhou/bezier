@@ -2,5 +2,6 @@
 !src/
 !cmake/
 !tests/
+!meshes/
 !CMakeLists.txt
 !*.py

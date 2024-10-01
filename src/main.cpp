@@ -87,10 +87,11 @@ element_validity::fp_t processData(
             minT = std::min(minT, mts);
             const double microseconds =
                 static_cast<double>(timer.read<std::chrono::nanoseconds>()) / 1000;
+            const std::string tInvStr = (tInv==2) ? "" : std::to_string(tInv);
             if (out) {
                 *out << e << SEP;
                 *out << fp_fmt << mts << SEP;
-                *out << fp_fmt << tInv << SEP;
+                *out << fp_fmt << tInvStr << SEP;
                 *out << info.spaceDepth << SEP;
                 *out << info.timeDepth << SEP;
                 *out << microseconds << SEP;

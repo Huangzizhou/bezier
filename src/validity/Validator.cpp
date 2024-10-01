@@ -59,7 +59,7 @@ std::string Validator::Info::description() const {
 	case Status::reachedTarget:
 		return "Reached target precision";
 	case Status::maxDepth:
-		return "User termination condition satisfied";
+		return "User specified max depth reached";
 	case Status::globalCondition:
 		return "Global early termination condition satisfied";
 	case Status::noSplit:
