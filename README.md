@@ -1,5 +1,8 @@
 # High-Order Continuous Geometrical Validity
 ## Installation steps
+The code requires a x86 compliant processor, a Linux machine and the gcc compiler.
+We will extend to other operating systems and architectures after publication.
+
 ```
 cd robust-bezier-subdivision
 mkdir build
