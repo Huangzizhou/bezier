@@ -16,4 +16,4 @@ Run `./tests/eigen_tests` to check if the Eigen interface works.
 Basic usage is `./bin yourdata.hdf5 -o youroutput.csv`.
 Run the binary with `-?` to see instructions on all available flags.
 
-HDF5 datasets from the benchmark are in the `meshes` folder.
+HDF5 datasets from the benchmark are in `meshes.zip`.
