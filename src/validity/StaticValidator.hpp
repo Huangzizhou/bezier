@@ -207,7 +207,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 	if (invalidList) invalidList->clear();
 
 	#pragma omp parallel for num_threads(nThreads)
-	for (int e=0; e<numEl; ++e) {
+	for (uint e=0; e<numEl; ++e) {
 		if (foundInvalid) {
 			timings.at(e) = 0;
 			continue;

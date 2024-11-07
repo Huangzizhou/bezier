@@ -15,7 +15,7 @@ Things that should be available everywhere in the project
 
 namespace element_validity {
 	// unsigned integer
-	using uint = unsigned;
+	using uint = int;
 
 	// long integer
 	using lint = long;

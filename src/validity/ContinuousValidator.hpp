@@ -268,7 +268,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 
 	#pragma omp parallel for \
 		reduction(min : minT) num_threads(nThreads)
-	for (int e=0; e<numEl; ++e) {
+	for (uint e=0; e<numEl; ++e) {
 		span<const fp_t> element(
 			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
 		Timer timer;
