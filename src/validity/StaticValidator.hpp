@@ -2,55 +2,55 @@
 #include "Validator.hpp"
 
 namespace element_validity {
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 class StaticValidator : public Validator {
 	private:
-	static constexpr uint subdomains = 1U << n;
+	static constexpr int subdomains = 1U << n;
 	std::array<Matrix<Interval>, subdomains> matQ;
 
 	Validity isValidElement(
 		span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
 		Info *info = nullptr
 	) const;
 	Validity isValidMesh(
 		span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
-		std::vector<uint> *invalidList = nullptr
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
+		std::vector<int> *invalidList = nullptr
 	) const;
 
-	Subdomain split(const Subdomain &src, uint q) const;
+	Subdomain split(const Subdomain &src, int q) const;
 
 	public:
-	StaticValidator(uint nThreads = 1) : Validator(nThreads) {
+	StaticValidator(int nThreads = 1) : Validator(nThreads) {
 		initMatrices<n, s, p>(matL2B, matQ);
 		cornerIndices<n, s, p>(interpIndices);
 	}
 	
 	Validity isValid(
 		span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
-		std::vector<uint> *invalidList = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
+		std::vector<int> *invalidList = nullptr,
 		Info *info = nullptr
 	) const;
 
 	Validity isValidAtTime(
 		span<const fp_t> cp,
 		fp_t time,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
-		std::vector<uint> *invalidList = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
+		std::vector<int> *invalidList = nullptr,
 		Info *info = nullptr
 	) const;
 
 	#ifdef EIGEN_INTERFACE
 	Validity isValid(
 		const Eigen::MatrixXd& cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
-		std::vector<uint> *invalidList = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
+		std::vector<int> *invalidList = nullptr,
 		Info *info = nullptr
 	) const {
 		return isValid(
@@ -66,9 +66,9 @@ class StaticValidator : public Validator {
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validator::Subdomain StaticValidator<n,s,p>::split(
-	const Validator::Subdomain &src, uint q
+	const Validator::Subdomain &src, int q
 ) const {
 	Subdomain res;
 	matQ[q].mult(src.B, res.B);
@@ -80,44 +80,44 @@ Validator::Subdomain StaticValidator<n,s,p>::split(
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validity StaticValidator<n,s,p>::isValid(
 	span<const fp_t> cp,
-	std::vector<uint> *adaptiveHierarchy,
-	uint *invalidElemID,
-	std::vector<uint> *invalidList,
+	std::vector<int> *adaptiveHierarchy,
+	int *invalidElemID,
+	std::vector<int> *invalidList,
 	Info *info
 ) const {
-	constexpr uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
-	const uint numEl = cp.size() / numCoordsPerElem;
+	constexpr int numCoordsPerElem = nControlGeoMap(n,s,p) * n;
+	const int numEl = cp.size() / numCoordsPerElem;
 	if (numEl == 1) return isValidElement(cp, adaptiveHierarchy, info);
 	else return isValidMesh(cp, adaptiveHierarchy, invalidElemID, invalidList);
 }
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validity StaticValidator<n,s,p>::isValidAtTime(
 	span<const fp_t> cp,
 	fp_t time,
-	std::vector<uint> *adaptiveHierarchy,
-	uint *invalidElemID,
-	std::vector<uint> *invalidList,
+	std::vector<int> *adaptiveHierarchy,
+	int *invalidElemID,
+	std::vector<int> *invalidList,
 	Info *info
 ) const {
 	std::vector<fp_t> frame;
 	assert(cp.size() % 2 == 0);
 	frame.reserve(cp.size() / 2);
 	const fp_t time1m = 1.-time;
-	for (uint i = 0; i < cp.size(); i+=2)
+	for (int i = 0; i < cp.size(); i+=2)
 		frame.push_back(time1m*cp[i] + time*cp[i+1]);
 	return isValid(frame, adaptiveHierarchy, invalidElemID, invalidList, info);
 }
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validity StaticValidator<n, s, p>::isValidElement(
 	span<const fp_t> cp,
-	std::vector<uint> *hierarchy,
+	std::vector<int> *hierarchy,
 	Info *info
 ) const {
 	// Compute Lagrange coefficients
@@ -143,7 +143,7 @@ Validity StaticValidator<n, s, p>::isValidElement(
 	queue.push(sd0);
 
 	// Initialize auxiliary variables
-	uint reachedDepth = 0;
+	int reachedDepth = 0;
 	const bool maxIterCheck = (maxSubdiv > 0);
 	bool foundInvalid = false;
 	bool gaveUp = false;
@@ -179,7 +179,7 @@ Validity StaticValidator<n, s, p>::isValidElement(
 		// Subdomain is undetermined and needs refinement
 		else if (!(dom.incl > epsilon)) {
 			// Split on all axes and push to queue
-			for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+			for (int q=0; q<subdomains; ++q) queue.push(split(dom, q));
 		}
 	}
 
@@ -189,25 +189,25 @@ Validity StaticValidator<n, s, p>::isValidElement(
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validity StaticValidator<n, s, p>::isValidMesh(
 	span<const fp_t> cp,
-	std::vector<uint> *adaptiveHierarchy,
-	uint *invalidElemID,
-	std::vector<uint> *invalidList
+	std::vector<int> *adaptiveHierarchy,
+	int *invalidElemID,
+	std::vector<int> *invalidList
 ) const {
-	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
-	const uint numEl = cp.size() / (numCoordsPerElem);
+	const int numCoordsPerElem = nControlGeoMap(n,s,p) * n;
+	const int numEl = cp.size() / (numCoordsPerElem);
 	std::vector<Validity> results(numEl);
 	std::vector<fp_t> timings(numEl);
-	std::vector<std::vector<uint>> hierarchies(numEl);
+	std::vector<std::vector<int>> hierarchies(numEl);
 	bool gaveUp = false;
 	bool foundInvalid = false;
 
 	if (invalidList) invalidList->clear();
 
 	#pragma omp parallel for num_threads(nThreads)
-	for (uint e=0; e<numEl; ++e) {
+	for (int e=0; e<numEl; ++e) {
 		if (foundInvalid) {
 			timings.at(e) = 0;
 			continue;
@@ -228,7 +228,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 		timings.at(e) = timer.read<std::chrono::microseconds>();
 	}
 	if (foundInvalid) {
-		uint invalidIndex = 0;
+		int invalidIndex = 0;
 		while (results.at(invalidIndex) != Validity::invalid) ++invalidIndex;
 		if (invalidElemID) *invalidElemID = invalidIndex;
 		*adaptiveHierarchy = std::move(hierarchies.at(invalidIndex));
@@ -236,10 +236,10 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 	}
 	else if (gaveUp) {
 		std::vector<int> depthOfSequence(numEl);
-		for (uint j = 0; j < numEl; ++j)
+		for (int j = 0; j < numEl; ++j)
 			depthOfSequence.at(j) = (results.at(j) == Validity::valid) ?
 				-1 : hierarchies.at(j).size();
-		const uint i = std::distance(depthOfSequence.cbegin(),
+		const int i = std::distance(depthOfSequence.cbegin(),
 			std::max_element(
 				depthOfSequence.cbegin(),
 				depthOfSequence.cend()

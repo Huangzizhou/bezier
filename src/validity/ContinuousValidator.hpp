@@ -2,10 +2,10 @@
 #include "Validator.hpp"
 
 namespace element_validity {
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 class ContinuousValidator : public Validator {
 	private:
-	static constexpr uint subdomains = 2U << n;
+	static constexpr int subdomains = 2U << n;
 	std::array<Matrix<Interval>, 2> matT;
 	std::array<Matrix<Interval>, subdomains> matQ;
 
@@ -13,7 +13,7 @@ class ContinuousValidator : public Validator {
 
 	fp_t maxTimeStepElement(
 		span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
 		fp_t *timeOfInversion = nullptr,
 		fp_t earlyStop = 1.,
 		Info *info = nullptr
@@ -21,22 +21,22 @@ class ContinuousValidator : public Validator {
 
 	fp_t maxTimeStepMesh(
 		span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
 		fp_t *timeOfInversion = nullptr
 	) const;
 	
-	Subdomain split(const Subdomain &src, uint q) const;
+	Subdomain split(const Subdomain &src, int q) const;
 
 	public:
-	ContinuousValidator(uint nThreads = 1) : Validator(nThreads) {
+	ContinuousValidator(int nThreads = 1) : Validator(nThreads) {
 		initMatricesT<n, s, p>(matL2B, matT, matQ);
 		cornerIndicesT<n, s, p>(interpIndices);
 	}
 	fp_t maxTimeStep(
 		span<const fp_t> cp,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
 		fp_t *timeOfInversion = nullptr,
 		Info *info = nullptr
 	) const;
@@ -45,8 +45,8 @@ class ContinuousValidator : public Validator {
 	fp_t maxTimeStep(
 		const Eigen::MatrixXd& cp0,
 		const Eigen::MatrixXd& cp1,
-		std::vector<uint> *adaptiveHierarchy = nullptr,
-		uint *invalidElemID = nullptr,
+		std::vector<int> *adaptiveHierarchy = nullptr,
+		int *invalidElemID = nullptr,
 		fp_t *timeOfInversion = nullptr,
 		Info *info = nullptr
 	) const {
@@ -68,9 +68,9 @@ class ContinuousValidator : public Validator {
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validator::Subdomain ContinuousValidator<n, s, p>::split(
-	const Subdomain &src, uint q
+	const Subdomain &src, int q
 ) const {
 	Subdomain res;
 	matQ[q].mult(src.B, res.B);
@@ -83,7 +83,7 @@ Validator::Subdomain ContinuousValidator<n, s, p>::split(
 	return res;
 }
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 Validator::Subdomain ContinuousValidator<n, s, p>::splitTime(
 	const Subdomain &src, bool t
 ) const {
@@ -99,16 +99,16 @@ Validator::Subdomain ContinuousValidator<n, s, p>::splitTime(
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 fp_t ContinuousValidator<n,s,p>::maxTimeStep(
 	span<const fp_t> cp,
-	std::vector<uint> *adaptiveHierarchy,
-	uint *invalidElemID,
+	std::vector<int> *adaptiveHierarchy,
+	int *invalidElemID,
 	fp_t *timeOfInversion,
 	Info *info
 ) const {
-	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
-	const uint numEl = cp.size() / (numCoordsPerElem);
+	const int numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
+	const int numEl = cp.size() / (numCoordsPerElem);
 	if (numEl == 1) return maxTimeStepElement(
 		cp, adaptiveHierarchy, timeOfInversion, 1., info);
 	else return maxTimeStepMesh(
@@ -117,10 +117,10 @@ fp_t ContinuousValidator<n,s,p>::maxTimeStep(
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 	span<const fp_t> cp,
-	std::vector<uint> *hierarchy,
+	std::vector<int> *hierarchy,
 	fp_t *timeOfInversion,
 	fp_t earlyStop,
 	Info *info
@@ -142,8 +142,8 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 	queue.push(sd0);
 
 	// Initialize auxiliary variables
-	uint reachedDepthS = 0;
-	uint reachedDepthT = 0;
+	int reachedDepthS = 0;
+	int reachedDepthT = 0;
 	const bool maxIterCheck = (maxSubdiv > 0);
 	bool foundInvalid = false;
 	fp_t tmin = 0.;
@@ -219,7 +219,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 						}
 					}
 					// Split on all axes and push to queue
-					for (uint q=0; q<subdomains; ++q) queue.push(split(dom, q));
+					for (int q=0; q<subdomains; ++q) queue.push(split(dom, q));
 				#else
 					// Subdomain contains invalidity
 					if (dom.incl <= epsilon) {
@@ -235,7 +235,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 					// Subdomain is undetermined and needs refinement
 					else {
 						// Split on all axes and push to queue
-						for (uint q=0; q<subdomains; ++q)
+						for (int q=0; q<subdomains; ++q)
 							queue.push(split(dom, q));
 					}
 				#endif
@@ -251,24 +251,24 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepElement(
 
 //------------------------------------------------------------------------------
 
-template<uint n, uint s, uint p>
+template<int n, int s, int p>
 fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 	span<const fp_t> cp,
-	std::vector<uint> *adaptiveHierarchy,
-	uint *invalidElemID,
+	std::vector<int> *adaptiveHierarchy,
+	int *invalidElemID,
 	fp_t *toi
 ) const {
-	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
-	const uint numEl = cp.size() / (numCoordsPerElem);
+	const int numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
+	const int numEl = cp.size() / (numCoordsPerElem);
 	fp_t minT = 1;
 	std::vector<fp_t> timeOfInversion(numEl);
 	std::vector<fp_t> timings(numEl);
-	std::vector<std::vector<uint>> hierarchies(numEl);
+	std::vector<std::vector<int>> hierarchies(numEl);
 	bool foundInvalid = false;
 
 	#pragma omp parallel for \
 		reduction(min : minT) num_threads(nThreads)
-	for (uint e=0; e<numEl; ++e) {
+	for (int e=0; e<numEl; ++e) {
 		span<const fp_t> element(
 			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
 		Timer timer;
@@ -287,18 +287,18 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 	if (foundInvalid) {
 		const auto m =
 			std::min_element(timeOfInversion.cbegin(), timeOfInversion.cend()); 
-		const uint i = std::distance(timeOfInversion.cbegin(), m);
+		const int i = std::distance(timeOfInversion.cbegin(), m);
 		if (toi) *toi = *m;
 		if (invalidElemID) *invalidElemID = i;
 		*adaptiveHierarchy = std::move(hierarchies.at(i));
 	}
 	else {
 		std::vector<fp_t> depthOfSequence(numEl);
-		for (uint j = 0; j < numEl; ++j)
+		for (int j = 0; j < numEl; ++j)
 			depthOfSequence.at(j) = hierarchies.at(j).size();
 		const auto m =
 			std::max_element(depthOfSequence.cbegin(), depthOfSequence.cend());
-		const uint i = std::distance(depthOfSequence.cbegin(), m);
+		const int i = std::distance(depthOfSequence.cbegin(), m);
 		if (invalidElemID) *invalidElemID = i;
 		*adaptiveHierarchy = std::move(hierarchies.at(i));
 	}

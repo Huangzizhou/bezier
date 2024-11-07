@@ -122,7 +122,7 @@ class RobustInterval {
 		{ return data != x; }
 
 	inline RobustInterval abs() const { return data.abs(); }
-	inline RobustInterval pow(uint e) const { return data.pow(e); }
+	inline RobustInterval pow(int e) const { return data.pow(e); }
 	inline double width() const { return data.width(); }
 	inline double middle() const { return data.getMid(); }
 	inline bool contains(double x) const { return (data-x).containsZero(); }
@@ -271,7 +271,7 @@ class RobustInterval {
 	}
 
 	// Generic power
-	RobustInterval pow(uint e) const;
+	RobustInterval pow(int e) const;
 
 	// Whether the interval contains a number or interval
 	inline bool contains(fp_t x) const { return (lo <= x && hi >= x); }
@@ -388,8 +388,8 @@ struct FPWrapper {
 	inline FPWrapper operator/(fp_t x) { return fp / x; }
 	inline FPWrapper& operator/=(fp_t x) { fp /= x; return *this; }
 
-	inline FPWrapper sqr(uint e) const { return fp*fp; };
-	inline FPWrapper pow(uint e) const { return std::pow(fp, e); };
+	inline FPWrapper sqr(int e) const { return fp*fp; };
+	inline FPWrapper pow(int e) const { return std::pow(fp, e); };
 
 	// Whether the interval contains a number or interval
 	// inline bool contains(fp_t x) const { return (lo <= x && hi >= x); }
