@@ -198,7 +198,6 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 ) const {
 	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
 	const uint numEl = cp.size() / (numCoordsPerElem);
-	std::cerr << "number of polys: " << numEl << std::endl;
 	std::vector<Validity> results(numEl);
 	std::vector<fp_t> timings(numEl);
 	std::vector<std::vector<uint>> hierarchies(numEl);
