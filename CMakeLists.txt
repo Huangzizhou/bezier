@@ -67,6 +67,7 @@ set_target_properties(bezier PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 if(MSVC)
     # MSVC-specific flags
     target_compile_options(bezier INTERFACE "/wd4068")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
 else()
     # GCC/Clang-specific flags
     target_compile_options(bezier INTERFACE -Wall -Wno-unknown-pragmas -fno-strict-aliasing)
