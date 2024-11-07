@@ -70,16 +70,26 @@ target_compile_options(bezier INTERFACE
 
 # Use fast interval arithmetic
 if(DEFINED IPRED_ARITHMETIC)
-    target_compile_options(bezier_interface INTERFACE
-        -frounding-math
-    )
-    if(BEZIER_NOT_ON_APPLE_SILICON)
-        target_compile_options(bezier_interface INTERFACE
-            -msse2
-            -mavx2
-            -mfma
-        )
+    # Compiler-specific options
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # grant IEEE 754 compliance
+        target_compile_options(bezier_interface INTERFACE "/fp:strict")
+        # use intrinsic functions
+        target_compile_options(bezier_interface INTERFACE "/Oi")
+        # set target architecture
+        target_compile_options(bezier_interface INTERFACE "/arch:AVX2")
+        target_compile_options(bezier_interface INTERFACE "/arch:SSE2")
+    else()
+        # grant IEEE 754 compliance
+        target_compile_options(bezier_interface INTERFACE -frounding-math)
+        if(BEZIER_NOT_ON_APPLE_SILICON)
+            # set target architecture
+            target_compile_options(bezier_interface INTERFACE "-mavx2")
+            target_compile_options(bezier_interface INTERFACE "-mfma")
+            target_compile_options(bezier_interface INTERFACE "-msse2")
+        endif()
     endif()
+
     set(USE_SIMD_INSTRUCTIONS ON)
 endif()
 
