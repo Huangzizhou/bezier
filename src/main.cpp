@@ -201,6 +201,12 @@ int main(int argc, char** argv) {
     return 0;
 }
 #else
-#warning "HDF5 or GMP interface disabled, ignoring main"
+
+#ifdef _MSC_VER
+    #pragma message("HDF5 or GMP interface disabled, ignoring main")
+#elif defined(__GNUC__) || defined(__clang__)
+    #warning "HDF5 or GMP interface disabled, ignoring main"
+#endif
+
 int main(int argc, char** argv) { return 0; }
 #endif
