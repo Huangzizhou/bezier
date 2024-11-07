@@ -109,7 +109,7 @@ else()
 endif()
 
 ##### GMP ######################################################################
-find_package(GMP REQUIRED)
+include(gmp)
 target_link_libraries(bezier PRIVATE gmp::gmp)
 
 ##### Eigen ####################################################################
