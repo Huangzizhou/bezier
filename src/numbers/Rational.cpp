@@ -1,5 +1,7 @@
 #include "Rational.hpp"
 
+#ifdef GMP_INTERFACE
+
 #include <cassert>
 #include <cmath>
 #include <limits>
@@ -468,3 +470,5 @@ std::string Rational::denominator() const
 }
 
 } // namespace element_validity
+
+#endif

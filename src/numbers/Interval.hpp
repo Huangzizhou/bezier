@@ -1,7 +1,9 @@
 #pragma once
 
 #include <sstream>
+#ifdef GMP_INTERFACE
 #include "Rational.hpp"
+#endif
 #include "utils/globals.hpp"
 #ifdef IPRED_ARITHMETIC
 	#include "numerics.h"
@@ -47,7 +49,9 @@ class RobustInterval {
 	inline RobustInterval(const interval_number &o) :
 		data(-o.inf(), o.sup()) {}
 
+#ifdef GMP_INTERFACE
 	RobustInterval fromRational(const Rational &rat);
+#endif
 
 	public:
 	// Constructors
@@ -55,7 +59,9 @@ class RobustInterval {
 		data(-value_lo, value_hi) {}
 	inline RobustInterval(const double &val) : data(val) {}
 	inline RobustInterval() : RobustInterval(0.) {}
+#ifdef GMP_INTERFACE
 	inline RobustInterval(const Rational &rat) : RobustInterval(fromRational(rat)) {}
+#endif
 
 	// Access
 	inline double lower() const { return data.inf(); }
@@ -158,9 +164,12 @@ class RobustInterval {
 	RobustInterval(const fp_t &value) : lo(value), hi(value)  {}
 	RobustInterval() : lo(0.), hi(0.) {}
 	RobustInterval(const RobustInterval &o) : lo(o.lo), hi(o.hi) {}
+
+#ifdef GMP_INTERFACE
 	inline RobustInterval(const Rational &rat) : RobustInterval(fromRational(rat)) {}
 
 	RobustInterval fromRational(const Rational &rat);
+#endif
 
 	// Access
 	inline const fp_t& lower() const { return lo; }
@@ -340,10 +349,12 @@ struct FPWrapper {
     FPWrapper& operator=(const FPWrapper&) = default;
     FPWrapper& operator=(FPWrapper&&) = default;
     ~FPWrapper() = default;
+#ifdef GMP_INTERFACE
 	FPWrapper(const Rational &rat) : FPWrapper(fromRational(rat)) {}
 
 	inline FPWrapper fromRational(const Rational &rat)
 		{ return static_cast<fp_t>(rat); };
+#endif
 
 	// Access
 	inline const fp_t& lower() const { return fp; }

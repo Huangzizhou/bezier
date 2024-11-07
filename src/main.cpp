@@ -5,6 +5,7 @@
 #include <memory>
 #include <fstream>
 
+#ifdef GMP_INTERFACE
 #ifdef HDF5_INTERFACE
 #include <H5Cpp.h>
 
@@ -203,4 +204,5 @@ int main(int argc, char** argv) {
 #else
 #warning "HDF5 interface disabled, ignoring main"
 int main(int argc, char** argv) { return 0; }
+#endif
 #endif

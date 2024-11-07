@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef GMP_INTERFACE
+
 #include <Eigen/Core>
 
 #include <gmp.h>
@@ -92,3 +94,5 @@ private:
 
 
 } // namespace element_validity
+
+#endif

@@ -44,6 +44,7 @@ option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(UNIT_TESTS "Run unit tests" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
+option(GMP_INTERFACE "Rational numbers" ON)
 
 # Experimental flags and stuff for benchmarks (leave these OFF)
 option(EXPERIM_NAIVE_SUBDIV "Use a naive subdivision scheme" OFF)
@@ -122,8 +123,11 @@ else()
 endif()
 
 ##### GMP ######################################################################
-include(gmp)
-target_link_libraries(bezier PRIVATE gmp::gmp)
+if (GMP_INTERFACE)
+    target_compile_definitions(bezier_interface INTERFACE GMP_INTERFACE)
+    include(gmp)
+    target_link_libraries(bezier PRIVATE gmp::gmp)
+endif()
 
 ##### Eigen ####################################################################
 if (EIGEN_INTERFACE)
