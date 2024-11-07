@@ -5,8 +5,7 @@
 #include <memory>
 #include <fstream>
 
-#ifdef GMP_INTERFACE
-#ifdef HDF5_INTERFACE
+#if(defined GMP_INTERFACE && defined HDF5_INTERFACE)
 #include <H5Cpp.h>
 
 constexpr char SEP = ',';
@@ -202,7 +201,6 @@ int main(int argc, char** argv) {
     return 0;
 }
 #else
-#warning "HDF5 interface disabled, ignoring main"
+#warning "HDF5 or GMP interface disabled, ignoring main"
 int main(int argc, char** argv) { return 0; }
-#endif
 #endif
