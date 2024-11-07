@@ -62,11 +62,14 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 include(bezier_cpm_cache)
 
 set_target_properties(bezier PROPERTIES COMPILE_WARNING_AS_ERROR ON)
-target_compile_options(bezier INTERFACE
-    -Wall
-    -Wno-unknown-pragmas
-    -fno-strict-aliasing
-)
+
+if(MSVC)
+    # MSVC-specific flags
+    target_compile_options(bezier INTERFACE "/wd4068")
+else()
+    # GCC/Clang-specific flags
+    target_compile_options(bezier INTERFACE -Wall -Wno-unknown-pragmas -fno-strict-aliasing)
+endif()
 
 # Use fast interval arithmetic
 if(DEFINED IPRED_ARITHMETIC)
