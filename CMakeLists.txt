@@ -9,6 +9,19 @@ endif()
 cmake_minimum_required(VERSION 3.18)
 project(bezier)
 
+# Set default minimum C++ standard
+if(BEZIER_TOPLEVEL_PROJECT)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64" AND APPLE)
+    set(BEZIER_NOT_ON_APPLE_SILICON OFF)
+    set(BEZIER_ON_APPLE_SILICON ON)
+else()
+    set(BEZIER_NOT_ON_APPLE_SILICON ON)
+    set(BEZIER_ON_APPLE_SILICON OFF)
+endif()
 
 file(GLOB BEZIER_SOURCES
     "${BEZIER_SOURCE_DIR}/*.cpp"
@@ -59,10 +72,14 @@ target_compile_options(bezier INTERFACE
 if(DEFINED IPRED_ARITHMETIC)
     target_compile_options(bezier_interface INTERFACE
         -frounding-math
-        -msse2
-        -mavx2
-        -mfma
     )
+    if(BEZIER_NOT_ON_APPLE_SILICON)
+        target_compile_options(bezier_interface INTERFACE
+            -msse2
+            -mavx2
+            -mfma
+        )
+    endif()
     set(USE_SIMD_INSTRUCTIONS ON)
 endif()
 
