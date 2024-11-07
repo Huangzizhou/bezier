@@ -20,13 +20,11 @@ if(WIN32)
     set(ENV{GMP_DIR} "${gmp_mpfr_SOURCE_DIR}/gmp")
     set(ENV{MPFR_DIR} "${gmp_mpfr_SOURCE_DIR}/gmp")
 else()
-    # On Linux/macOS, gmp+mpfr should be installed system-wide
+    message(STATUS "Third-party: creating target 'gmp::gmp'")
+
+    # Find_package will look for our downloaded lib on Windows, and system-wide on Linux/macOS
+    find_package(GMP REQUIRED)
 endif()
-
-message(STATUS "Third-party: creating target 'gmp::gmp'")
-
-# Find_package will look for our downloaded lib on Windows, and system-wide on Linux/macOS
-find_package(GMP REQUIRED)
 
 if(NOT TARGET gmp::gmp)
     message(FATAL_ERROR "Creation of target 'gmp::gmp' failed")
