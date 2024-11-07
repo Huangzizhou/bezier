@@ -5,6 +5,7 @@ set(SOURCES
 
 set(HEADERS
     Interval.hpp
+    Rational.cpp
     Rational.hpp
     Matrix.hpp
 )

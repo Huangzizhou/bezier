@@ -1,100 +1,94 @@
 #pragma once
 
-#include <gmpxx.h>
+#include <Eigen/Core>
+
+#include <gmp.h>
+#include <iostream>
+#include <string>
+
 
 namespace element_validity {
-class Rational {
-	private:
-	mpq_class value;
-	
-	public:
-	// Constructor
-	Rational() : value(0) {}
-	template <typename T>
-	Rational(T v) : value(v) {}
-	Rational(int p, int q) : value(p, q) {}
 
-	// Numerator, denominator
-	inline mpz_class &num() { return value.get_num(); }
-	inline mpz_class &den() { return value.get_den(); }
-
-	// Negation
-	inline Rational operator-() const { return -value; }
-
-	// Rat-Rat Comparisons
-	inline bool operator>(const Rational &o) const { return value > o.value; }
-	inline bool operator>=(const Rational &o) const { return value >= o.value; }
-	inline bool operator<(const Rational &o) const { return value < o.value; }
-	inline bool operator<=(const Rational &o) const { return value <= o.value; }
-	bool operator==(const Rational &o) const { return value == o.value; }
-	bool operator!=(const Rational &o) const { return value != o.value; }
-
-	// Rat-FP Comparisons
-	inline bool operator>(double o) const { return value > o; }
-	inline bool operator>=(double o) const { return value >= o; }
-	inline bool operator<(double o) const { return value < o; }
-	inline bool operator<=(double o) const { return value <= o; }
-	bool operator==(double o) const { return value == o; }
-	bool operator!=(double o) const { return value != o; }
-
-	// Rat-Rat Operations
-	inline Rational operator+(const Rational &o) const
-		{ return value + o.value; }
-	inline Rational operator-(const Rational &o) const
-		{ return value - o.value; }
-	inline Rational operator*(const Rational &o) const
-		{ return value * o.value; }
-	inline Rational operator/(const Rational &o) const
-		{ return value / o.value; }
-	inline void operator+=(const Rational &o) { value += o.value; }
-	inline void operator-=(const Rational &o) { value -= o.value; }
-	inline void operator*=(const Rational &o) { value *= o.value; }
-	inline void operator/=(const Rational &o) { value /= o.value; }
-
-	// Rat-FP Operations
-	inline Rational operator+(double o) const { return value + o; }
-	inline Rational operator-(double o) const { return value - o; }
-	inline Rational operator*(double o) const { return value * o; }
-	inline Rational operator/(double o) const { return value / o; }
-	inline void operator+=(double o) { value += o; }
-	inline void operator-=(double o) { value -= o; }
-	inline void operator*=(double o) { value *= o; }
-	inline void operator/=(double o) { value /= o; }
-
-	// Conversions
-	explicit operator double() const { return value.get_d(); }
-	explicit operator std::string() const {
-		const std::string str = value.get_str();
-		// if (str.length() > 8) return std::to_string(den());
-		return str;
-	}
-
-	friend std::ostream& operator<<(std::ostream& ost, const Rational& r) {
-		ost << std::string(r);
-		return ost;
-	}
-};
-}
-
-/*
-template<> struct Eigen::NumTraits<Rational> :
-	Eigen::GenericNumTraits<Rational>
+class Rational
 {
-	typedef Rational Real;
-	typedef Rational NonInteger;
-	typedef Rational Nested;
-	static inline Real epsilon() { return 0; }
-	static inline Real dummy_precision() { return 0; }
-	static inline Real digits10() { return 0; }
+public:
+    Rational(bool rounded = false);
+    Rational(int v, bool rounded = false);
+    Rational(double d, bool rounded = false);
+    Rational(const mpq_t& v_);
+    Rational(const Rational& other);
+    Rational(const Rational& other, bool rounded);
+    Rational(const Eigen::VectorX<char>& data);
+    Rational(const std::string& data, bool rounded = false);
 
-	enum {
-		IsInteger = 0,
-		IsSigned = 1,
-		IsComplex = 0,
-		RequireInitialization = 1,
-		ReadCost = 6,
-		AddCost = 150,
-		MulCost = 100
-	};
+    Rational& operator=(const Rational& x);
+    Rational& operator=(const double x);
+
+    template <typename T>
+    void init(const T& v)
+    {
+        mpq_set(value, v);
+        m_is_rounded = false;
+    }
+
+    ~Rational();
+
+    void canonicalize();
+
+    friend Rational operator+(const Rational& x, const Rational& y);
+    friend Rational operator-(const Rational& x, const Rational& y);
+
+    friend Rational operator-(const Rational& x);
+
+    friend Rational pow(const Rational& x, int p);
+    friend Rational abs(const Rational& r0);
+    int get_sign() const;
+
+    friend Rational operator*(const Rational& x, const Rational& y);
+    friend Rational operator/(const Rational& x, const Rational& y);
+
+    //> < ==
+    friend bool operator<(const Rational& r, const Rational& r1) { return cmp(r, r1) < 0; }
+    friend bool operator>(const Rational& r, const Rational& r1) { return cmp(r, r1) > 0; }
+    friend bool operator<=(const Rational& r, const Rational& r1) { return cmp(r, r1) <= 0; }
+    friend bool operator>=(const Rational& r, const Rational& r1) { return cmp(r, r1) >= 0; }
+
+    friend bool operator==(const Rational& r, const Rational& r1);
+    friend bool operator!=(const Rational& r, const Rational& r1);
+
+    // to double
+    double to_double() const;
+    explicit operator double() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Rational& r);
+
+    inline void round()
+    {
+        if (m_is_rounded) return;
+
+        d_value = this->to_double();
+        m_is_rounded = true;
+        mpq_clear(value);
+    }
+
+    void init_from_binary(const std::string& v);
+    std::string to_binary() const;
+
+    std::string serialize() const;
+
+    inline bool is_rounded() const { return m_is_rounded; }
+
+
+private:
+    mpq_t value;
+    double d_value;
+    bool m_is_rounded;
+
+    friend int cmp(const Rational& r, const Rational& r1);
+
+    std::string numerator() const;
+    std::string denominator() const;
 };
-*/
+
+
+} // namespace element_validity
