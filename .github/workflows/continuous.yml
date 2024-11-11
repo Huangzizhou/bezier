@@ -135,7 +135,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [DebugNoSymbols]
+        config: [Debug]
         threading: [CPP]
     steps:
       - name: Checkout repository
@@ -172,7 +172,6 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ^
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug;RelWithDebInfo;MinSizeRel;DebugNoSymbols" ^
             -DCMAKE_BUILD_TYPE=${{ matrix.config }} ^
-            -DCMAKE_CXX_FLAGS_DEBUGNOSYMBOLS="/Od" -DCMAKE_EXE_LINKER_FLAGS_DEBUGNOSYMBOLS="" ^
             -DHDF5_INTERFACE=OFF ^
             -DGMP_INTERFACE=OFF ^
             -B build ^
