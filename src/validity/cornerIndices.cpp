@@ -97,11 +97,12 @@ void cornerIndices<3, 3, 3>(std::vector<int> &v) { v = {0,6,27,83}; }
 template<>
 void cornerIndicesT<3, 3, 3>(std::vector<int> &v) { v = {3,27,111,335}; }
 
+#ifdef INSTANTIATE_3_3_4
 template<>
 void cornerIndices<3, 3, 4>(std::vector<int> &v) { v = {0,9,54,219}; }
 
 template<>
 void cornerIndicesT<3, 3, 4>(std::vector<int> &v) { v = {3,39,219,879}; }
-
+#endif
 
 }

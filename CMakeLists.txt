@@ -45,10 +45,15 @@ option(UNIT_TESTS "Run unit tests" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" ON)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
 option(GMP_INTERFACE "Rational numbers" ON)
+option(INSTANTIATE_3_3_4 "Instantiate the precomputed coefficients for P4 Lagrange basis on tetrahedra elements" OFF)
 
 # Experimental flags and stuff for benchmarks (leave these OFF)
 option(EXPERIM_NAIVE_SUBDIV "Use a naive subdivision scheme" OFF)
 option(EXPERIM_FLOAT_ARITHMETIC "Use non-robust floating point arithmetic" OFF)
+
+if(INSTANTIATE_3_3_4)
+    add_compile_definitions(INSTANTIATE_3_3_4)
+endif()
 
 # Add definitions
 if(EXPERIM_NAIVE_SUBDIV)

@@ -192,7 +192,9 @@ int main(int argc, char** argv) {
     else IFPROC(3, 3, 1)
     else IFPROC(3, 3, 2)
     else IFPROC(3, 3, 3)
+    #ifdef INSTANTIATE_3_3_4
     else IFPROC(3, 3, 4)
+    #endif
     #undef IFPROC
     else throw std::invalid_argument("Not implemented");
     std::cout << " Done." << std::endl;

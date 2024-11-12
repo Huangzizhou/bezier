@@ -230,7 +230,7 @@ TEST_CASE("Standard cubic tetrahedron") {
 	CHECK(almostEq(evaluator.eval({1,0,0}), 27.));
 	CHECK(almostEq(evaluator.eval({.1,.1,.1}), 27.));
 }
-
+#ifdef INSTANTIATE_3_3_4
 TEST_CASE("Standard quartic tetrahedron") {
 	StaticValidator<3, 3, 4> checker;
 	const std::vector<double> cp = {
@@ -278,7 +278,7 @@ TEST_CASE("Standard quartic tetrahedron") {
 	CHECK(almostEq(evaluator.eval({1,0,0}), 64.));
 	CHECK(almostEq(evaluator.eval({.1,.1,.1}), 64.));
 }
-
+#endif
 TEST_CASE("Standard linear hex") {
 	StaticValidator<3, 1, 1> checker;
 	const std::vector<double> cp = {
