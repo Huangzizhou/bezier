@@ -32,10 +32,7 @@ class Matrix{
 
 	// Apply matrix to column vector src and directly into dst 
 	void mult(const span<const T> src, const span<T> dst) const;
-	void mult(const span<const T> src, std::vector<T> &dst) const {
-		dst.resize(s);
-		mult(src, span<T>(dst));
-	}
+	void mult(const span<const T> src, std::vector<T> &dst) const;
 
 	// Apply matrix to column vector v
 	// inline std::vector<T> mult(const std::vector<T> &src) const {

@@ -32,4 +32,10 @@ void Matrix<T>::mult(const span<const T> src, const span<T> dst) const {
 		dst[i] = acc;
 	}
 }
+
+template<typename T>
+void Matrix<T>::mult(const span<const T> src, std::vector<T> &dst) const {
+	dst.resize(s);
+	mult(src, span<T>(dst));
+}
 }
