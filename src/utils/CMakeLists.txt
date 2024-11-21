@@ -6,6 +6,7 @@ set(HEADERS
     helpString.hpp
     eigen.hpp
     cxx17span.hpp
+    parallelMin.hpp
 )
 set(SOURCES
     Settings.cpp

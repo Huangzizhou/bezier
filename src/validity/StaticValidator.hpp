@@ -204,29 +204,41 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 	bool gaveUp = false;
 	bool foundInvalid = false;
 
-	if (invalidList) invalidList->clear();
+	auto storage = std::vector<LocalThreadStorage<bool>>(nThreads, false);
 
-	#pragma omp parallel for num_threads(nThreads)
-	for (int e=0; e<numEl; ++e) {
-		if (foundInvalid) {
-			timings.at(e) = 0;
-			continue;
+	par_for(numEl, nThreads, [&](int start, int end, int thread_id) {
+		bool &thread_local_found_invalid = storage[thread_id].val;
+		for (int e = start; e < end; ++e) {
+			if (thread_local_found_invalid) {
+				timings.at(e) = 0;
+				continue;
+			}
+			span<const fp_t> element(
+				cp.data() + numCoordsPerElem * e, numCoordsPerElem);
+			Timer timer;
+			timer.start();
+			Validity v = isValidElement(element, &hierarchies.at(e));
+			timer.stop();
+			results.at(e) = v;
+			if (v == Validity::invalid) thread_local_found_invalid = true;
+
+			timings.at(e) = timer.read<std::chrono::microseconds>();
 		}
-		span<const fp_t> element(
-			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
-		Timer timer;
-		timer.start();
-		Validity v = isValidElement(element, &hierarchies.at(e));
-		timer.stop();
-		results.at(e) = v;
-		if (v == Validity::invalid) foundInvalid = true;
-		else if (v == Validity::uncertain) gaveUp = true;
-		if (invalidList &&
-			(v == Validity::invalid || v == Validity::uncertain)) {
-			invalidList->push_back(e);
+	});
+
+	for (int e = 0; e < numEl; e++)
+		if (results.at(e) == Validity::uncertain)
+			gaveUp = true;
+
+	if (invalidList) {
+		invalidList->clear();
+		for (int e = 0; e < numEl; e++) {
+			if (results.at(e) == Validity::invalid || results.at(e) == Validity::uncertain) {
+				invalidList->push_back(e);
+			}
 		}
-		timings.at(e) = timer.read<std::chrono::microseconds>();
 	}
+
 	if (foundInvalid) {
 		int invalidIndex = 0;
 		while (results.at(invalidIndex) != Validity::invalid) ++invalidIndex;

@@ -1,7 +1,9 @@
 #pragma once
 #include "Validator.hpp"
+#include <utils/parallelMin.hpp>
 
 namespace element_validity {
+
 template<int n, int s, int p>
 class ContinuousValidator : public Validator {
 	private:
@@ -264,26 +266,39 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 	std::vector<fp_t> timeOfInversion(numEl);
 	std::vector<fp_t> timings(numEl);
 	std::vector<std::vector<int>> hierarchies(numEl);
-	bool foundInvalid = false;
 
-	#pragma omp parallel for \
-		reduction(min : minT) num_threads(nThreads)
-	for (int e=0; e<numEl; ++e) {
-		span<const fp_t> element(
-			cp.data() + numCoordsPerElem * e, numCoordsPerElem);
-		Timer timer;
-		timer.start();
-		fp_t t = maxTimeStepElement(
-			element,
-			&hierarchies.at(e),
-			&timeOfInversion.at(e),
-			minT
-		);
-		timer.stop();
-		if (timeOfInversion.at(e) <= 1.) foundInvalid = true;
-		timings.at(e) = timer.read<std::chrono::microseconds>();
-		minT = std::min(minT, t);
+	auto storage = std::vector<LocalThreadStorage<fp_t>>(nThreads, minT);
+
+	par_for(numEl, nThreads, [&](int start, int end, int thread_id) {
+		fp_t &thread_local_minT = storage[thread_id].val;
+		for (int e = start; e < end; ++e) {
+			span<const fp_t> element(
+				cp.data() + numCoordsPerElem * e, numCoordsPerElem);
+			Timer timer;
+			timer.start();
+			fp_t t = maxTimeStepElement(
+				element,
+				&hierarchies.at(e),
+				&timeOfInversion.at(e),
+				thread_local_minT
+			);
+			timer.stop();
+			timings.at(e) = timer.read<std::chrono::microseconds>();
+			thread_local_minT = std::min(thread_local_minT, t);
+		}
+	});
+	for (const auto &local_storage : storage) {
+		minT = std::min(minT, local_storage.val);
 	}
+
+	bool foundInvalid = false;
+	for (int e = 0; e < numEl; e++) {
+		if (timeOfInversion.at(e) <= 1.) {
+			foundInvalid = true;
+			break;
+		}
+	}
+
 	if (foundInvalid) {
 		const auto m =
 			std::min_element(timeOfInversion.cbegin(), timeOfInversion.cend()); 

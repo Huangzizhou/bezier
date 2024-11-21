@@ -42,9 +42,9 @@ target_link_libraries(bezier PRIVATE bezier_interface)
 # Options
 option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
 option(UNIT_TESTS "Run unit tests" ON)
-option(HDF5_INTERFACE "Process HDF5 datasets" ON)
+option(HDF5_INTERFACE "Process HDF5 datasets" OFF)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
-option(GMP_INTERFACE "Rational numbers" ON)
+option(GMP_INTERFACE "Rational numbers" OFF)
 option(INSTANTIATE_3_3_4 "Instantiate the precomputed coefficients for P4 Lagrange basis on tetrahedra elements" OFF)
 
 # Experimental flags and stuff for benchmarks (leave these OFF)
@@ -72,7 +72,6 @@ set_target_properties(bezier PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 if(MSVC)
     # MSVC-specific flags
     target_compile_options(bezier INTERFACE "/wd4068")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp:llvm")
 else()
     # GCC/Clang-specific flags
     target_compile_options(bezier INTERFACE -Wall -Wno-unknown-pragmas -fno-strict-aliasing)
@@ -120,13 +119,6 @@ target_include_directories(bezier PUBLIC ${BEZIER_INCLUDE_DIR})
 ################################################################################
 # Required libraries
 ################################################################################
-
-##### OpenMP ###################################################################
-find_package(OpenMP)
-if (OpenMP_CXX_FOUND)
-    target_link_libraries(bezier_interface INTERFACE OpenMP::OpenMP_CXX)
-else()
-endif()
 
 ##### GMP ######################################################################
 if (GMP_INTERFACE)
