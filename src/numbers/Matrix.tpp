@@ -1,7 +1,13 @@
 #include "Matrix.hpp"
 
 namespace element_validity {
-template class Matrix<Interval>;
+
+template<typename T>
+void Matrix<T>::pushToRow(int i, int j, const T &v) {
+	if (store.at(i).size() == 0 || store.at(i).back().first < j)
+		store.at(i).emplace_back(j, v);
+	else throw std::runtime_error("Attempted out of order insert");
+}
 
 /*
 Matrices are read from vectors. The first entry is the matrix size,
