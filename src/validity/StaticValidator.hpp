@@ -1,5 +1,6 @@
 #pragma once
 #include "Validator.hpp"
+#include <utils/parallelMin.hpp>
 
 namespace element_validity {
 template<int n, int s, int p>
