@@ -1,7 +1,7 @@
 #pragma once
 #include "Validator.hpp"
 #include <utils/par_for.hpp>
-
+#include <atomic>
 namespace element_validity {
 
 template<int n, int s, int p>
@@ -262,15 +262,12 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 ) const {
 	const int numCoordsPerElem = nControlGeoMap(n,s,p) * 2 * n;
 	const int numEl = cp.size() / (numCoordsPerElem);
-	fp_t minT = 1;
+	std::atomic<fp_t> minT = 1;
 	std::vector<fp_t> timeOfInversion(numEl);
 	std::vector<fp_t> timings(numEl);
 	std::vector<std::vector<int>> hierarchies(numEl);
 
-	auto storage = std::vector<LocalThreadStorage<fp_t>>(nThreads, minT);
-
 	par_for(numEl, nThreads, [&](int start, int end, int thread_id) {
-		fp_t &thread_local_minT = storage[thread_id].val;
 		for (int e = start; e < end; ++e) {
 			span<const fp_t> element(
 				cp.data() + numCoordsPerElem * e, numCoordsPerElem);
@@ -280,16 +277,14 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 				element,
 				&hierarchies.at(e),
 				&timeOfInversion.at(e),
-				thread_local_minT
+				minT
 			);
 			timer.stop();
 			timings.at(e) = timer.read<std::chrono::microseconds>();
-			thread_local_minT = std::min(thread_local_minT, t);
+			if (t < minT)
+				minT = t;
 		}
 	});
-	for (const auto &local_storage : storage) {
-		minT = std::min(minT, local_storage.val);
-	}
 
 	bool foundInvalid = false;
 	for (int e = 0; e < numEl; e++) {

@@ -1,7 +1,7 @@
 #pragma once
 #include "Validator.hpp"
 #include <utils/par_for.hpp>
-
+#include <atomic>
 namespace element_validity {
 template<int n, int s, int p>
 class StaticValidator : public Validator {
@@ -203,14 +203,11 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 	std::vector<fp_t> timings(numEl);
 	std::vector<std::vector<int>> hierarchies(numEl);
 	bool gaveUp = false;
-	bool foundInvalid = false;
-
-	auto storage = std::vector<LocalThreadStorage<bool>>(nThreads, false);
+	std::atomic<bool> foundInvalid = false;
 
 	par_for(numEl, nThreads, [&](int start, int end, int thread_id) {
-		bool &thread_local_found_invalid = storage[thread_id].val;
 		for (int e = start; e < end; ++e) {
-			if (thread_local_found_invalid) {
+			if (foundInvalid) {
 				timings.at(e) = 0;
 				continue;
 			}
@@ -221,7 +218,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 			Validity v = isValidElement(element, &hierarchies.at(e));
 			timer.stop();
 			results.at(e) = v;
-			if (v == Validity::invalid) thread_local_found_invalid = true;
+			if (v == Validity::invalid) foundInvalid = true;
 
 			timings.at(e) = timer.read<std::chrono::microseconds>();
 		}

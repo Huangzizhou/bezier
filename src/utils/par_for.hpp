@@ -7,19 +7,6 @@
 #include <vector>
 
 namespace element_validity {
-    template <class T>
-    class LocalThreadStorage
-    {
-    public:
-        T val;
-        
-        LocalThreadStorage() = delete;
-
-        LocalThreadStorage(const T val_) : val(val_)
-        {
-        }
-    };
-
     void par_for(const int size, const size_t n_threads, const std::function<void(int, int, int)> &func)
     {
         if (n_threads == 1)
