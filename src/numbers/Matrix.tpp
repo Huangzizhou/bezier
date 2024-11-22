@@ -42,6 +42,13 @@ void Matrix<T>::mult(const span<const T> src, const span<T> dst) const {
 template<typename T>
 void Matrix<T>::mult(const span<const T> src, std::vector<T> &dst) const {
 	dst.resize(s);
-	mult(src, span<T>(dst));
+	// mult(src, span<T>(dst));
+	assert(src.size() == s);
+	assert(dst.size() == s);
+	for(int i=0; i<s; ++i) {
+		T acc = 0;
+		for(const auto &p : getRow(i)) acc += p.second * src[p.first];
+		dst[i] = acc;
+	}
 }
 }

@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace element_validity {
-    void par_for(const int size, const size_t n_threads, const std::function<void(int, int, int)> &func)
+    void par_for(const size_t size, const size_t n_threads, const std::function<void(int, int, int)> &func)
     {
         if (n_threads == 1)
             func(0, size, /*thread_id=*/0); // actually the full for loop
@@ -15,7 +15,7 @@ namespace element_validity {
         {
             std::vector<std::thread> threads(n_threads);
 
-            for (int t = 0; t < n_threads; t++)
+            for (size_t t = 0; t < n_threads; t++)
             {
                 threads[t] = std::thread(std::bind(
                     func,
