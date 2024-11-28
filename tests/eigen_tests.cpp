@@ -9,6 +9,39 @@ using element_validity::JacobianEvaluator;
 
 bool almostEq(fp_t a, fp_t b) { return std::fabs(a - b) <= 0.000001; }
 
+TEST_CASE("Standard linear tri validity") {
+	StaticValidator<2, 2, 1> checker;
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(3, 2);
+	cp <<
+		0.,0.,
+ 		1.,0.,
+ 		0.,1.;
+	std::vector<int> ah;
+	const Validity res = checker.isValid(cp, &ah);
+	CHECK(res == Validity::valid);
+	JacobianEvaluator<2, 2, 1> evaluator(cp);
+	CHECK(evaluator.eval({0,0}) == 1);
+}
+
+TEST_CASE("Standard quadratic tri validity") {
+	StaticValidator<2, 2, 2> checker;
+	checker.setMaxSubdiv(1);
+	Eigen::MatrixXd cp(6, 2);
+	cp <<
+		0., 0.,
+		1., 0.,
+		0., 1.,
+		0.5, 0.,
+		0.5, 0.5,
+		0., 0.5;
+	std::vector<int> ah;
+	const Validity res = checker.isValid(cp, &ah);
+	CHECK(res == Validity::valid);
+	JacobianEvaluator<2, 2, 2> evaluator(cp);
+	CHECK(evaluator.eval({ 0,0 }) == 1);
+}
+
 TEST_CASE("Standard linear tet validity") {
 	StaticValidator<3, 3, 1> checker;
 	checker.setMaxSubdiv(1);

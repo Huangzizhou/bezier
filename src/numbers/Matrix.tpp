@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Matrix.hpp"
 
 namespace element_validity {
