@@ -19,7 +19,7 @@ Interval lagrangeEvaluate<2, 2, 2>(
 	I tmp_2 = 2*tmp_1;
 	I tmp_3 = powi(x[1], 2);
 	I tmp_4 = 2*tmp_3;
-	acc += lagVec[0] * (tmp_0 + tmp_2 + tmp_4 - 3*x[0] - 3*x[1] + 1);
+	acc += lagVec[0] * (tmp_0 + tmp_2 + tmp_4 - 3*x[0] - 3*x[1] + Interval(1.));
 	acc += lagVec[1] * (-tmp_0 - 4*tmp_3 + 4*x[1]);
 	acc += lagVec[2] * (tmp_4 - x[1]);
 	acc += lagVec[3] * (-tmp_0 - 4*tmp_1 + 4*x[0]);

@@ -14,7 +14,7 @@ Interval lagrangeEvaluate<3, 3, 1>(
 	std::array<Interval, 3> x;
 	for (int i = 0; i < 3; ++i) x[i] = xFP[i];
 	Interval acc = 0.;
-	acc += lagVec[0] * (1);
+	acc += lagVec[0] * Interval(1);
 	return acc;
 }}
 #undef R
