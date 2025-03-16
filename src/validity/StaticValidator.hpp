@@ -231,7 +231,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 		uint invalidIndex = 0;
 		while (results.at(invalidIndex) != Validity::invalid) ++invalidIndex;
 		if (invalidElemID) *invalidElemID = invalidIndex;
-		*adaptiveHierarchy = std::move(hierarchies.at(invalidIndex));
+		if (adaptiveHierarchy) *adaptiveHierarchy = std::move(hierarchies.at(invalidIndex));
 		return Validity::invalid;
 	}
 	else if (gaveUp) {
@@ -246,7 +246,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 			)
 		);
 		if (invalidElemID) *invalidElemID = i;
-		*adaptiveHierarchy = std::move(hierarchies.at(i));
+		if (adaptiveHierarchy) *adaptiveHierarchy = std::move(hierarchies.at(i));
 		return Validity::uncertain;
 	}
 	return Validity::valid;

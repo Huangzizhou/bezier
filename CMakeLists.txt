@@ -93,7 +93,7 @@ endif()
 
 ##### GMP ######################################################################
 find_package(GMP REQUIRED)
-target_link_libraries(bezier PRIVATE gmp::gmp)
+target_link_libraries(bezier_interface INTERFACE gmp::gmp)
 
 ##### Eigen ####################################################################
 if (EIGEN_INTERFACE)
