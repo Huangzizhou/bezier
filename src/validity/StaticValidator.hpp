@@ -17,7 +17,8 @@ class StaticValidator : public Validator {
 		span<const fp_t> cp,
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
-		std::vector<uint> *invalidList = nullptr
+		std::vector<uint> *invalidList = nullptr,
+		bool globalTest = true
 	) const;
 
 	Subdomain split(const Subdomain &src, uint q) const;
@@ -33,6 +34,7 @@ class StaticValidator : public Validator {
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		std::vector<uint> *invalidList = nullptr,
+		bool globalTest = true,
 		Info *info = nullptr
 	) const;
 
@@ -42,6 +44,7 @@ class StaticValidator : public Validator {
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		std::vector<uint> *invalidList = nullptr,
+		bool globalTest = true,
 		Info *info = nullptr
 	) const;
 
@@ -51,6 +54,7 @@ class StaticValidator : public Validator {
 		std::vector<uint> *adaptiveHierarchy = nullptr,
 		uint *invalidElemID = nullptr,
 		std::vector<uint> *invalidList = nullptr,
+		bool globalTest = true,
 		Info *info = nullptr
 	) const {
 		return isValid(
@@ -86,12 +90,13 @@ Validity StaticValidator<n,s,p>::isValid(
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
 	std::vector<uint> *invalidList,
+	bool globalTest,
 	Info *info
 ) const {
 	constexpr uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
 	const uint numEl = cp.size() / numCoordsPerElem;
 	if (numEl == 1) return isValidElement(cp, adaptiveHierarchy, info);
-	else return isValidMesh(cp, adaptiveHierarchy, invalidElemID, invalidList);
+	else return isValidMesh(cp, adaptiveHierarchy, invalidElemID, invalidList, globalTest);
 }
 
 template<uint n, uint s, uint p>
@@ -101,6 +106,7 @@ Validity StaticValidator<n,s,p>::isValidAtTime(
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
 	std::vector<uint> *invalidList,
+	bool globalTest,
 	Info *info
 ) const {
 	std::vector<fp_t> frame;
@@ -109,7 +115,7 @@ Validity StaticValidator<n,s,p>::isValidAtTime(
 	const fp_t time1m = 1.-time;
 	for (uint i = 0; i < cp.size(); i+=2)
 		frame.push_back(time1m*cp[i] + time*cp[i+1]);
-	return isValid(frame, adaptiveHierarchy, invalidElemID, invalidList, info);
+	return isValid(frame, adaptiveHierarchy, invalidElemID, invalidList, globalTest, info);
 }
 
 //------------------------------------------------------------------------------
@@ -194,7 +200,8 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 	span<const fp_t> cp,
 	std::vector<uint> *adaptiveHierarchy,
 	uint *invalidElemID,
-	std::vector<uint> *invalidList
+	std::vector<uint> *invalidList,
+	bool globalTest
 ) const {
 	const uint numCoordsPerElem = nControlGeoMap(n,s,p) * n;
 	const uint numEl = cp.size() / (numCoordsPerElem);
@@ -208,7 +215,7 @@ Validity StaticValidator<n, s, p>::isValidMesh(
 
 	#pragma omp parallel for num_threads(nThreads)
 	for (uint e=0; e<numEl; ++e) {
-		if (foundInvalid) {
+		if (globalTest && foundInvalid) {
 			timings.at(e) = 0;
 			continue;
 		}

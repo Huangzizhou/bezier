@@ -70,7 +70,7 @@ element_validity::fp_t processData(
             if (args.staticCheck) {
                 timer.start();
                 const Validity val = sChecker.isValidAtTime(
-                    element, args.staticCheckTime, nullptr, nullptr, nullptr, &info);
+                    element, args.staticCheckTime, nullptr, nullptr, nullptr, true, &info);
                 timer.stop();
                 switch (val) {
                     case Validity::valid: mts = 1.; break;
