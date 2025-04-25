@@ -8,7 +8,7 @@
 #ifdef IPRED_ARITHMETIC
 	#include "numerics.h"
 #else
-	#warning Using the naive interval implementation: computations will be slower!
+	// #warning Using the naive interval implementation: computations will be slower!
 	#include <algorithm>	// for minmax
 	#include <cmath>
 	#include <stdexcept>
@@ -215,6 +215,9 @@ class RobustInterval {
 	RobustInterval operator-(const fp_t &o) const {
 		return RobustInterval(roundDn(lo - o), roundUp(hi - o));
 	}
+	friend RobustInterval operator-(double o, const RobustInterval m) {
+		return RobustInterval(roundDn(m.lo - o), roundUp(m.hi - o));
+	}
 	RobustInterval& operator-=(fp_t o) {
 		lo = roundDn(lo - o);
 		hi = roundUp(hi - o);
@@ -240,6 +243,11 @@ class RobustInterval {
 	}
 	RobustInterval operator*(const fp_t &o) const {
 		const std::pair<fp_t, fp_t> p = std::minmax({lo * o, hi * o});
+		return RobustInterval(roundDn(p.first), roundUp(p.second));
+	}
+	friend RobustInterval operator*(double o, const RobustInterval m)
+	{ 
+		const std::pair<fp_t, fp_t> p = std::minmax({m.lo * o, m.hi * o});
 		return RobustInterval(roundDn(p.first), roundUp(p.second));
 	}
 	RobustInterval& operator*=(fp_t o) {

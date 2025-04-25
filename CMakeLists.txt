@@ -40,7 +40,7 @@ target_link_libraries(bezier PRIVATE bezier_interface)
 # target_compile_features(bezier_interface INTERFACE cxx_std_20)
 
 # Options
-option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ON)
+option(IPRED_ARITHMETIC "Use the efficient Indirect Predicates library" ${BEZIER_NOT_ON_APPLE_SILICON})
 option(UNIT_TESTS "Run unit tests" ON)
 option(HDF5_INTERFACE "Process HDF5 datasets" OFF)
 option(EIGEN_INTERFACE "Read data from Eigen classes" ON)
@@ -88,15 +88,13 @@ if(DEFINED IPRED_ARITHMETIC)
         # set target architecture
         target_compile_options(bezier_interface INTERFACE "/arch:AVX2")
         target_compile_options(bezier_interface INTERFACE "/arch:SSE2")
-    else()
+    elseif(BEZIER_NOT_ON_APPLE_SILICON)
         # grant IEEE 754 compliance
         target_compile_options(bezier_interface INTERFACE -frounding-math)
-        if(BEZIER_NOT_ON_APPLE_SILICON)
-            # set target architecture
-            target_compile_options(bezier_interface INTERFACE "-mavx2")
-            target_compile_options(bezier_interface INTERFACE "-mfma")
-            target_compile_options(bezier_interface INTERFACE "-msse2")
-        endif()
+        # set target architecture
+        target_compile_options(bezier_interface INTERFACE "-mavx2")
+        target_compile_options(bezier_interface INTERFACE "-mfma")
+        target_compile_options(bezier_interface INTERFACE "-msse2")
     endif()
 
     set(USE_SIMD_INSTRUCTIONS ON)
