@@ -334,8 +334,8 @@ class RobustInterval {
 
 	private:
 	// Rounding up and down
-	static const fp_t POSINF = std::numeric_limits<fp_t>::max();
-	static const fp_t NEGINF = std::copysign(POSINF, -1);
+	static constexpr fp_t POSINF = std::numeric_limits<fp_t>::max();
+	static constexpr fp_t NEGINF = std::copysign(POSINF, -1);
 	inline static fp_t roundUp(const fp_t &value) {
 		return std::nextafter(value, POSINF);
 	}
