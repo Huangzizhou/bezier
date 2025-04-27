@@ -28,9 +28,6 @@ RobustInterval RobustInterval::fromRational(const Rational &rat) {
 
 #else
 
-const fp_t RobustInterval::POSINF = std::numeric_limits<fp_t>::max();
-const fp_t RobustInterval::NEGINF = std::copysign(POSINF, -1);
-
 RobustInterval RobustInterval::pow(int e) const {
 	switch (e) {
 	// Base cases
