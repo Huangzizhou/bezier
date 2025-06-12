@@ -300,7 +300,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 		const int i = std::distance(timeOfInversion.cbegin(), m);
 		if (toi) *toi = *m;
 		if (invalidElemID) *invalidElemID = i;
-		*adaptiveHierarchy = std::move(hierarchies.at(i));
+		if (adaptiveHierarchy) *adaptiveHierarchy = std::move(hierarchies.at(i));
 	}
 	else {
 		std::vector<fp_t> depthOfSequence(numEl);
@@ -310,7 +310,7 @@ fp_t ContinuousValidator<n, s, p>::maxTimeStepMesh(
 			std::max_element(depthOfSequence.cbegin(), depthOfSequence.cend());
 		const int i = std::distance(depthOfSequence.cbegin(), m);
 		if (invalidElemID) *invalidElemID = i;
-		*adaptiveHierarchy = std::move(hierarchies.at(i));
+		if (adaptiveHierarchy) *adaptiveHierarchy = std::move(hierarchies.at(i));
 	}
 	return minT;
 }
